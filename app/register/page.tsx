@@ -2,49 +2,58 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, Form, Input, message } from "antd";
+import { Alert, Button, Card, Form, Input, message } from "antd";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PageLayout from "@/components/PageLayout";
 
 interface FormFieldProps {
   username: string;
+  name: string;
   password: string;
+  birthday?: Date;
 }
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const router = useRouter();
   const [form] = Form.useForm();
-  const { login, user, loading } = useAuth();
+  const { register, user, loading } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
+  // If user is already logged in, redirect to users page
   useEffect(() => {
     if (user && !loading) {
       router.push("/users");
     }
   }, [user, loading, router]);
 
-  const handleLogin = async (values: FormFieldProps) => {
+  const handleRegister = async (values: FormFieldProps) => {
     try {
-      await login(values.username, values.password);
-      message.success("Stellar entry confirmed!");
+      setError(null); // Clear any previous errors
+      await register(values);
+      message.success("Registration successful!");
+      // Navigation is handled in the auth context
     } catch (error) {
       if (error instanceof Error) {
-        message.error(`Orbital access denied: ${error.message}`);
+        // Display error message
+        const errorMsg = error.message;
+        message.error(`Registration failed: ${errorMsg}`);
+
+        // Completely redirect to a new register page
+        // Adding a timestamp to force a fresh page load
+        router.push(`/register?refresh=${Date.now()}`);
       } else {
-        message.error("Cosmic interference detected. Try again!");
+        console.error("An unknown error occurred during registration.");
+        message.error("Registration failed due to an unknown error.");
+
+        // Redirect to a new register page
+        router.push(`/register?refresh=${Date.now()}`);
       }
     }
   };
 
   // Cosmic theme styles
   const cosmicStyles = {
-    pageBackground: {
-      background: "linear-gradient(45deg, #0b0f2c 0%, #1a1f4d 100%)",
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    },
     cardStyle: {
       width: 400,
       background: "rgba(11, 15, 44, 0.9)",
@@ -103,7 +112,7 @@ const Login: React.FC = () => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Celestial Gateway
+              Cosmic Connection
             </span>
           }
           headStyle={{
@@ -112,11 +121,25 @@ const Login: React.FC = () => {
           }}
           style={cosmicStyles.cardStyle}
         >
+          {error && (
+            <Alert
+              message="Registration Error"
+              description={error}
+              type="error"
+              showIcon
+              style={{
+                marginBottom: "16px",
+                background: "rgba(255, 0, 0, 0.1)",
+                border: "none",
+              }}
+            />
+          )}
+
           <Form
             form={form}
-            name="login"
+            name="register"
             size="large"
-            onFinish={handleLogin}
+            onFinish={handleRegister}
             layout="vertical"
           >
             <Form.Item
@@ -128,7 +151,7 @@ const Login: React.FC = () => {
               }]}
             >
               <Input
-                placeholder="Enter Identity"
+                placeholder="Enter Stellar Identity"
                 style={cosmicStyles.inputStyle}
                 prefix={
                   <span style={{ color: "#5c77eb", marginRight: 8 }}>✦</span>
@@ -137,9 +160,26 @@ const Login: React.FC = () => {
             </Form.Item>
 
             <Form.Item
+              name="name"
+              label={<span style={{ color: "#aab8f5" }}>Name</span>}
+              rules={[{ required: true, message: "Please input your name!" }]}
+            >
+              <Input
+                placeholder="Enter name"
+                style={cosmicStyles.inputStyle}
+                prefix={
+                  <span style={{ color: "#5c77eb", marginRight: 8 }}>👤</span>
+                }
+              />
+            </Form.Item>
+
+            <Form.Item
               name="password"
               label={<span style={{ color: "#aab8f5" }}>Stellar Key</span>}
-              rules={[{ required: true, message: "Stellar lock required!" }]}
+              rules={[{
+                required: true,
+                message: "Gravitational lock required!",
+              }]}
             >
               <Input.Password
                 placeholder="Enter universal secret"
@@ -158,7 +198,7 @@ const Login: React.FC = () => {
                 loading={loading}
                 style={cosmicStyles.buttonStyle}
               >
-                Initiate Cosmic Connection
+                Into the Cosmos
               </Button>
             </Form.Item>
           </Form>
@@ -170,16 +210,16 @@ const Login: React.FC = () => {
               color: "#aab8f5",
             }}
           >
-            New to the cosmos?{" "}
+            Already have an account?{" "}
             <Link
-              href="/register"
+              href="/login"
               style={{
                 color: "#5c77eb",
                 fontWeight: "500",
                 textShadow: "0 1px 2px rgba(0,0,0,0.2)",
               }}
             >
-              Create Stellar Identity
+              Login here
             </Link>
           </div>
         </Card>
@@ -188,4 +228,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -60,3 +60,25 @@ a {
   min-height: 100vh;
   background-color: rgb(41, 44, 59);
 }
+
+.custom-calendar-dropdown .ant-picker-cell {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
+.custom-calendar-dropdown .ant-picker-content th {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
+.calendar-popup .ant-picker-cell-in-view {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+.calendar-popup .ant-picker-cell:not(.ant-picker-cell-in-view) {
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.calendar-popup .ant-picker-content th,
+.calendar-popup .ant-picker-cell,
+.calendar-popup .ant-picker-header-view,
+.calendar-popup .ant-picker-header button {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
