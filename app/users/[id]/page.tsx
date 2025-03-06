@@ -236,10 +236,7 @@ export default function UserPage() {
             }
             loading={loading}
             style={cosmicStyles.cardStyle as React.CSSProperties}
-            headStyle={{
-              borderBottom: "1px solid rgba(92, 119, 235, 0.3)",
-              color: "#e0e6ff",
-            }}
+            
             extra={user && (canEdit
               ? (
                 !isEditing && (

@@ -7,10 +7,10 @@ export class ApiService {
   private currentUserId?: string | null; // Current user ID for authenticated requests
 
   constructor() {
-    this.baseURL = getApiDomain();//Initialize base URL from a utility function
+    this.baseURL = getApiDomain(); //Initialize base URL from a utility function
     this.defaultHeaders = {
-      "Content-Type": "application/json",//Default headers for JSON content
-      "Access-Control-Allow-Origin": "*",//Allow all origins for CORS
+      "Content-Type": "application/json", //Default headers for JSON content
+      "Access-Control-Allow-Origin": "*", //Allow all origins for CORS
     };
   }
 

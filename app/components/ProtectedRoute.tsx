@@ -5,20 +5,20 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Spin } from "antd";
 
-interface ProtectedRouteProps { 
-  children: React.ReactNode;//Children elements to be rendered
+interface ProtectedRouteProps {
+  children: React.ReactNode; //Children elements to be rendered
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
-  const router = useRouter();//Router hook to access Next.js router
-//Check if user is logged in and redirect to login page if not
+  const router = useRouter(); //Router hook to access Next.js router
+  //Check if user is logged in and redirect to login page if not
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [loading, user, router]);
-//Show loading state while checking authentication
+  //Show loading state while checking authentication
   if (loading) {
     return (
       <div
@@ -33,7 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       </div>
     );
   }
-//If user is not logged in, return null
+  //If user is not logged in, return null
   if (!user) {
     return null; // Router will redirect, but this prevents flash of content
   }
