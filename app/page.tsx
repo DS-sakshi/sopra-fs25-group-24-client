@@ -1,7 +1,6 @@
 "use client";
 import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button, Card, Col, Row, Typography } from "antd";
 import { FormOutlined, LoginOutlined, UserOutlined } from "@ant-design/icons";
 import styles from "@/styles/page.module.css";
