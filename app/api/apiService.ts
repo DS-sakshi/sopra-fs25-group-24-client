@@ -1,16 +1,16 @@
 import { getApiDomain } from "@/utils/domain";
 import { ApplicationError } from "@/types/error";
-
+//ApiService class to handle API requests
 export class ApiService {
-  private baseURL: string;
-  private defaultHeaders: HeadersInit;
-  private currentUserId?: string | null;
+  private baseURL: string; // Base URL for API requests
+  private defaultHeaders: HeadersInit; // Default headers for API requests
+  private currentUserId?: string | null; // Current user ID for authenticated requests
 
   constructor() {
-    this.baseURL = getApiDomain();
+    this.baseURL = getApiDomain();//Initialize base URL from a utility function
     this.defaultHeaders = {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",//Default headers for JSON content
+      "Access-Control-Allow-Origin": "*",//Allow all origins for CORS
     };
   }
 
