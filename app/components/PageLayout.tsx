@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
-const { Content } = Layout;
+const { Content } = Layout;//Destructure Context from Layout
 
 interface PageLayoutProps {
   children: ReactNode;
   requireAuth?: boolean;
 }
-
+//props for PageLayout to indicate if authentication is required
 const PageLayout: React.FC<PageLayoutProps> = (
-  { children, requireAuth = false },
+  { children, requireAuth = false },//Children elements to be rendered
 ) => {
   const { loading, user, logout } = useAuth();
   const router = useRouter();
