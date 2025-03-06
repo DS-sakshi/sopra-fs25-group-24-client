@@ -9,7 +9,7 @@ import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";
 
 const { Title, Paragraph } = Typography;
-
+// Home page component
 export default function Home() {
   const router = useRouter();
   const { user } = useAuth();
