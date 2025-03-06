@@ -39,13 +39,7 @@ export default function UserPage() {
   const [form] = Form.useForm();
 
   // Cosmic theme styles
-  const cosmicStyles: {
-    pageBackground: React.CSSProperties;
-    cardStyle: React.CSSProperties;
-    descriptionsStyle: React.CSSProperties;
-    buttonStyle: React.CSSProperties;
-    inputStyle: React.CSSProperties;
-  } = {
+  const cosmicStyles = {
     pageBackground: {
       background: "linear-gradient(45deg, #0b0f2c 0%, #1a1f4d 100%)",
       minHeight: "100vh",
@@ -241,7 +235,7 @@ export default function UserPage() {
               </div>
             }
             loading={loading}
-            style={cosmicStyles.cardStyle}
+            style={cosmicStyles.cardStyle as React.CSSProperties}
             headStyle={{
               borderBottom: "1px solid rgba(92, 119, 235, 0.3)",
               color: "#e0e6ff",
