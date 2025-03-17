@@ -13,7 +13,7 @@ COPY . .
 # Build the app
 RUN npm run build
 # Verify build output exists (debugging step)
-RUN ls -la /app/build  # 👈 Add this to confirm build directory creation
+RUN ls -la /app/build  # Add this to confirm build directory creation
 # Delete all non-production dependencies to make copy in line 28 more efficient
 RUN npm prune --production
 
