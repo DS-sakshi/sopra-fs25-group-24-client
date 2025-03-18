@@ -51,7 +51,7 @@ export default function Home() {
                       textAlign: "center",
                     }}
                   >
-                    Quoridor - Game by SoPra Group 24
+                    Quoridor - Group 24
                   </Title>
                 }
                 bordered={false}
@@ -71,7 +71,7 @@ export default function Home() {
                     textAlign: "center",
                   }}
                 >
-                  This is the user management application for Astro-enthusiasts.
+                  A game developed by SoPra-FS25 Group 24.
                 </Paragraph>
 
                 <Paragraph
@@ -171,7 +171,7 @@ export default function Home() {
                     type="default"
                     onClick={() =>
                       window.open(
-                        "https://en.wikipedia.org/wiki/Pleiades",
+                        "https://www.youtube.com/watch?v=z2xgVwNeh68",
                         "_blank",
                       )}
                     size="large"
