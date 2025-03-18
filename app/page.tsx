@@ -51,7 +51,7 @@ export default function Home() {
                       textAlign: "center",
                     }}
                   >
-                    Welcome to Pleiades
+                    Quoridor - Game by SoPra Group 24
                   </Title>
                 }
                 bordered={false}
