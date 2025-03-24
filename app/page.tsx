@@ -51,7 +51,7 @@ export default function Home() {
                       textAlign: "center",
                     }}
                   >
-                    Quoridor - Group 24
+                    Quoridor
                   </Title>
                 }
                 bordered={false}
@@ -188,7 +188,7 @@ export default function Home() {
                     }}
                     className="hover-scale"
                   >
-                    About Me
+                    Tutorial
                   </Button>
                 </div>
               </Card>
