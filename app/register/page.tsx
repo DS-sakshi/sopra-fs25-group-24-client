@@ -115,9 +115,11 @@ const Register: React.FC = () => {
               Cosmic Connection
             </span>
           }
-          headStyle={{
-            borderBottom: "1px solid rgba(92, 119, 235, 0.3)",
-            textAlign: "center",
+          styles={{
+              header: {
+                  borderBottom: "1px solid rgba(92, 119, 235, 0.3)",
+                  textAlign: "center",
+              },
           }}
           style={cosmicStyles.cardStyle}
         >
