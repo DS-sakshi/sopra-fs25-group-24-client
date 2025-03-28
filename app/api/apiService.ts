@@ -119,6 +119,7 @@ export class ApiService {
    */
   public async post<T>(endpoint: string, data: unknown): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    console.log("✅ API Fetch URL:", url);
     const res = await fetch(url, {
       method: "POST",
       headers: this.getHeaders(),

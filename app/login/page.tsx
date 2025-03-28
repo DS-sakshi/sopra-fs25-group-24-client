@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import "@ant-design/v5-patch-for-react-19";
 import { Button, Card, Form, Input, message } from "antd";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Alert, Button, Card, Form, Input, message } from "antd";
+import "@ant-design/v5-patch-for-react-19";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import PageLayout from "@/components/PageLayout";
@@ -200,7 +201,7 @@ const Register: React.FC = () => {
                 loading={loading}
                 style={cosmicStyles.buttonStyle}
               >
-                Into the Cosmos
+                Register
               </Button>
             </Form.Item>
           </Form>

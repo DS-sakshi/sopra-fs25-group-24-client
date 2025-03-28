@@ -54,8 +54,10 @@ export default function Home() {
                     Quoridor
                   </Title>
                 }
-                bordered={false}
-                headStyle={{ border: "none" }}
+                variant="borderless"
+                styles={{
+                    header: { border: "none" }, // ✅ New way to style header
+                }}
                 style={{
                   background: "rgba(255, 255, 255, 0.1)",
                   backdropFilter: "blur(12px)",
