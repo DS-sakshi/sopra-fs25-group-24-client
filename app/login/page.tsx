@@ -19,7 +19,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (user && !loading) {
-      router.push("/users");
+      router.push("/game-lobby");
     }
   }, [user, loading, router]);
 

@@ -23,7 +23,7 @@ const Register: React.FC = () => {
   // If user is already logged in, redirect to users page
   useEffect(() => {
     if (user && !loading) {
-      router.push("/users");
+      router.push("/game-lobby");
     }
   }, [user, loading, router]);
 
@@ -32,6 +32,7 @@ const Register: React.FC = () => {
       setError(null); // Clear any previous errors
       await register(values);
       message.success("Registration successful!");
+      router.push("/game-lobby");
       // Navigation is handled in the auth context
     } catch (error) {
       if (error instanceof Error) {
@@ -41,13 +42,13 @@ const Register: React.FC = () => {
 
         // Completely redirect to a new register page
         // Adding a timestamp to force a fresh page load
-        router.push(`/register?refresh=${Date.now()}`);
+        //router.push(`/register?refresh=${Date.now()}`);
       } else {
         console.error("An unknown error occurred during registration.");
         message.error("Registration failed due to an unknown error.");
 
         // Redirect to a new register page
-        router.push(`/register?refresh=${Date.now()}`);
+        //router.push(`/register?refresh=${Date.now()}`);
       }
     }
   };

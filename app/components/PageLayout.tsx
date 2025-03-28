@@ -54,16 +54,16 @@ const PageLayout: React.FC<PageLayoutProps> = (
       >
         <div>
           <Link
-            href="/"
+            href="/users"
             style={{ color: "white", fontSize: "18px", marginRight: "20px" }}
           >
             Home
           </Link>
           <Link
-            href="/users"
+            href="/game-lobby"
             style={{ color: "white", fontSize: "18px", marginRight: "20px" }}
           >
-            Users
+            Game Lobby
           </Link>
         </div>
         <div>

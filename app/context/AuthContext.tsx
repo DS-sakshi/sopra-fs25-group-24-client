@@ -106,13 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check for protected routes
   useEffect(() => {
-    const protectedRoutes = ["/users", "/users/"];
+    const protectedRoutes = ["/game-lobby", "/game-lobby/"];
     const isProtectedRoute = protectedRoutes.some((route) =>
-      pathname === route || pathname?.startsWith("/users/")
+      pathname === route || pathname?.startsWith("/game-lobby/")
     ); //Redirect to login if not logged in
 
     if (!loading && !token && isProtectedRoute) {
       router.push("/login"); //Redirect to users if logged in
+    }else if (!loading && token && pathname === "/") {
+      router.push("/game-lobby"); // Redirect to game lobby if authenticated at root
     }
   }, [pathname, token, loading, router]);
   // Login function
@@ -128,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(response.token);
         setUser(response);
         setStoredUser(response); // Store in localStorage
-        router.push("/users");
+        router.push("/game-lobby");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -147,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(response.token);
         setUser(response);
         setStoredUser(response); // Store in localStorage
-        router.push("/users");
+        router.push("/game-lobby");
       }
     } catch (error) {
       console.error("Registration error:", error);
