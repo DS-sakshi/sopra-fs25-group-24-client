@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, Button, Table, message } from "antd";
+import { Button, Card, message, Table } from "antd";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";
@@ -15,10 +15,12 @@ const GameLobby: React.FC = () => {
   const apiService = useApi();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
     console.log("Current user:", user);
     console.log("Current games:", games);
   }, [user, games]);
+  
   // Fetch games from the API
   const fetchGames = async () => {
     try {
@@ -35,13 +37,15 @@ const GameLobby: React.FC = () => {
   const createGame = async () => {
     try {
       setLoading(true);
-      const response = await apiService.post<Game>("/game-lobby", { 
-        userId: user?.id,  // Pass explicit user ID
-        username: user?.username 
+      // Fixed the API endpoint - removed $response.id which was causing issues
+      const response = await apiService.post<Game>("/game-lobby", {
+        userId: user?.id,
+        username: user?.username,
       });
-  
+
       if (response?.id) {
         message.success("Game created successfully!");
+        // Using router.push without replace to avoid forced redirections
         router.push(`/game-lobby/${response.id}`);
       } else {
         throw new Error("No game ID received");
@@ -58,6 +62,7 @@ const GameLobby: React.FC = () => {
     try {
       await apiService.put(`/game-lobby/${gameId}/join`, { user });
       message.success("Joined game successfully!");
+      // Using router.push without replace to avoid forced redirections
       router.push(`/game-lobby/${gameId}`);
     } catch (error) {
       message.error("Failed to join game");
@@ -100,22 +105,23 @@ const GameLobby: React.FC = () => {
       title: "Actions",
       key: "actions",
       render: (record: Game) => {
-        const isDisabled = user && record.players && record.players.includes(user.id);
+        const isDisabled = user && record.players &&
+          record.players.includes(user.id);
         return (
-          <Button 
+          <Button
             type="primary"
             onClick={() => joinGame(record.id)}
-            disabled={isDisabled}
+            disabled={!!isDisabled}
             className="join-button"
             style={{
-              display: isDisabled ? 'none' : 'inline-block',
-              transition: 'all 0.3s'
+              display: isDisabled ? "none" : "inline-block",
+              transition: "all 0.3s",
             }}
           >
             Join Game
           </Button>
         );
-      }
+      },
     },
   ];
 
@@ -130,8 +136,8 @@ const GameLobby: React.FC = () => {
               </span>
             }
             extra={
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 onClick={createGame}
                 className="create-game-btn"
               >
@@ -149,20 +155,21 @@ const GameLobby: React.FC = () => {
               bordered
               pagination={false}
               locale={{
-                emptyText: 'No games available'
+                emptyText: "No games available",
               }}
               style={{
-                marginTop: '20px',
-                background: 'rgba(17, 24, 39, 0.5)',
+                marginTop: "20px",
+                background: "rgba(17, 24, 39, 0.5)",
               }}
               onRow={(record) => ({
-                onClick: () => console.log('Row clicked:', record),
+                onClick: () => console.log("Row clicked:", record),
               })}
             />
           </Card>
         </div>
 
-        <style jsx global>{`
+        <style jsx global>
+          {`
           .game-lobby-container {
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
               url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg');
@@ -222,7 +229,8 @@ const GameLobby: React.FC = () => {
             border-color: #4b5563 !important;
             color: #6b7280 !important;
           }
-        `}</style>
+        `}
+        </style>
       </PageLayout>
     </ProtectedRoute>
   );

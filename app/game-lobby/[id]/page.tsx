@@ -1,101 +1,171 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Card, Button, message } from "antd";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import PageLayout from "@/components/PageLayout";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { Game } from "@/types/game";
+import { useAuth } from "@/context/AuthContext";
+import { Button, Card, Descriptions, message, Spin, Tag, Alert } from "antd";
+import { ArrowLeftOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import PageLayout from "@/components/PageLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-interface GameDetailProps {
-  params: {
-    gameId: string;
-  };
+interface QuoridorGame {
+  id: string;
+  player1: string;
+  player2: string;
+  status: 'WAITING' | 'IN_PROGRESS' | 'FINISHED';
+  winner?: string;
+  // Add other game properties as needed
 }
 
-const GameDetail: React.FC<GameDetailProps> = ({ params }) => {
-  const { user } = useAuth();
+export default function GameRoomPage() {
+  const params = useParams();
+  const gameId = params.id as string;
   const router = useRouter();
   const apiService = useApi();
-  const [game, setGame] = useState<Game | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user: currentUser } = useAuth();
+  const [game, setGame] = useState<QuoridorGame | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchGame = async () => {
+  useEffect(() => {
+    const fetchGame = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data: QuoridorGame = await apiService.get(`/game-lobby/${gameId}`);
+        
+        if (!data?.id) {
+          throw new Error("Game not found");
+        }
+
+        // Check if game is finished
+        //if (data.status === 'FINISHED' && !game?.winner) {
+         // router.push('/game-lobby');
+        //  return;
+        //}
+
+        setGame(data);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to load game session");
+        message.error("Failed to load game session");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGame();
+    
+    // Setup polling to check game state periodically
+    const interval = setInterval(fetchGame, 5000);
+    return () => clearInterval(interval);
+  }, [gameId, apiService]);
+
+  const handleAbortGame = async () => {
     try {
-      const response = await apiService.get<Game>(`/game-lobby/${params.gameId}`);
-      setGame(response);
+      await apiService.delete(`/game-lobby/${gameId}`);
+      message.success("Game aborted successfully");
+      router.push("/game-lobby");
     } catch (error) {
-      message.error("Failed to fetch game details");
-      console.error(error);
-    } finally {
-      setLoading(false);
+      message.error("Failed to abort game");
     }
   };
 
-  useEffect(() => {
-    fetchGame();
-  }, [params.gameId]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // Only redirect if game is finished
+  //useEffect(() => {
+   // if (game?.status === 'FINISHED') {
+   //   router.push('/game-lobby');
+   // }
+  //}, [game?.status]);
 
   return (
     <ProtectedRoute>
       <PageLayout requireAuth>
-        <div
-          style={{
-            background: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg')`,
-            minHeight: "100vh",
-            padding: "40px 0",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
+        <div style={{ padding: "40px 20px", minHeight: "100vh" }}>
           <Card
             title={
-              <span
-                style={{
-                  background: "linear-gradient(90deg, #8b5cf6, #4f46e5)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  fontSize: "1.8rem",
-                  fontWeight: 500,
-                }}
-              >
-                Game Room {params.gameId}
-              </span>
-            }
-            style={{
-              width: "90%",
-              maxWidth: "1200px",
-              margin: "0 auto",
-              background: "rgba(17, 24, 39, 0.85)",
-              backdropFilter: "blur(12px)",
-              borderRadius: "20px",
-              border: "1px solid rgba(255,255,255,0.1)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-            }}
-            headStyle={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            {game && (
-              <div style={{ color: "#e5e7eb" }}>
-                <h3>Status: {game.status}</h3>
-                <h4>Players:</h4>
-                <ul>
-                  {game.players.map((playerId) => (
-                    <li key={playerId}>{playerId}</li>
-                  ))}
-                </ul>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Button
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() => router.push('/game-lobby')}
+                  type="text"
+                />
+                <span style={{ fontSize: '1.4em' }}>
+                  Game Room {gameId}
+                </span>
               </div>
+            }
+            loading={loading}
+            style={{ maxWidth: 1200, margin: '0 auto' }}
+            extra={
+              game?.status === 'IN_PROGRESS' && (
+                <Button
+                  type="primary"
+                  danger
+                  icon={<CloseCircleOutlined />}
+                  onClick={handleAbortGame}
+                >
+                  Abort Game
+                </Button>
+              )
+            }
+          >
+            {error ? (
+              <Alert
+                message="Error"
+                description={error}
+                type="error"
+                showIcon
+                style={{ marginBottom: 20 }}
+                action={
+                  <Button 
+                    size="small" 
+                    type="primary"
+                    onClick={() => router.push('/game-lobby')}
+                  >
+                    Return to Lobby
+                  </Button>
+                }
+              />
+            ) : game ? (
+              <div>
+                <Descriptions bordered>
+                  <Descriptions.Item label="Status">
+                    <Tag color={game.status === 'IN_PROGRESS' ? 'green' : 'orange'}>
+                      {game.status}
+                    </Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Player 1">
+                    {game.player1}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Player 2">
+                    {game.player2 || 'Waiting...'}
+                  </Descriptions.Item>
+                </Descriptions>
+
+                {/* Game board visualization */}
+                <div style={{ 
+                  marginTop: 20,
+                  height: 400,
+                  background: '#f0f2f5',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {game.status === 'FINISHED' ? (
+                    <h2>{game.winner ? `${game.winner} wins!` : 'Game Over'}</h2>
+                  ) : (
+                    'Game Board Visualization'
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Spin tip="Loading game..." />
             )}
           </Card>
         </div>
       </PageLayout>
     </ProtectedRoute>
   );
-};
-
-export default GameDetail;
+}
