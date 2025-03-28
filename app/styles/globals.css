@@ -68,7 +68,17 @@ a {
 .custom-calendar-dropdown .ant-picker-content th {
   color: rgba(0, 0, 0, 0.85) !important;
 }
+.ant-table-cell {
+  background: transparent !important;
+}
 
+.ant-table-row:hover td {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.ant-btn-primary:not([disabled]) {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
 .calendar-popup .ant-picker-cell-in-view {
   color: rgba(0, 0, 0, 0.85) !important;
 }
