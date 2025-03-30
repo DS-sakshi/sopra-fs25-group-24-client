@@ -32,17 +32,18 @@ reason).
 
 ## Contributions Week 1 - [Begin Date] to [End Date]
 
-| **Student**        | **Date** | **Link to Commit**                       | **Description**                 | **Relevance**                              |
-| ------------------ | -------- | ------------------                       | ------------------------------- | -----------------------------------        |
-| **[DS-sakshi]**    |[29/3/25] | df6aecb4501c4d179a77330fbb046ba14b9654c4 | Creation of game lobby page     | Landing page after registration            |
-|                    |[29/3/25] | cea90db95502f24bbbc602f1309430977aa029bb | Creation of Game room page      | Game room is the landing page for new game |
-|                    |[29/3/25  |8e17ad52b3d1defec40d74a3845507ca1b9d3d4b  | Type file creation              | Connecting frontend and backend of game    | 
-| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **Student**        | **Date** | **Link to Commit**                       | **Description**                                     | **Relevance**                                                               |
+|--------------------|---| ------------------                       |-----------------------------------------------------|-----------------------------------------------------------------------------|
+| **[DS-sakshi]**    | [29/3/25] | df6aecb4501c4d179a77330fbb046ba14b9654c4 | Creation of game lobby page                         | Landing page after registration                                             |
+|                    | [29/3/25] | cea90db95502f24bbbc602f1309430977aa029bb | Creation of Game room page                          | Game room is the landing page for new game                                  |
+|                    | [29/3/25 |8e17ad52b3d1defec40d74a3845507ca1b9d3d4b  | Type file creation                                  | Connecting frontend and backend of game                                     | 
+| **[tolipp]**       | 28.3.25 | https://github.com/DS-sakshi/sopra-fs25-group-24-client/tree/1-51-game-board-displays-clear-grid-showing-all-positions | 4 Issues have been removed, so the user is able to register without errors. | Registration logic was implemented, so new users can access the game.       |
+|                    | 29.3.25 | https://github.com/DS-sakshi/sopra-fs25-group-24-client/tree/38-users-can-access-a-tutorial-page | A section where the game rules are explained.       | This contribution is relevant, because not all players know the game rules. |
+|                    |   | [Link to Commit 1] | [Brief description of the task]                     | [Why this contribution is relevant]                                         |
+| **[@githubUser3]** | [date] | [Link to Commit 1] | [Brief description of the task]                     | [Why this contribution is relevant]                                         |
+|                    | [date] | [Link to Commit 2] | [Brief description of the task]                     | [Why this contribution is relevant]                                         |
+| **[@githubUser4]** | [date] | [Link to Commit 1] | [Brief description of the task]                     | [Why this contribution is relevant]                                         |
+|                    | [date] | [Link to Commit 2] | [Brief description of the task]                     | [Why this contribution is relevant]                                         |
 
 ---
 

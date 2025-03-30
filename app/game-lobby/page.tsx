@@ -147,24 +147,40 @@ const GameLobby: React.FC = () => {
             className="game-lobby-card"
           >
             <Table
-              columns={columns}
-              dataSource={games}
-              loading={loading}
-              rowKey="id"
-              className="game-table"
-              bordered
-              pagination={false}
-              locale={{
-                emptyText: "No games available",
-              }}
-              style={{
-                marginTop: "20px",
-                background: "rgba(17, 24, 39, 0.5)",
-              }}
-              onRow={(record) => ({
-                onClick: () => console.log("Row clicked:", record),
-              })}
+                columns={columns}
+                dataSource={games}
+                loading={loading}
+                rowKey="id"
+                className="game-table"
+                bordered
+                pagination={false}
+                locale={{
+                  emptyText: "No games available",
+                }}
+                style={{
+                  marginTop: "20px",
+                  background: "rgba(17, 24, 39, 0.5)",
+                }}
             />
+            <Button
+                type="default"
+                onClick={() => router.push("/game-rules")}
+                className="tutorial-btn"
+                style={{
+                  marginTop: "20px",
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  backgroundColor: "#2563eb",
+                  borderColor: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: "500",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                }}
+            >
+              View Game Rules
+            </Button>
           </Card>
         </div>
 
