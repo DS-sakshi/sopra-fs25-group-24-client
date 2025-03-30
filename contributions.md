@@ -37,8 +37,8 @@ reason).
 | **[DS-sakshi]**    |[29/3/25] | df6aecb4501c4d179a77330fbb046ba14b9654c4 | Creation of game lobby page     | Landing page after registration            |
 |                    |[29/3/25] | cea90db95502f24bbbc602f1309430977aa029bb | Creation of Game room page      | Game room is the landing page for new game |
 |                    |[29/3/25  |8e17ad52b3d1defec40d74a3845507ca1b9d3d4b  | Type file creation              | Connecting frontend and backend of game    | 
-| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [Mar 24, 2025]   | [63e33e3b5b8851ec25c4fdaa2dca9055916d25df] | [Inital setup for Game, Gameservice, Gamerepository and Gamestatus.] | [This classes where needed for all further commits] |
+|                    | [Mar 26, 2025]   | f409327c4b8a9948646099250acb34d524c01dbe, d51687947c58e69753bbe6fd18a12149959c4589, adf3d50414847e8d6731b65e7ef937b9366a7f70] | [Can create game and Creater is automatically joined as first player. Also I added a join function, checks and a getter function] | [Part of setting up a game] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
