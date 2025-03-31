@@ -15,12 +15,12 @@ const GameLobby: React.FC = () => {
   const apiService = useApi();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     console.log("Current user:", user);
     console.log("Current games:", games);
   }, [user, games]);
-  
+
   // Fetch games from the API
   const fetchGames = async () => {
     try {
@@ -79,19 +79,22 @@ const GameLobby: React.FC = () => {
       title: "Game ID",
       dataIndex: "id",
       key: "id",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
+      </span>,
     },
     {
       title: "Creator",
       dataIndex: "creatorId",
       key: "creatorId",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
+      </span>,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
+      </span>,
     },
     {
       title: "Players",
@@ -136,13 +139,27 @@ const GameLobby: React.FC = () => {
               </span>
             }
             extra={
-              <Button
-                type="primary"
-                onClick={createGame}
-                className="create-game-btn"
-              >
-                Create New Game
-              </Button>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <Button
+                  type="primary"
+                  onClick={createGame}
+                  className="create-game-btn"
+                >
+                  Create New Game
+                </Button>
+                <Button
+                  type="default"
+                  onClick={() => router.push("/chatbot")}
+                  style={{
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                  }}
+                >
+                  Game Rules
+                </Button>
+              </div>
             }
             className="game-lobby-card"
           >
