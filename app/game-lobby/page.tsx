@@ -24,7 +24,7 @@ const GameLobby: React.FC = () => {
   // Fetch games from the API
   const fetchGames = async () => {
     try {
-      const response = await apiService.get<Game[]>("/game-lobby");
+      const response = await apiService.get<Game[]>("/game-lobby/{gameId}");
       setGames(response);
     } catch (error) {
       message.error("Failed to fetch games");
@@ -48,7 +48,8 @@ const GameLobby: React.FC = () => {
         // Using router.push without replace to avoid forced redirections
         router.push(`/game-lobby/${response.id}`);
       } else {
-        throw new Error("No game ID received");
+        console.error("No game ID received");
+        message.error("Could not create game. Please try again.");;
       }
     } catch (error) {
       console.error("Game creation failed:", error);
@@ -145,32 +146,21 @@ const GameLobby: React.FC = () => {
                   onClick={createGame}
                   className="create-game-btn"
                 >
-                  Create New Game
+                  New Game
                 </Button>
-                <Button
-                  type="default"
-                  onClick={() => router.push("/chatbot")}
-                  style={{
-                    background: "#f59e0b",
-                    borderColor: "#f59e0b",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                  }}
-                >
-                  Game Rules
-                </Button>
+
               </div>
             }
             className="game-lobby-card"
           >
             <Table
                 columns={columns}
-                dataSource={games}
+                dataSource={games.slice(0, 10)}
                 loading={loading}
                 rowKey="id"
                 className="game-table"
                 bordered
-                pagination={false}
+                pagination={{ pageSize: 10 }}
                 locale={{
                   emptyText: "No games available",
                 }}
@@ -179,25 +169,44 @@ const GameLobby: React.FC = () => {
                   background: "rgba(17, 24, 39, 0.5)",
                 }}
             />
-            <Button
-                type="default"
-                onClick={() => router.push("/game-rules")}
-                className="tutorial-btn"
+            <div
                 style={{
-                  marginTop: "20px",
-                  display: "block",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  backgroundColor: "#2563eb",
-                  borderColor: "#2563eb",
-                  color: "#ffffff",
-                  fontWeight: "500",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
+                  display: "flex",
+                  justifyContent: "center", // Centers buttons horizontally
+                  gap: "10px", // Adds space between buttons
+                  marginTop: "20px", // Optional margin for spacing
                 }}
             >
-              View Game Rules
-            </Button>
+              <Button
+                  type="default"
+                  onClick={() => router.push("/game-rules")}
+                  className="tutorial-btn"
+                  style={{
+                    backgroundColor: "#2563eb",
+                    borderColor: "#2563eb",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                  }}
+              >
+                Game Rules
+              </Button>
+              <Button
+                  type="default"
+                  onClick={() => router.push("/chatbot")}
+                  style={{
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                    padding: "10px 20px", // Ensure consistent padding with the first button
+                    borderRadius: "5px", // Ensure consistent border radius
+                  }}
+              >
+                Strategy Tips
+              </Button>
+            </div>
           </Card>
         </div>
 
