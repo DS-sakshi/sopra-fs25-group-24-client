@@ -49,7 +49,7 @@ const GameLobby: React.FC = () => {
         router.push(`/game-lobby/${response.id}`);
       } else {
         console.error("No game ID received");
-        message.error("Could not create game. Please try again.");;
+        message.error("Could not create game. Please try again.");
       }
     } catch (error) {
       console.error("Game creation failed:", error);
