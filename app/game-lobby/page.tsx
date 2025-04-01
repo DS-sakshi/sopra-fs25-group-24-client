@@ -21,6 +21,27 @@ const GameLobby: React.FC = () => {
     console.log("Current games:", games);
   }, [user, games]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const statusPool = ["RUNNING", "WAITING_FOR_USER", "ENDED"];
+    const dummyGames: Game[] = [];
+
+    for (let i = 1; i <= 4; i++) {
+      dummyGames.push({
+        id: `game-${i}`,
+        creatorId: `user-${i}`,
+        creatorName: `Player ${i}`,
+        status: statusPool[i % statusPool.length],
+        players: [`Player ${i}`],
+      });
+    }
+
+    setGames(dummyGames);
+    setLoading(false);
+  }, [user]);
+
+
   // Fetch games from the API
   const fetchGames = async () => {
     try {
