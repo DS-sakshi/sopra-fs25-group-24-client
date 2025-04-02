@@ -55,7 +55,7 @@ const ChatInterface = () => {
             });
 
             const aiMessage: Message = {
-                content: chatCompletion.choices[0].message.content,
+                content: chatCompletion.choices[0].message.content as string,
                 role: 'assistant',
                 id: Date.now().toString(),
             };
