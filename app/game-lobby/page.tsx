@@ -171,18 +171,7 @@ const GameLobby: React.FC = () => {
                 >
                     New Game
                 </Button>
-                <Button
-                  type="default"
-                  onClick={() => router.push("/chatbot")}
-                  style={{
-                    background: "#f59e0b",
-                    borderColor: "#f59e0b",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                  }}
-                >
-                  Game Rules
-                </Button>
+
               </div>
             }
             className="game-lobby-card"
@@ -203,25 +192,40 @@ const GameLobby: React.FC = () => {
                   background: "rgba(17, 24, 39, 0.5)",
                 }}
             />
-            <Button
-                type="default"
-                onClick={() => router.push("/game-rules")}
-                className="tutorial-btn"
-                style={{
-                  marginTop: "20px",
-                  display: "block",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  backgroundColor: "#2563eb",
-                  borderColor: "#2563eb",
-                  color: "#ffffff",
-                  fontWeight: "500",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                }}
-            >
-              View Game Rules
-            </Button>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+              <Button
+                  type="default"
+                  onClick={() => router.push("/game-rules")}
+                  className="tutorial-btn"
+                  style={{
+                    backgroundColor: "#2563eb",
+                    borderColor: "#2563eb",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                    whiteSpace: "nowrap"
+                  }}
+              >
+                View Game Rules
+              </Button>
+              <Button
+                  type="default"
+                  onClick={() => router.push("/chatbot")}
+                  style={{
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                    whiteSpace: "nowrap"
+                  }}
+              >
+                Strategy Tips
+              </Button>
+            </div>
+
           </Card>
         </div>
 

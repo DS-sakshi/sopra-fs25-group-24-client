@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Input, Button, List, Card, Layout } from 'antd';
 import "@ant-design/v5-patch-for-react-19";
 import { Space } from 'antd';
+import { useRouter } from 'next/navigation';
 import Groq from 'groq-sdk';
+import {router} from "next/client";
 
 const { Header, Content } = Layout;
 
@@ -22,6 +24,7 @@ const groq = new Groq({
 const ChatInterface = () => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
+    const router = useRouter();
 
 // Load chat history only on client
     useEffect(() => {
@@ -125,6 +128,13 @@ const ChatInterface = () => {
                                 borderRadius: '12px',
                             }}
                         >
+                            <Button
+                                size="middle"
+                                type="primary"
+                                onClick={() => router.push('/game-lobby')}
+                            >
+                                Return to Lobby
+                            </Button>
                             <List
                                 dataSource={messages}
                                 renderItem={(item) => (

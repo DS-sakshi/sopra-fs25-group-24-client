@@ -36,7 +36,8 @@ export default function GameRoomPage() {
         const data: QuoridorGame = await apiService.get(`/game-lobby/${gameId}`);
         
         if (!data?.id) {
-          throw new Error("Game not found");
+          console.error("Game not found");
+          message.error("Could not retrieve game. Please try again.");
         }
 
         // Check if game is finished
@@ -118,8 +119,8 @@ export default function GameRoomPage() {
                 showIcon
                 style={{ marginBottom: 20 }}
                 action={
-                  <Button 
-                    size="small" 
+                  <Button
+                    size="middle"
                     type="primary"
                     onClick={() => router.push('/game-lobby')}
                   >
