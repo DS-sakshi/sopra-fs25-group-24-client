@@ -21,31 +21,10 @@ const GameLobby: React.FC = () => {
     console.log("Current games:", games);
   }, [user, games]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const statusPool = ["RUNNING", "WAITING_FOR_USER", "ENDED"];
-    const dummyGames: Game[] = [];
-
-    for (let i = 1; i <= 4; i++) {
-      dummyGames.push({
-        id: `game-${i}`,
-        creatorId: `user-${i}`,
-        creatorName: `Player ${i}`,
-        status: statusPool[i % statusPool.length],
-        players: [`Player ${i}`],
-      });
-    }
-
-    setGames(dummyGames);
-    setLoading(false);
-  }, [user]);
-
-
   // Fetch games from the API
   const fetchGames = async () => {
     try {
-      const response = await apiService.get<Game[]>("/game-lobby/{gameId}");
+      const response = await apiService.get<Game[]>("/game-lobby");
       setGames(response);
     } catch (error) {
       message.error("Failed to fetch games");
@@ -69,9 +48,10 @@ const GameLobby: React.FC = () => {
         // Using router.push without replace to avoid forced redirections
         router.push(`/game-lobby/${response.id}`);
       } else {
-        console.error("No game ID received");
-        message.error("Could not create game. Please try again.");
+        console.error("No game ID received from the API response");
+        message.error("Failed to create the game. Please try again.");
       }
+
     } catch (error) {
       console.error("Game creation failed:", error);
       message.error("Could not create game. Please try again.");
@@ -91,6 +71,27 @@ const GameLobby: React.FC = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    const statusPool = ["RUNNING", "WAITING_FOR_USER", "ENDED"];
+    const dummyGames: Game[] = [];
+
+    for (let i = 1; i <= 4; i++) {
+      dummyGames.push({
+        id: `game-${i}`,
+        creatorId: `user-${i}`,
+        creatorName: `Player ${i}`,
+        status: statusPool[i % statusPool.length],
+        players: [`Player ${i}`],
+      });
+    }
+
+    setGames(dummyGames);
+    setLoading(false);
+  }, [user]);
+
 
   useEffect(() => {
     fetchGames();
@@ -167,21 +168,32 @@ const GameLobby: React.FC = () => {
                   onClick={createGame}
                   className="create-game-btn"
                 >
-                  New Game
+                    New Game
                 </Button>
-
+                <Button
+                  type="default"
+                  onClick={() => router.push("/chatbot")}
+                  style={{
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                  }}
+                >
+                  Game Rules
+                </Button>
               </div>
             }
             className="game-lobby-card"
           >
             <Table
                 columns={columns}
-                dataSource={games.slice(0, 10)}
+                dataSource={games}
                 loading={loading}
                 rowKey="id"
                 className="game-table"
                 bordered
-                pagination={{ pageSize: 10 }}
+                pagination={false}
                 locale={{
                   emptyText: "No games available",
                 }}
@@ -190,44 +202,25 @@ const GameLobby: React.FC = () => {
                   background: "rgba(17, 24, 39, 0.5)",
                 }}
             />
-            <div
+            <Button
+                type="default"
+                onClick={() => router.push("/game-rules")}
+                className="tutorial-btn"
                 style={{
-                  display: "flex",
-                  justifyContent: "center", // Centers buttons horizontally
-                  gap: "10px", // Adds space between buttons
-                  marginTop: "20px", // Optional margin for spacing
+                  marginTop: "20px",
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  backgroundColor: "#2563eb",
+                  borderColor: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: "500",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
                 }}
             >
-              <Button
-                  type="default"
-                  onClick={() => router.push("/game-rules")}
-                  className="tutorial-btn"
-                  style={{
-                    backgroundColor: "#2563eb",
-                    borderColor: "#2563eb",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                    padding: "10px 20px",
-                    borderRadius: "5px",
-                  }}
-              >
-                Game Rules
-              </Button>
-              <Button
-                  type="default"
-                  onClick={() => router.push("/chatbot")}
-                  style={{
-                    background: "#f59e0b",
-                    borderColor: "#f59e0b",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                    padding: "10px 20px", // Ensure consistent padding with the first button
-                    borderRadius: "5px", // Ensure consistent border radius
-                  }}
-              >
-                Strategy Tips
-              </Button>
-            </div>
+              View Game Rules
+            </Button>
           </Card>
         </div>
 
