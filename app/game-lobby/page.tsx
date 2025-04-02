@@ -48,8 +48,10 @@ const GameLobby: React.FC = () => {
         // Using router.push without replace to avoid forced redirections
         router.push(`/game-lobby/${response.id}`);
       } else {
-        throw new Error("No game ID received");
+        console.error("No game ID received from the API response");
+        message.error("Failed to create the game. Please try again.");
       }
+
     } catch (error) {
       console.error("Game creation failed:", error);
       message.error("Could not create game. Please try again.");
@@ -69,6 +71,27 @@ const GameLobby: React.FC = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    const statusPool = ["RUNNING", "WAITING_FOR_USER", "ENDED"];
+    const dummyGames: Game[] = [];
+
+    for (let i = 1; i <= 4; i++) {
+      dummyGames.push({
+        id: `game-${i}`,
+        creatorId: `user-${i}`,
+        creatorName: `Player ${i}`,
+        status: statusPool[i % statusPool.length],
+        players: [`Player ${i}`],
+      });
+    }
+
+    setGames(dummyGames);
+    setLoading(false);
+  }, [user]);
+
 
   useEffect(() => {
     fetchGames();
@@ -147,18 +170,7 @@ const GameLobby: React.FC = () => {
                 >
                   Create New Game
                 </Button>
-                <Button
-                  type="default"
-                  onClick={() => router.push("/chatbot")}
-                  style={{
-                    background: "#f59e0b",
-                    borderColor: "#f59e0b",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                  }}
-                >
-                  Game Rules
-                </Button>
+
               </div>
             }
             className="game-lobby-card"
@@ -179,25 +191,45 @@ const GameLobby: React.FC = () => {
                   background: "rgba(17, 24, 39, 0.5)",
                 }}
             />
-            <Button
-                type="default"
-                onClick={() => router.push("/game-rules")}
-                className="tutorial-btn"
+            <div
                 style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "20px", // Space between the buttons
                   marginTop: "20px",
-                  display: "block",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  backgroundColor: "#2563eb",
-                  borderColor: "#2563eb",
-                  color: "#ffffff",
-                  fontWeight: "500",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
                 }}
             >
-              View Game Rules
-            </Button>
+              <Button
+                  type="default"
+                  onClick={() => router.push("/game-rules")}
+                  className="tutorial-btn"
+                  style={{
+                    backgroundColor: "#2563eb",
+                    borderColor: "#2563eb",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                  }}
+              >
+                View Game Rules
+              </Button>
+              <Button
+                  type="default"
+                  onClick={() => router.push("/chatbot")}
+                  style={{
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                  }}
+              >
+                Strategy Tips
+              </Button>
+            </div>
+
           </Card>
         </div>
 
