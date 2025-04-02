@@ -80,11 +80,12 @@ const GameLobby: React.FC = () => {
 
     for (let i = 1; i <= 4; i++) {
       dummyGames.push({
+        createdAt: "",
+        name: `Player ${i}`,
         id: `game-${i}`,
         creatorId: `user-${i}`,
-        creatorName: `Player ${i}`,
         status: statusPool[i % statusPool.length],
-        players: [`Player ${i}`],
+        players: [`Player ${i}`]
       });
     }
 
