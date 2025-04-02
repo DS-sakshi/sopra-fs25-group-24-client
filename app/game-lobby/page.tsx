@@ -48,7 +48,8 @@ const GameLobby: React.FC = () => {
         // Using router.push without replace to avoid forced redirections
         router.push(`/game-lobby/${response.id}`);
       } else {
-        throw new Error("No game ID received");
+        console.error("No game ID received");
+        message.error("A game ID is required to proceed. Please check your input and try again.");
       }
     } catch (error) {
       console.error("Game creation failed:", error);
@@ -157,7 +158,7 @@ const GameLobby: React.FC = () => {
                     fontWeight: "500",
                   }}
                 >
-                  Game Rules
+                  Strategy Tips
                 </Button>
               </div>
             }
