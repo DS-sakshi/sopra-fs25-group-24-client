@@ -37,24 +37,18 @@ const GameLobby: React.FC = () => {
   const createGame = async () => {
     try {
       setLoading(true);
-      // Fixed the API endpoint - removed $response.id which was causing issues
       const response = await apiService.post<Game>("/game-lobby", {
         userId: user?.id,
-        username: user?.username,
+        boardSize: 9, // Add required parameters
+        timeLimit: 300,
+        userCount: 2
       });
-
+  
       if (response?.id) {
-        message.success("Game created successfully!");
-        // Using router.push without replace to avoid forced redirections
         router.push(`/game-lobby/${response.id}`);
-      } else {
-        console.error("No game ID received from the API response");
-        message.error("Failed to create the game. Please try again.");
       }
-
     } catch (error) {
-      console.error("Game creation failed:", error);
-      message.error("Could not create game. Please try again.");
+      message.error("Could not create game");
     } finally {
       setLoading(false);
     }
@@ -62,13 +56,13 @@ const GameLobby: React.FC = () => {
 
   const joinGame = async (gameId: string) => {
     try {
-      await apiService.put(`/game-lobby/${gameId}/join`, { user });
-      message.success("Joined game successfully!");
-      // Using router.push without replace to avoid forced redirections
+      await apiService.put(`/game-lobby/${gameId}/join`, { 
+        userId: user?.id,
+        username: user?.username
+      });
       router.push(`/game-lobby/${gameId}`);
     } catch (error) {
       message.error("Failed to join game");
-      console.error(error);
     }
   };
 
