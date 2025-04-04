@@ -171,6 +171,10 @@ export class ApiService {
       method: "DELETE",
       headers: this.getHeaders(),
     });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+    }
     return this.processResponse<T>(
       res,
       "An error occurred while deleting the data.\n",
