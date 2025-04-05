@@ -7,205 +7,199 @@ import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
-
 const GameLobby: React.FC = () => {
   const { user } = useAuth();
   const router = useRouter();
 
-
   useEffect(() => {
     console.log("Current user:", user);
-
   }, [user]);
 
-
-
-
-
-
-
-    return (
-        <ProtectedRoute>
-            <PageLayout requireAuth>
-                <div className="game-lobby-container">
-                    <Card
-                        title={
-                            <span className="game-lobby-title">Game Lobby</span>
-                        }
-                        extra={
-                            <Button
-                                type="primary"
-                                onClick={() => router.push("/game-lobby")}
-                                className="create-game-btn"
-                            >
-                                Go back
-                            </Button>
-                        }
-                        className="game-lobby-card"
-                    >
-                        {/* Quoridor Rules Section */}
-                        <div
-                            className="quoridor-rules-container"
-                            style={{
-                                marginTop: "40px",
-                                padding: "30px",
-                                backgroundColor: "#1f2937",
-                                color: "#ffffff",
-                                borderRadius: "15px",
-                                boxShadow: "0px 8px 16px rgba(0,0,0,0.3)",
-                                border: "1px solid rgba(255,255,255,0.2)",
-                                backdropFilter: "blur(8px)",
-                            }}
-                        >
-                            <h2
-                                style={{
-                                    textAlign: "center",
-                                    marginBottom: "20px",
-                                    fontSize: "2rem",
-                                    fontWeight: "600",
-                                    letterSpacing: "1px",
-                                    color: "#8b5cf6",
-                                }}
-                            >
-                                Quoridor Game Rules
-                            </h2>
-                            <p
-                                style={{
-                                    fontSize: "1.2rem",
-                                    lineHeight: "1.8",
-                                    marginBottom: "20px",
-                                    textAlign: "justify",
-                                    color: "#e5e7eb",
-                                }}
-                            >
-                                Quoridor is a strategy board game for two players. The objective
-                                is to move your pawn to the opposite side of the board before your
-                                opponent does.
-                            </p>
-                            <ul
-                                style={{
-                                    listStyleType: "none",
-                                    paddingLeft: "0",
-                                    fontSize: "1.1rem",
-                                    lineHeight: "1.6",
-                                    color: "#e5e7eb",
-                                }}
-                            >
-                                <li
-                                    style={{
-                                        marginBottom: "10px",
-                                        paddingLeft: "20px",
-                                        position: "relative",
-                                        color: "#10b981",
-                                    }}
-                                >
-                <span
+  return (
+    <ProtectedRoute>
+      <PageLayout requireAuth>
+        <div className="game-lobby-container">
+          <Card
+            title={<span className="game-lobby-title">Game Lobby</span>}
+            extra={
+              <Button
+                type="primary"
+                onClick={() => router.push("/game-lobby")}
+                className="create-game-btn"
+              >
+                Go back
+              </Button>
+            }
+            className="game-lobby-card"
+          >
+            {/* Quoridor Rules Section */}
+            <div
+              className="quoridor-rules-container"
+              style={{
+                marginTop: "40px",
+                padding: "30px",
+                backgroundColor: "#1f2937",
+                color: "#ffffff",
+                borderRadius: "15px",
+                boxShadow: "0px 8px 16px rgba(0,0,0,0.3)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <h2
+                style={{
+                  textAlign: "center",
+                  marginBottom: "20px",
+                  fontSize: "2rem",
+                  fontWeight: "600",
+                  letterSpacing: "1px",
+                  color: "#8b5cf6",
+                }}
+              >
+                Quoridor Game Rules
+              </h2>
+              <p
+                style={{
+                  fontSize: "1.2rem",
+                  lineHeight: "1.8",
+                  marginBottom: "20px",
+                  textAlign: "justify",
+                  color: "#e5e7eb",
+                }}
+              >
+                Quoridor is a strategy board game for two players. The objective
+                is to move your pawn to the opposite side of the board before
+                your opponent does.
+              </p>
+              <ul
+                style={{
+                  listStyleType: "none",
+                  paddingLeft: "0",
+                  fontSize: "1.1rem",
+                  lineHeight: "1.6",
+                  color: "#e5e7eb",
+                }}
+              >
+                <li
+                  style={{
+                    marginBottom: "10px",
+                    paddingLeft: "20px",
+                    position: "relative",
+                    color: "#10b981",
+                  }}
+                >
+                  <span
                     style={{
-                        position: "absolute",
-                        left: "0",
-                        top: "-2px",
-                        width: "10px",
-                        height: "10px",
-                        backgroundColor: "#10b981",
-                        borderRadius: "50%",
+                      position: "absolute",
+                      left: "0",
+                      top: "-2px",
+                      width: "10px",
+                      height: "10px",
+                      backgroundColor: "#10b981",
+                      borderRadius: "50%",
                     }}
-                ></span>
-                                    Each player starts with a pawn and a set of walls.
-                                </li>
-                                <li
-                                    style={{
-                                        marginBottom: "10px",
-                                        paddingLeft: "20px",
-                                        position: "relative",
-                                        color: "#f59e0b",
-                                    }}
-                                >
-                <span
+                  >
+                  </span>
+                  Each player starts with a pawn and a set of walls.
+                </li>
+                <li
+                  style={{
+                    marginBottom: "10px",
+                    paddingLeft: "20px",
+                    position: "relative",
+                    color: "#f59e0b",
+                  }}
+                >
+                  <span
                     style={{
-                        position: "absolute",
-                        left: "0",
-                        top: "-2px",
-                        width: "10px",
-                        height: "10px",
-                        backgroundColor: "#f59e0b",
-                        borderRadius: "50%",
+                      position: "absolute",
+                      left: "0",
+                      top: "-2px",
+                      width: "10px",
+                      height: "10px",
+                      backgroundColor: "#f59e0b",
+                      borderRadius: "50%",
                     }}
-                ></span>
-                                    Players take turns either moving their pawn or placing a wall.
-                                </li>
-                                <li
-                                    style={{
-                                        marginBottom: "10px",
-                                        paddingLeft: "20px",
-                                        position: "relative",
-                                        color: "#3b82f6",
-                                    }}
-                                >
-                <span
+                  >
+                  </span>
+                  Players take turns either moving their pawn or placing a wall.
+                </li>
+                <li
+                  style={{
+                    marginBottom: "10px",
+                    paddingLeft: "20px",
+                    position: "relative",
+                    color: "#3b82f6",
+                  }}
+                >
+                  <span
                     style={{
-                        position: "absolute",
-                        left: "0",
-                        top: "-2px",
-                        width: "10px",
-                        height: "10px",
-                        backgroundColor: "#3b82f6",
-                        borderRadius: "50%",
+                      position: "absolute",
+                      left: "0",
+                      top: "-2px",
+                      width: "10px",
+                      height: "10px",
+                      backgroundColor: "#3b82f6",
+                      borderRadius: "50%",
                     }}
-                ></span>
-                                    Pawns can move one square at a time horizontally or vertically.
-                                    Jumping over another pawn is allowed if there is an empty space
-                                    behind it.
-                                </li>
-                                <li
-                                    style={{
-                                        marginBottom: "10px",
-                                        paddingLeft: "20px",
-                                        position: "relative",
-                                        color: "#ef4444",
-                                    }}
-                                >
-                <span
+                  >
+                  </span>
+                  Pawns can move one square at a time horizontally or
+                  vertically. Jumping over another pawn is allowed if there is
+                  an empty space behind it.
+                </li>
+                <li
+                  style={{
+                    marginBottom: "10px",
+                    paddingLeft: "20px",
+                    position: "relative",
+                    color: "#ef4444",
+                  }}
+                >
+                  <span
                     style={{
-                        position: "absolute",
-                        left: "0",
-                        top: "-2px",
-                        width: "10px",
-                        height: "10px",
-                        backgroundColor: "#ef4444",
-                        borderRadius: "50%",
+                      position: "absolute",
+                      left: "0",
+                      top: "-2px",
+                      width: "10px",
+                      height: "10px",
+                      backgroundColor: "#ef4444",
+                      borderRadius: "50%",
                     }}
-                ></span>
-                                    Walls are used to block opponents but must not completely block
-                                    their path to the goal.
-                                </li>
-                                <li
-                                    style={{
-                                        marginBottom: "10px",
-                                        paddingLeft: "20px",
-                                        position: "relative",
-                                        color: "#f97316",
-                                    }}
-                                >
-                <span
+                  >
+                  </span>
+                  Walls are used to block opponents but must not completely
+                  block their path to the goal.
+                </li>
+                <li
+                  style={{
+                    marginBottom: "10px",
+                    paddingLeft: "20px",
+                    position: "relative",
+                    color: "#f97316",
+                  }}
+                >
+                  <span
                     style={{
-                        position: "absolute",
-                        left: "0",
-                        top: "-2px",
-                        width: "10px",
-                        height: "10px",
-                        backgroundColor: "#f97316",
-                        borderRadius: "50%",
+                      position: "absolute",
+                      left: "0",
+                      top: "-2px",
+                      width: "10px",
+                      height: "10px",
+                      backgroundColor: "#f97316",
+                      borderRadius: "50%",
                     }}
-                ></span>
-                                    The first player to reach the opposite side wins!
-                                </li>
-                            </ul>
-                        </div>
-                    </Card>
+                  >
+                  </span>
+                  The first player to reach the opposite side wins!
+                </li>
+              </ul>
+            </div>
+          </Card>
+        </div>
 
-                </div>
-
-          <style jsx global>{`
+        <style jsx global>
+          {`
             .game-lobby-container {
               background: linear-gradient(
                   rgba(0, 0, 0, 0.7),
@@ -232,9 +226,10 @@ const GameLobby: React.FC = () => {
               margin: 0 auto !important;
               background-color: rgba(17,24,39,0.85) !important;
             }
-          `}</style>
-        </PageLayout>
-      </ProtectedRoute>
+          `}
+        </style>
+      </PageLayout>
+    </ProtectedRoute>
   );
 };
 
