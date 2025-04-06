@@ -1,4 +1,4 @@
-import { Pawn } from './pawn';
+import { Pawn } from "./pawn";
 
 export interface Board {
   id: number;

@@ -1,29 +1,34 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button, Card, message, Table } from "antd";
+import { Button, Card, message, Table, Tag } from "antd";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { Game } from "@/types/game";
+import { JSX } from "react/jsx-runtime";
 
-const GameLobby: React.FC = () => {
+const GameLobby = () => {
   const { user } = useAuth();
   const router = useRouter();
   const apiService = useApi();
+  interface Game {
+    id: string;
+    creator: { username: string };
+    gameStatus: string;
+    currentUsers?: { id: string }[];
+    numberUsers: number;
+  }
+
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [creatingGame, setCreatingGame] = useState(false);
 
-  useEffect(() => {
-    console.log("Current user:", user);
-    console.log("Current games:", games);
-  }, [user, games]);
-
-  // Fetch games from the API
+  // Fetch games from API
   const fetchGames = async () => {
     try {
+      setLoading(true);
       const response = await apiService.get<Game[]>("/game-lobby");
       setGames(response);
     } catch (error) {
@@ -34,65 +39,118 @@ const GameLobby: React.FC = () => {
     }
   };
 
+  // Create a new game
   const createGame = async () => {
+    if (!user) {
+      message.error("You need to log in to create a game");
+      return;
+    }
+
     try {
-      setLoading(true);
-      const response = await apiService.post<Game>("/game-lobby", {
-        userId: user?.id,
-        boardSize: 9, // Add required parameters
-        timeLimit: 300,
-        userCount: 2
+      setCreatingGame(true);
+      const response: { id: string } = await apiService.post("/game-lobby", {
+        id: user.id,
+        username: user.username,
       });
-  
+
       if (response?.id) {
+        message.success("Game created successfully!");
+        await fetchGames(); // Refresh the game list
         router.push(`/game-lobby/${response.id}`);
       }
     } catch (error) {
       message.error("Could not create game");
+      console.error(error);
+    } finally {
+      setCreatingGame(false);
+    }
+  };
+
+  // Join an existing game
+  interface User {
+    id: string;
+    username: string;
+  }
+
+  interface ApiError {
+    response?: {
+      status: number;
+    };
+  }
+
+  const joinGame = async (gameId: string): Promise<void> => {
+    if (!user) {
+      message.error("You need to log in to join a game");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await apiService.put(`/game-lobby/${gameId}/join`, {
+        id: user.id,
+        username: user.username,
+      });
+
+      message.success("Joined game successfully!");
+      router.push(`/game-lobby/${gameId}`);
+    } catch (error) {
+      const apiError = error as ApiError;
+      if (apiError.response && apiError.response.status === 409) {
+        message.error("You are already in this game");
+      } else if (apiError.response && apiError.response.status === 404) {
+        message.error("Game is full or already running");
+      } else {
+        message.error("Failed to join game");
+      }
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const joinGame = async (gameId: string) => {
-    try {
-      await apiService.put(`/game-lobby/${gameId}/join`, { 
-        userId: user?.id,
-        username: user?.username
-      });
-      router.push(`/game-lobby/${gameId}`);
-    } catch (error) {
-      message.error("Failed to join game");
+  // Initialize and set up polling
+  useEffect(() => {
+    fetchGames();
+
+    // Poll for updates every 5 seconds
+    const interval = setInterval(() => {
+      fetchGames();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Get appropriate color for game status
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case "WAITING_FOR_USER":
+        return "orange";
+      case "RUNNING":
+        return "green";
+      case "ENDED":
+        return "red";
+      default:
+        return "default";
     }
   };
 
-  useEffect(() => {
-    if (!user) return;
+  // Table columns definition
+  interface GameRecord {
+    id: string;
+    creator: { username: string };
+    gameStatus: string;
+    currentUsers?: { id: string }[];
+    numberUsers: number;
+  }
 
-    const statusPool = ["RUNNING", "WAITING_FOR_USER", "ENDED"];
-    const dummyGames: Game[] = [];
-
-    for (let i = 1; i <= 4; i++) {
-      dummyGames.push({
-        createdAt: "",
-        name: `Player ${i}`,
-        id: `game-${i}`,
-        creatorId: `user-${i}`,
-        status: statusPool[i % statusPool.length],
-        players: [`Player ${i}`]
-      });
+  interface Column {
+      title: string;
+      dataIndex?: string | string[];
+      key: string;
+      render?: (text: any, record?: GameRecord) => JSX.Element | null;
     }
 
-    setGames(dummyGames);
-    setLoading(false);
-  }, [user]);
-
-
-  useEffect(() => {
-    fetchGames();
-  }, []);
-
-  const columns = [
+  const columns: Column[] = [
     {
       title: "Game ID",
       dataIndex: "id",
@@ -102,40 +160,69 @@ const GameLobby: React.FC = () => {
     },
     {
       title: "Creator",
-      dataIndex: "creatorId",
-      key: "creatorId",
+      dataIndex: ["creator", "username"],
+      key: "creator",
       render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
       </span>,
     },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
-      </span>,
+      dataIndex: "gameStatus",
+      key: "gameStatus",
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>
+          {status}
+        </Tag>
+      ),
     },
     {
       title: "Players",
-      dataIndex: "players",
       key: "players",
-      render: (players: string[]) => (
-        <span style={{ color: "#e5e7eb" }}>{players?.length || 0}</span>
+      render: (_, record?: GameRecord) => (
+        <span style={{ color: "#e5e7eb" }}>
+          {record?.currentUsers?.length || 0}/{record?.numberUsers || 0}
+        </span>
       ),
     },
     {
       title: "Actions",
       key: "actions",
-      render: (record: Game) => {
-        const isDisabled = user && record.players &&
-          record.players.includes(user.id);
+      render: (_, record?: GameRecord) => {
+        if (!record) {
+          return null;
+        }
+
+        const isUserInGame = user &&
+          record.currentUsers?.some((u) => u.id === user.id);
+        const isGameFull =
+          (record.currentUsers?.length || 0) >= record.numberUsers;
+        const isGameRunning = record.gameStatus === "RUNNING" ||
+          record.gameStatus === "ENDED";
+        const canJoin = !isUserInGame && !isGameFull && !isGameRunning;
+
+        if (isUserInGame) {
+          return (
+            <Button
+              type="primary"
+              onClick={() => router.push(`/game-lobby/${record.id}`)}
+              style={{
+                background: "#4f46e5",
+                borderColor: "#4f46e5",
+              }}
+            >
+              Resume Game
+            </Button>
+          );
+        }
+
         return (
           <Button
             type="primary"
             onClick={() => joinGame(record.id)}
-            disabled={!!isDisabled}
+            disabled={!canJoin}
             className="join-button"
             style={{
-              display: isDisabled ? "none" : "inline-block",
+              opacity: canJoin ? 1 : 0.5,
               transition: "all 0.3s",
             }}
           >
@@ -153,73 +240,91 @@ const GameLobby: React.FC = () => {
           <Card
             title={
               <span className="game-lobby-title">
-                Game Lobby
+                Quoridor Game Lobby
               </span>
             }
             extra={
               <div style={{ display: "flex", gap: "10px" }}>
                 <Button
                   type="primary"
+                  onClick={fetchGames}
+                  className="refresh-btn"
+                  style={{
+                    background: "#6366f1",
+                    borderColor: "#6366f1",
+                  }}
+                >
+                  Refresh
+                </Button>
+                <Button
+                  type="primary"
                   onClick={createGame}
+                  loading={creatingGame}
                   className="create-game-btn"
                 >
-                    New Game
+                  New Game
                 </Button>
-
               </div>
             }
             className="game-lobby-card"
           >
             <Table
-                columns={columns}
-                dataSource={games}
-                loading={loading}
-                rowKey="id"
-                className="game-table"
-                bordered
-                pagination={false}
-                locale={{
-                  emptyText: "No games available",
-                }}
-                style={{
-                  marginTop: "20px",
-                  background: "rgba(17, 24, 39, 0.5)",
-                }}
+              columns={columns}
+              dataSource={games}
+              loading={loading}
+              rowKey="id"
+              className="game-table"
+              bordered
+              pagination={false}
+              locale={{
+                emptyText:
+                  "No games available. Create a new game to get started!",
+              }}
+              style={{
+                marginTop: "20px",
+                background: "rgba(17, 24, 39, 0.5)",
+              }}
             />
-            <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "center",
+                marginTop: "20px",
+              }}
+            >
               <Button
-                  type="default"
-                  onClick={() => router.push("/game-rules")}
-                  className="tutorial-btn"
-                  style={{
-                    backgroundColor: "#2563eb",
-                    borderColor: "#2563eb",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                    padding: "10px 20px",
-                    borderRadius: "5px",
-                    whiteSpace: "nowrap"
-                  }}
+                type="default"
+                onClick={() => router.push("/game-rules")}
+                className="tutorial-btn"
+                style={{
+                  backgroundColor: "#2563eb",
+                  borderColor: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: "500",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  whiteSpace: "nowrap",
+                }}
               >
                 View Game Rules
               </Button>
               <Button
-                  type="default"
-                  onClick={() => router.push("/chatbot")}
-                  style={{
-                    background: "#f59e0b",
-                    borderColor: "#f59e0b",
-                    color: "#ffffff",
-                    fontWeight: "500",
-                    padding: "10px 20px",
-                    borderRadius: "5px",
-                    whiteSpace: "nowrap"
-                  }}
+                type="default"
+                onClick={() => router.push("/chatbot")}
+                style={{
+                  background: "#f59e0b",
+                  borderColor: "#f59e0b",
+                  color: "#ffffff",
+                  fontWeight: "500",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  whiteSpace: "nowrap",
+                }}
               >
                 Strategy Tips
               </Button>
             </div>
-
           </Card>
         </div>
 

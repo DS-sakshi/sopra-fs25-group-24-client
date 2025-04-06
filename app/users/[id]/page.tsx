@@ -236,7 +236,6 @@ export default function UserPage() {
             }
             loading={loading}
             style={cosmicStyles.cardStyle as React.CSSProperties}
-            
             extra={user && (canEdit
               ? (
                 !isEditing && (
