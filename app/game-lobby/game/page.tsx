@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
@@ -18,6 +18,8 @@ interface QuoridorGame {
     // Add other game properties as needed
 }
 
+
+
 export default function GameRoomPage() {
     const params = useParams();
     const gameId = params.id as string;
@@ -27,6 +29,8 @@ export default function GameRoomPage() {
     const [game, setGame] = useState<QuoridorGame | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+
 
     useEffect(() => {
         const fetchGame = async () => {
@@ -57,12 +61,18 @@ export default function GameRoomPage() {
             }
         };
 
+
         fetchGame();
 
         // Setup polling to check game state periodically
         const interval = setInterval(fetchGame, 5000);
         return () => clearInterval(interval);
     }, [gameId, apiService]);
+
+    const sendPosition = async (row: number, col: number) => {
+        alert(`Coordinates: Row ${row}, Column ${col}`);
+        //await apiService.put(`/users/${id}`, {"birthDate": newBirthDate}, {"Authorization": token});
+    };
 
     const handleAbortGame = async () => {
         try {
@@ -175,7 +185,9 @@ export default function GameRoomPage() {
                         <Card>
                             {
                                 <>
-                                    <Spin tip="Loading game..." />
+                                    <Spin size="large" tip="Loading...">
+                                        <div style={{ minHeight: '100px' }} /> {/* Placeholder content */}
+                                    </Spin>
                                     <div
                                         style={{
                                             marginTop: 20,
@@ -191,32 +203,50 @@ export default function GameRoomPage() {
                                         <div
                                             style={{
                                                 display: 'grid',
-                                                gridTemplateColumns: 'repeat(9, 50px)',
-                                                gridTemplateRows: 'repeat(9, 50px)',
-                                                width: '450px',
-                                                height: '450px',
+                                                gridTemplateColumns: 'repeat(17, 20px)',
+                                                gridTemplateRows: 'repeat(17, 20px)',
+                                                width: '340px',
+                                                height: '340px',
                                             }}
                                         >
-                                            {Array.from({ length: 81 }).map((_, index) => {
-                                                const row = Math.floor(index / 9);
-                                                const col = index % 9;
+                                            {Array.from({ length: 289 }).map((_, index) => {
+                                                const row = Math.floor(index / 17);
+                                                const col = index % 17;
+                                                const isOddRow = row % 2 === 1;
+                                                const isOddCol = col % 2 === 1;
+                                                const isBlue = isOddRow || isOddCol;
                                                 const isBlack = (row + col) % 2 === 1;
                                                 return (
                                                     <div
                                                         key={index}
                                                         style={{
-                                                            width: '50px',
-                                                            height: '50px',
-                                                            background: isBlack ? 'black' : 'white',
+                                                            width: isBlue ? '20px' : '50px',
+                                                            height: isBlue ? '20px' : '50px',
+                                                            background: isBlue ? 'blue' : isBlack ? 'black' : 'white',
+                                                            cursor: 'pointer',
                                                         }}
+                                                        onClick={() => sendPosition(row, col)}
                                                     />
                                                 );
                                             })}
+                                        </div>
+                                        <div
+                                            id="coords-display"
+                                            style={{
+                                                position: 'fixed',
+                                                bottom: '20px',
+                                                right: '20px',
+                                                padding: '10px',
+                                                background: 'white',
+                                                border: '1px solid #ccc'
+                                            }}
+                                        >
                                         </div>
                                     </div>
                                 </>
                             }
                         </Card>
+
 
                     )}
                 </Card>
