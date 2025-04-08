@@ -77,7 +77,7 @@ a {
 }
 
 .ant-btn-primary:not([disabled]) {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 .calendar-popup .ant-picker-cell-in-view {
   color: rgba(0, 0, 0, 0.85) !important;
