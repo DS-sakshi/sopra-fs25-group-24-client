@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
@@ -18,8 +18,6 @@ interface QuoridorGame {
     // Add other game properties as needed
 }
 
-
-
 export default function GameRoomPage() {
     const params = useParams();
     const gameId = params.id as string;
@@ -29,8 +27,6 @@ export default function GameRoomPage() {
     const [game, setGame] = useState<QuoridorGame | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
-
 
     useEffect(() => {
         const fetchGame = async () => {
@@ -60,7 +56,6 @@ export default function GameRoomPage() {
                 setLoading(false);
             }
         };
-
 
         fetchGame();
 
@@ -246,7 +241,6 @@ export default function GameRoomPage() {
                                 </>
                             }
                         </Card>
-
 
                     )}
                 </Card>
