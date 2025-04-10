@@ -104,6 +104,8 @@ export class ApiService {
     const res = await fetch(url, {
       method: "GET",
       headers: this.getHeaders(),
+      mode: 'cors',
+      credentials: 'same-origin', // Include credentials for same-origin requests
     });
     return this.processResponse<T>(
       res,
@@ -123,6 +125,8 @@ export class ApiService {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
+      mode: 'cors',  // Add this line
+      credentials: 'same-origin'
     });
     return this.processResponse<T>(
       res,
