@@ -10,7 +10,7 @@ export class ApiService {
     this.baseURL = getApiDomain(); //Initialize base URL from a utility function
     this.defaultHeaders = {
       "Content-Type": "application/json", //Default headers for JSON content
-      "Access-Control-Allow-Origin": "*", //Allow all origins for CORS
+      //"Access-Control-Allow-Origin": "*", //Allow all origins for CORS
     };
   }
 
