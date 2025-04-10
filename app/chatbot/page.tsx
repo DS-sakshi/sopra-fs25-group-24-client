@@ -28,7 +28,7 @@ const ChatInterface = () => {
 
   // Load chat history only on client
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof globalThis !== "undefined") {
       const saved = localStorage.getItem("chatHistory");
       if (saved) {
         setMessages(JSON.parse(saved));
