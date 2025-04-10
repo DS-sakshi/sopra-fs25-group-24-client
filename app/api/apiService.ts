@@ -33,7 +33,7 @@ export class ApiService {
     if (this.currentUserId) {
       // TypeScript-safe way to add CurrentUserId header
       // Make sure the ID is sent as a string, even if it's stored as a number
-      (headers as Record<string, string>)["Authorization"] = String(
+      (headers as Record<string, string>)["CurrentUserId"] = String(
         this.currentUserId,
       );
       console.log("Request headers with CurrentUserId:", this.currentUserId);
