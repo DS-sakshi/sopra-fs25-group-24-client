@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Button, Card, Input, Layout, List } from "antd";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Input, Button, List, Card, Layout } from 'antd';
 import "@ant-design/v5-patch-for-react-19";
 import { Space } from "antd";
 import { useRouter } from "next/navigation";
@@ -21,10 +22,16 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
+
+
 const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const router = useRouter();
+    const [input, setInput] = useState('');
+    const [messages, setMessages] = useState<Message[]>([]);
+    const router = useRouter(); // Next.js
+
 
   // Load chat history only on client
   useEffect(() => {
@@ -134,9 +141,17 @@ const ChatInterface = () => {
                 backgroundColor: "rgba(17, 24, 39, 0.5)",
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 borderRadius: "12px",
-              }}
-            >
-              <Button
+                            }}
+                            extra={
+                                <Button
+                                    size="medium"
+                                    type="primary"
+                                    onClick={() => router.push('/game-lobby')}
+                                >
+                                    Return to Lobby
+                                </Button>
+                            }
+                        ><Button
                 size="middle"
                 type="primary"
                 onClick={() => router.push("/game-lobby")}

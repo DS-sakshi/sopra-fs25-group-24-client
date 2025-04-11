@@ -7,9 +7,9 @@ import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { JSX } from "react/jsx-runtime";
+import { Game } from "@/types/game";
 
-const GameLobby = () => {
+const GameLobby: React.FC = () => {
   const { user } = useAuth();
   const router = useRouter();
   const apiService = useApi();
@@ -57,6 +57,8 @@ const GameLobby = () => {
         message.success("Game created successfully!");
         await fetchGames(); // Refresh the game list
         router.push(`/game-lobby/${response.id}`);
+      } else {
+        throw new Error("No game ID received");
       }
     } catch (error) {
       message.error("Could not create game");
@@ -263,6 +265,19 @@ const GameLobby = () => {
                   className="create-game-btn"
                 >
                   New Game
+                  Create New Game
+                </Button>
+                <Button
+                  type="default"
+                  onClick={() => router.push("/chatbot")}
+                  style={{
+                    background: "#f59e0b",
+                    borderColor: "#f59e0b",
+                    color: "#ffffff",
+                    fontWeight: "500",
+                  }}
+                >
+                  Strategy Tips
                 </Button>
               </div>
             }
