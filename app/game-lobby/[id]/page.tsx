@@ -65,6 +65,12 @@ export default function GameRoomPage() {
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [possibleMoves, setPossibleMoves] = useState<[number, number][]>([]);
   const [selectedPawn, setSelectedPawn] = useState<Pawn | null>(null);
+  // Create a 17-element array, alternating 20px and 10px
+  const columns = Array.from({ length: 17 }, (_, i) => (i % 2 === 0 ? '20px' : '10px'));
+  // Same for rows
+  const rows = columns;
+  // Sum up track sizes for total width/height: (9 × 20px) + (8 × 10px) = 260
+  const totalSize = 260;
 
   // Fetch game data
   useEffect(() => {
@@ -229,11 +235,14 @@ export default function GameRoomPage() {
     }
     
     console.log("Rendering board with data:", game.board); // Debug log
-    
+
+
+
     const boardSize = game.sizeBoard || 9;
     const cellSize = 40; // Size of each cell in pixels
     
     return (
+
       <div className="quoridor-board-container">
         <div className="quoridor-board-wrapper" style={{ position: 'relative', margin: '40px auto', width: `${cellSize * boardSize + (boardSize - 1) * 2}px` }}>
           {/* Board grid */}
@@ -325,13 +334,17 @@ export default function GameRoomPage() {
             );
           })}
         </div>
+
         
         {/* Game status message */}
         {renderGameStatus()}
       </div>
     );
   };
-
+  const sendPosition = async (row: number, col: number) => {
+    alert(`Coordinates: Row ${row}, Column ${col}`);
+    //await apiService.put(`/users/${id}`, {"birthDate": newBirthDate}, {"Authorization": token});
+  };
   // Render game status message
   const renderGameStatus = () => {
     if (!game) return null;
@@ -468,9 +481,81 @@ export default function GameRoomPage() {
                 {/* Game board visualization */}
                 {renderBoard()}
               </div>
+
             ) : (
               <Spin tip="Loading game..." />
             )}
+          </Card>
+          <br />
+          <h2>Game Board</h2>
+          <br />
+          <Card>
+            <>
+              <div
+                  style={{
+                    marginTop: 20,
+                    height: 400,
+                    background: '#f0f2f5',
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                  }}
+              >
+
+                <div
+                    style={{
+                      display: 'grid',
+                      // Use our alternating columns & rows
+                      gridTemplateColumns: columns.join(' '),
+                      gridTemplateRows: rows.join(' '),
+                      gap: 0,
+                      // Match the total container size
+                      width: `${totalSize}px`,
+                      height: `${totalSize}px`,
+                    }}
+                >
+                  {Array.from({ length: 289 }).map((_, index) => {
+                    const row = Math.floor(index / 17);
+                    const col = index % 17;
+                    const isOddRow = row % 2 === 1;
+                    const isOddCol = col % 2 === 1;
+                    const isBlue = isOddRow || isOddCol;
+                    const isBlack = (row + col) % 2 === 1;
+
+                    return (
+                        <div
+                            key={index}
+                            style={{
+                              // If your logic still depends on odd/even row/column,
+                              // the actual track size comes from gridTemplate; this below is optional.
+                              width: isOddCol ? '10px' : '20px',
+                              height: isOddRow ? '10px' : '20px',
+                              background: isBlue ? 'blue' : isBlack ? 'black' : 'white',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => sendPosition(row, col)}
+                        />
+                    );
+                  })}
+                </div>
+              </div>
+              <div
+                  id="coords-display"
+                  style={{
+                    position: 'fixed',
+                    bottom: '20px',
+                    right: '20px',
+                    padding: '10px',
+                    background: 'white',
+                    border: '1px solid #ccc'
+                  }}
+              >
+              </div>
+
+              </>
+
           </Card>
         </div>
 
