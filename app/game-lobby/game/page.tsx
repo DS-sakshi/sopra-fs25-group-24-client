@@ -64,6 +64,7 @@ export default function GameRoomPage() {
         return () => clearInterval(interval);
     }, [gameId, apiService]);
 
+    //important
     const sendPosition = async (row: number, col: number) => {
         alert(`Coordinates: Row ${row}, Column ${col}`);
         //await apiService.put(`/users/${id}`, {"birthDate": newBirthDate}, {"Authorization": token});
@@ -211,12 +212,13 @@ export default function GameRoomPage() {
                                                 const isOddCol = col % 2 === 1;
                                                 const isBlue = isOddRow || isOddCol;
                                                 const isBlack = (row + col) % 2 === 1;
+
                                                 return (
                                                     <div
                                                         key={index}
                                                         style={{
-                                                            width: isBlue ? '20px' : '50px',
-                                                            height: isBlue ? '20px' : '50px',
+                                                            width: isOddCol ? '10px' : '20px', // Half width for odd columns
+                                                            height: isOddRow ? '10px' : '20px', // Half height for odd rows
                                                             background: isBlue ? 'blue' : isBlack ? 'black' : 'white',
                                                             cursor: 'pointer',
                                                         }}
@@ -225,6 +227,8 @@ export default function GameRoomPage() {
                                                 );
                                             })}
                                         </div>
+
+                                    </div>
                                         <div
                                             id="coords-display"
                                             style={{
