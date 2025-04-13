@@ -400,9 +400,16 @@ interface MovePostDTO {
       </div>
     );
   };
-  const sendPosition = async (row: number, col: number) => {
-    alert(`Coordinates: Row ${row}, Column ${col}`);
-    //await apiService.put(`/users/${id}`, {"birthDate": newBirthDate}, {"Authorization": token});
+  const sendPosition = async (
+      row: number,
+      col: number,
+      orientation?: 'VERTICAL' | 'HORIZONTAL',
+  ) => {
+    const message = orientation
+        ? `Coordinates: Row ${row}, Column ${col}, Orientation: ${orientation}`
+        : `Coordinates: Row ${row}, Column ${col}`;
+
+    alert(message);
   };
   // Render game status message
   const renderGameStatus = () => {
@@ -580,24 +587,66 @@ interface MovePostDTO {
                     const col = index % 17;
                     const isOddRow = row % 2 === 1;
                     const isOddCol = col % 2 === 1;
-                    const isBlue = isOddRow || isOddCol;
+                    const isBlue = (isOddCol && isOddRow);
                     const isBlack = (row + col) % 2 === 1;
+                    const [showButtons, setShowButtons] = useState(false);
+
+                    const handleBoardClick = () => {
+                      if (!isBlue) {
+                        sendPosition(row, col);
+                        return;
+                      }
+                      setShowButtons(prev => !prev); // Toggle buttons on blue clicks
+                    };
 
                     return (
                         <div
                             key={index}
                             style={{
-                              // If your logic still depends on odd/even row/column,
-                              // the actual track size comes from gridTemplate; this below is optional.
                               width: isOddCol ? '10px' : '20px',
                               height: isOddRow ? '10px' : '20px',
                               background: isBlue ? 'blue' : isBlack ? 'black' : 'white',
                               cursor: 'pointer',
+                              position: 'relative' // For button positioning
                             }}
-                            onClick={() => sendPosition(row, col)}
-                        />
+                            onClick={handleBoardClick}
+                        >
+                          {/* Buttons overlay for blue cells */}
+                          {isBlue && showButtons && (
+                              <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                display: 'flex',
+                                gap: '4px'
+                              }}>
+                                <button
+                                    style={{ fontSize: '8px', padding: '2px' }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      sendPosition(row, col, 'VERTICAL');
+                                      setShowButtons(false);
+                                    }}
+                                >
+                                  Vertical
+                                </button>
+                                <button
+                                    style={{ fontSize: '8px', padding: '2px' }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      sendPosition(row, col, 'HORIZONTAL');
+                                      setShowButtons(false);
+                                    }}
+                                >
+                                  Horizontal
+                                </button>
+                              </div>
+                          )}
+                        </div>
                     );
                   })}
+
                 </div>
               </div>
               <div
