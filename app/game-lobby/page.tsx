@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { Button, Card, message, Table, Tag } from "antd";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -9,23 +8,24 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { JSX } from "react/jsx-runtime";
 
+interface Game {
+  id: string;
+  creator: { id: string; username: string };
+  gameStatus: string;
+  currentUsers?: { id: string; username: string }[];
+  numberUsers: number;
+}
+
 const GameLobby = () => {
   const { user } = useAuth();
   const router = useRouter();
   const apiService = useApi();
-  interface Game {
-    id: string;
-    creator: { username: string };
-    gameStatus: string;
-    currentUsers?: { id: string }[];
-    numberUsers: number;
-  }
 
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [creatingGame, setCreatingGame] = useState(false);
 
-  // Fetch games from API
+  // Fetch all games
   const fetchGames = async () => {
     try {
       setLoading(true);
@@ -39,23 +39,34 @@ const GameLobby = () => {
     }
   };
 
-  // Create a new game
+  // Helper to check if the current user is already in any lobby
+  const userIsInAnyGame = () => {
+    if (!user) return false;
+    return games.some(game =>
+      game.creator.id === user.id ||
+      game.currentUsers?.some(u => u.id === user.id)
+    );
+  };
+
+  // Create a new game after checking if the user is already in a lobby
   const createGame = async () => {
     if (!user) {
       message.error("You need to log in to create a game");
       return;
     }
-
+    if (userIsInAnyGame()) {
+      message.error("You are already in a lobby. Leave your current game before starting a new one.");
+      return;
+    }
     try {
       setCreatingGame(true);
       const response: { id: string } = await apiService.post("/game-lobby", {
         id: user.id,
         username: user.username,
       });
-
       if (response?.id) {
         message.success("Game created successfully!");
-        await fetchGames(); // Refresh the game list
+        await fetchGames();
         router.push(`/game-lobby/${response.id}`);
       }
     } catch (error) {
@@ -66,35 +77,33 @@ const GameLobby = () => {
     }
   };
 
-  // Join an existing game
-  interface User {
-    id: string;
-    username: string;
-  }
-
-  interface ApiError {
-    response?: {
-      status: number;
-    };
-  }
-
+  // Join an existing game after ensuring the user isn’t already in another lobby.
   const joinGame = async (gameId: string): Promise<void> => {
     if (!user) {
       message.error("You need to log in to join a game");
       return;
     }
+    // If joining a game that the user is not already part of and the user is in any other game, prevent joining.
+    const targetGame = games.find(game => game.id === gameId);
+    const alreadyInThisGame = targetGame?.currentUsers?.some(u => u.id === user.id) || targetGame?.creator.id === user.id;
+    if (!alreadyInThisGame && userIsInAnyGame()) {
+      message.error("You are already in another lobby. Please finish or abort that game first.");
+      return;
+    }
 
     try {
       setLoading(true);
-      await apiService.put(`/game-lobby/${gameId}/join`, {
-        id: user.id,
-        username: user.username,
-      });
-
-      message.success("Joined game successfully!");
+      // If the user is already in the game, resume; otherwise, join.
+      if (!alreadyInThisGame) {
+        await apiService.put(`/game-lobby/${gameId}/join`, {
+          id: user.id,
+          username: user.username,
+        });
+        message.success("Joined game successfully!");
+      }
       router.push(`/game-lobby/${gameId}`);
     } catch (error) {
-      const apiError = error as ApiError;
+      const apiError = error as { response?: { status: number } };
       if (apiError.response && apiError.response.status === 409) {
         message.error("You are already in this game");
       } else if (apiError.response && apiError.response.status === 404) {
@@ -108,19 +117,13 @@ const GameLobby = () => {
     }
   };
 
-  // Initialize and set up polling
+  // Set up polling to refresh the games list every 5 seconds.
   useEffect(() => {
     fetchGames();
-
-    // Poll for updates every 5 seconds
-    const interval = setInterval(() => {
-      fetchGames();
-    }, 5000);
-
+    const interval = setInterval(fetchGames, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Get appropriate color for game status
   const getStatusColor = (status: string): string => {
     switch (status) {
       case "WAITING_FOR_USER":
@@ -134,45 +137,40 @@ const GameLobby = () => {
     }
   };
 
-  // Table columns definition
   interface GameRecord {
     id: string;
-    creator: { username: string };
+    creator: { id: string; username: string };
     gameStatus: string;
     currentUsers?: { id: string }[];
     numberUsers: number;
   }
 
   interface Column {
-      title: string;
-      dataIndex?: string | string[];
-      key: string;
-      render?: (text: any, record?: GameRecord) => JSX.Element | null;
-    }
+    title: string;
+    dataIndex?: string | string[];
+    key: string;
+    render?: (text: any, record?: GameRecord) => JSX.Element | null;
+  }
 
   const columns: Column[] = [
     {
       title: "Game ID",
       dataIndex: "id",
       key: "id",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
-      </span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
     },
     {
       title: "Creator",
       dataIndex: ["creator", "username"],
       key: "creator",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
-      </span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
     },
     {
       title: "Status",
       dataIndex: "gameStatus",
       key: "gameStatus",
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
-          {status}
-        </Tag>
+        <Tag color={getStatusColor(status)}>{status}</Tag>
       ),
     },
     {
@@ -188,43 +186,33 @@ const GameLobby = () => {
       title: "Actions",
       key: "actions",
       render: (_, record?: GameRecord) => {
-        if (!record) {
-          return null;
-        }
-
+        if (!record) return null;
         const isUserInGame = user &&
-          record.currentUsers?.some((u) => u.id === user.id);
-        const isGameFull =
-          (record.currentUsers?.length || 0) >= record.numberUsers;
-        const isGameRunning = record.gameStatus === "RUNNING" ||
-          record.gameStatus === "ENDED";
+          (record.currentUsers?.some((u) => u.id === user.id) || record.creator.id === user.id);
+        const isGameFull = (record.currentUsers?.length || 0) >= record.numberUsers;
+        const isGameRunning = record.gameStatus === "RUNNING";
+        const isGameEnded = record.gameStatus === "ENDED";
         const canJoin = !isUserInGame && !isGameFull && !isGameRunning;
 
-        if (isUserInGame) {
+        if (isUserInGame && !isGameEnded) {
           return (
             <Button
               type="primary"
               onClick={() => router.push(`/game-lobby/${record.id}`)}
-              style={{
-                background: "#4f46e5",
-                borderColor: "#4f46e5",
-              }}
+              style={{ background: "#4f46e5", borderColor: "#4f46e5" }}
             >
               Resume Game
             </Button>
           );
         }
-
+  
         return (
           <Button
             type="primary"
             onClick={() => joinGame(record.id)}
             disabled={!canJoin}
             className="join-button"
-            style={{
-              opacity: canJoin ? 1 : 0.5,
-              transition: "all 0.3s",
-            }}
+            style={{ opacity: canJoin ? 1 : 0.5, transition: "all 0.3s" }}
           >
             Join Game
           </Button>
@@ -238,21 +226,14 @@ const GameLobby = () => {
       <PageLayout requireAuth>
         <div className="game-lobby-container">
           <Card
-            title={
-              <span className="game-lobby-title">
-                Quoridor Game Lobby
-              </span>
-            }
+            title={<span className="game-lobby-title">Quoridor Game Lobby</span>}
             extra={
               <div style={{ display: "flex", gap: "10px" }}>
                 <Button
                   type="primary"
                   onClick={fetchGames}
                   className="refresh-btn"
-                  style={{
-                    background: "#6366f1",
-                    borderColor: "#6366f1",
-                  }}
+                  style={{ background: "#6366f1", borderColor: "#6366f1" }}
                 >
                   Refresh
                 </Button>
@@ -277,8 +258,7 @@ const GameLobby = () => {
               bordered
               pagination={false}
               locale={{
-                emptyText:
-                  "No games available. Create a new game to get started!",
+                emptyText: "No games available. Create a new game to get started!",
               }}
               style={{
                 marginTop: "20px",
@@ -328,8 +308,7 @@ const GameLobby = () => {
           </Card>
         </div>
 
-        <style jsx global>
-          {`
+        <style jsx global>{`
           .game-lobby-container {
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
               url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg');
@@ -338,7 +317,6 @@ const GameLobby = () => {
             background-size: cover;
             background-position: center;
           }
-
           .game-lobby-title {
             background: linear-gradient(90deg, #8b5cf6, #4f46e5);
             -webkit-background-clip: text;
@@ -346,7 +324,6 @@ const GameLobby = () => {
             font-size: 1.8rem;
             font-weight: 500;
           }
-
           .game-lobby-card {
             width: 90% !important;
             max-width: 1200px !important;
@@ -357,40 +334,33 @@ const GameLobby = () => {
             border: 1px solid rgba(255,255,255,0.1) !important;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
           }
-
           .game-table {
             color: #e5e7eb !important;
           }
-
           .game-table .ant-table-thead > tr > th {
             background: rgba(255, 255, 255, 0.1) !important;
             color: #e5e7eb !important;
             border-bottom: 1px solid rgba(255,255,255,0.2) !important;
           }
-
           .game-table .ant-table-tbody > tr > td {
             border-bottom: 1px solid rgba(255,255,255,0.1) !important;
             background: transparent !important;
           }
-
           .create-game-btn {
             background: #4f46e5 !important;
             border-color: #4f46e5 !important;
             font-weight: 500 !important;
           }
-
           .join-button {
             background: #10b981 !important;
             border-color: #10b981 !important;
           }
-
           .join-button[disabled] {
             background: #374151 !important;
             border-color: #4b5563 !important;
             color: #6b7280 !important;
           }
-        `}
-        </style>
+        `}</style>
       </PageLayout>
     </ProtectedRoute>
   );

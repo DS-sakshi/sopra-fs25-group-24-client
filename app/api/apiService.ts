@@ -165,23 +165,22 @@ export class ApiService {
   }
 
   /**
-   * DELETE request.
-   * @param endpoint - The API endpoint (e.g. "/users/123").
-   * @returns JSON data of type T.
-   */
-  public async delete<T>(endpoint: string): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const res = await fetch(url, {
-      method: "DELETE",
-      headers: this.getHeaders(),
-    });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
-    }
-    return this.processResponse<T>(
-      res,
-      "An error occurred while deleting the data.\n",
-    );
-  }
+ * DELETE request with body support for user data.
+ * @param endpoint - The API endpoint (e.g. "/game-lobby/123").
+ * @param userDTO - The user data required for deletion.
+ * @returns JSON data of type T.
+ */
+public async delete<T>(endpoint: string, userDTO: UserGetDTO): Promise<T> {
+  const url = `${this.baseURL}${endpoint}`;
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: this.getHeaders(),
+    body: JSON.stringify(userDTO)
+  });
+  
+  return this.processResponse<T>(
+    res,
+    "An error occurred while deleting the data.\n",
+  );
+}
 }

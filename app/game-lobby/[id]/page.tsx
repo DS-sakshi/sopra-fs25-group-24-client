@@ -154,48 +154,62 @@ export default function GameRoomPage() {
   };
 
   // Handle cell click to move pawn
-  const handleCellClick = async (row: number, col: number): Promise<void> => {
-    if (!isCurrentUserTurn() || !game) return;
+const handleCellClick = async (row: number, col: number): Promise<void> => {
+  if (!isCurrentUserTurn() || !game) return;
+  
+  // Find the current player's pawn
+  const pawn = currentUser ? game.board?.pawns?.find(p => p.userId === parseInt(currentUser.id)) : null;
+  if (!pawn) return;
+  
+  // Check if the move is valid
+  const isValidMove = possibleMoves.some(([r, c]) => r === row && c === col);
+  if (!isValidMove) {
+    message.error("Invalid move");
+    return;
+  }
+  
+  try {
+    setLoading(true);
     
-    // Find the current player's pawn
-    const pawn = currentUser ? game.board?.pawns?.find(p => p.userId === parseInt(currentUser.id)) : null;
-    if (!pawn) return;
-    
-    // Check if the move is valid
-    const isValidMove = possibleMoves.some(([r, c]) => r === row && c === col);
-    if (!isValidMove) {
-      message.error("Invalid move");
-      return;
+    // Create move object
+    // First, define the types
+    enum MoveType {
+      MOVE_PAWN = "MOVE_PAWN",
+      ADD_WALL = "ADD_WALL"
     }
-    
-    try {
-      setLoading(true);
-      
-      // Create move object
-      interface Move {
-        startPosition: [number, number];
-        endPosition: [number, number];
-        user: {
-          id: string;
-          username: string;
-        };
-        type: "NORMAL";
-      }
 
-      const move: Move = {
+interface MovePostDTO {
+  startPosition: number[];
+  endPosition: number[];
+  user: {
+    id: number;  // Changed from string to number to match Java Long
+    name: string;
+    username: string;
+    status: string;
+    token: string;
+  };
+  type: MoveType;
+  wallPosition?: number[];  // Optional for pawn moves
+  wallOrientation?: string; // Optional for pawn moves
+}
+
+// Then update the move function
+    try {
+      const moveDTO: MovePostDTO = {
         startPosition: [pawn.r, pawn.c],
         endPosition: [row, col],
         user: {
-          id: currentUser?.id || "",
-          username: currentUser?.username || "Unknown"
+          id: Number(currentUser?.id),  // Convert string to number
+          name: currentUser?.name || "",
+          username: currentUser?.username || "",
+          status: currentUser?.status || "",
+          token: currentUser?.token || ""
         },
-        type: "NORMAL"
+        type: MoveType.MOVE_PAWN
       };
+
+      await apiService.post(`/game-lobby/${gameId}/move`, moveDTO);
       
-      // Send move to API
-      await apiService.post(`/game-lobby/${gameId}/move`, move);
-      
-      // Refresh the game after move
       const updatedGame = await apiService.get<GameData>(`/game-lobby/${gameId}`);
       setGame(updatedGame);
       setPossibleMoves([]);
@@ -207,24 +221,69 @@ export default function GameRoomPage() {
     } finally {
       setLoading(false);
     }
-  };
+  } catch (error) {
+    message.error("Failed to process move");
+    console.error(error);
+  }
+};
 
   // Handle aborting a game
   const handleAbortGame = () => {
+
     setConfirmModalVisible(true);
+
   };
 
-  // Confirm and abort the game
+
+
   const confirmAbortGame = async () => {
+
     try {
-      await apiService.delete(`/game-lobby/${gameId}`);
+
+      // Create UserGetDTO object matching the backend structure
+
+      const userDTO = {
+
+        id: Number(localStorage.getItem('id')), // Convert to number since backend expects Long
+
+        name: localStorage.getItem('name'),
+
+        username: localStorage.getItem('username'),
+
+        status: localStorage.getItem('status'),
+
+        token: localStorage.getItem('token'),
+
+        creationDate: localStorage.getItem('creationDate'),
+
+        birthday: localStorage.getItem('birthday')
+
+      };
+
+  
+
+      // Delete game from backend with UserGetDTO in request body
+
+      await apiService.delete(`/game-lobby/${gameId}`, userDTO);
+
+      
+
       message.success("Game aborted successfully");
+
       router.push("/game-lobby");
+
     } catch (error) {
-      message.error("Failed to abort game");
+
+      message.error("Failed to abort game: " + (error as Error).message);
+
+      console.error("Error aborting game:", error);
+
     } finally {
+
       setConfirmModalVisible(false);
+
     }
+
   };
 
   // Render the game board
@@ -587,9 +646,10 @@ export default function GameRoomPage() {
           .ant-descriptions-item-label,
           .ant-descriptions-item-content {
             background: rgba(30, 41, 59, 0.8) !important;
-          }
+        }}
         `}</style>
       </PageLayout>
     </ProtectedRoute>
   );
 }
+
