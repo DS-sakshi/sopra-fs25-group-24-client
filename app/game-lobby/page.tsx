@@ -30,7 +30,9 @@ const GameLobby = () => {
     try {
       setLoading(true);
       const response = await apiService.get<Game[]>("/game-lobby");
-      setGames(response);
+      // Filter out games with ENDED status
+      const activeGames = response.filter(game => game.gameStatus !== "ENDED");
+      setGames(activeGames);
     } catch (error) {
       message.error("Failed to fetch games");
       console.error(error);

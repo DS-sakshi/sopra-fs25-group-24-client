@@ -1,20 +1,58 @@
-import { User } from "./user";
-import { Board } from "./board";
+export interface User {
+  id: string;
+  username: string;
+  name: string;
+  status: string;
+  token: string;
+}
 
-export enum GameStatus {
-  WAITING = "WAITING",
-  ONGOING = "ONGOING",
-  FINISHED = "FINISHED",
+export interface Pawn {
+  id: number;
+  userId: number;
+  r: number;
+  c: number;
+  color?: string;
+}
+
+export interface Wall {
+  r: number;
+  c: number;
+  orientation: 'HORIZONTAL' | 'VERTICAL';
+  userId?: number;
+}
+
+export interface Board {
+  pawns: Pawn[];
+  walls?: Wall[];
 }
 
 export interface Game {
   id: string;
-  numberUsers: string;
-  sizeBoard: string;
-  timeLimit: string;
   creator: User;
-  currentUsers: User[];
-  currentTurn: User;
+  currentTurn?: User;
+  gameStatus: "WAITING_FOR_USER" | "RUNNING" | "ENDED";
+  sizeBoard: number;
   board: Board;
-  gameStatus: GameStatus;
+  currentUsers: User[];
+  winner?: string;
+}
+
+export interface GameData {
+  id: string;
+  creator: {
+    id: string;
+    username: string;
+  };
+  currentTurn?: {
+    id: string;
+    username: string;
+  };
+  gameStatus: "WAITING_FOR_USER" | "RUNNING" | "ENDED";
+  sizeBoard: number;
+  board: Board;
+  currentUsers: Array<{
+    id: string;
+    username: string;
+  }>;
+  winner?: string;
 }
