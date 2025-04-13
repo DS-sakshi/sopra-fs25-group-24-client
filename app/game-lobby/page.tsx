@@ -42,9 +42,10 @@ const GameLobby = () => {
   // Helper to check if the current user is already in any lobby
   const userIsInAnyGame = () => {
     if (!user) return false;
-    return games.some(game =>
-      game.creator.id === user.id ||
-      game.currentUsers?.some(u => u.id === user.id)
+    return games.some((game) => 
+      (game.gameStatus !== "ENDED") && // Only check active games
+      (game.creator.id === user.id || 
+      game.currentUsers?.some((u) => u.id === user.id))
     );
   };
 
@@ -55,7 +56,9 @@ const GameLobby = () => {
       return;
     }
     if (userIsInAnyGame()) {
-      message.error("You are already in a lobby. Leave your current game before starting a new one.");
+      message.error(
+        "You are already in an active game. Please finish or abort that game first.",
+      );
       return;
     }
     try {
@@ -84,12 +87,18 @@ const GameLobby = () => {
       return;
     }
     // If joining a game that the user is not already part of and the user is in any other game, prevent joining.
-    const targetGame = games.find(game => game.id === gameId);
-    const alreadyInThisGame = targetGame?.currentUsers?.some(u => u.id === user.id) || targetGame?.creator.id === user.id;
-    if (!alreadyInThisGame && userIsInAnyGame()) {
-      message.error("You are already in another lobby. Please finish or abort that game first.");
-      return;
-    }
+    const targetGame = games.find((game) => game.id === gameId);
+  const alreadyInThisGame = targetGame && 
+    targetGame.gameStatus !== "ENDED" && 
+    (targetGame.currentUsers?.some((u) => u.id === user.id) || 
+    targetGame.creator.id === user.id);
+
+  if (!alreadyInThisGame && userIsInAnyGame()) {
+    message.error(
+      "You are already in another active game. Please finish or abort that game first."
+    );
+    return;
+  }
 
     try {
       setLoading(true);
@@ -149,7 +158,7 @@ const GameLobby = () => {
     title: string;
     dataIndex?: string | string[];
     key: string;
-    render?: (text: any, record?: GameRecord) => JSX.Element | null;
+    render?: (text: string, record?: GameRecord) => JSX.Element | null;
   }
 
   const columns: Column[] = [
@@ -157,13 +166,15 @@ const GameLobby = () => {
       title: "Game ID",
       dataIndex: "id",
       key: "id",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
+      </span>,
     },
     {
       title: "Creator",
       dataIndex: ["creator", "username"],
       key: "creator",
-      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}</span>,
+      render: (text: string) => <span style={{ color: "#e5e7eb" }}>{text}
+      </span>,
     },
     {
       title: "Status",
@@ -188,8 +199,10 @@ const GameLobby = () => {
       render: (_, record?: GameRecord) => {
         if (!record) return null;
         const isUserInGame = user &&
-          (record.currentUsers?.some((u) => u.id === user.id) || record.creator.id === user.id);
-        const isGameFull = (record.currentUsers?.length || 0) >= record.numberUsers;
+          (record.currentUsers?.some((u) => u.id === user.id) ||
+            record.creator.id === user.id);
+        const isGameFull =
+          (record.currentUsers?.length || 0) >= record.numberUsers;
         const isGameRunning = record.gameStatus === "RUNNING";
         const isGameEnded = record.gameStatus === "ENDED";
         const canJoin = !isUserInGame && !isGameFull && !isGameRunning;
@@ -205,7 +218,7 @@ const GameLobby = () => {
             </Button>
           );
         }
-  
+
         return (
           <Button
             type="primary"
@@ -226,7 +239,9 @@ const GameLobby = () => {
       <PageLayout requireAuth>
         <div className="game-lobby-container">
           <Card
-            title={<span className="game-lobby-title">Quoridor Game Lobby</span>}
+            title={
+              <span className="game-lobby-title">Quoridor Game Lobby</span>
+            }
             extra={
               <div style={{ display: "flex", gap: "10px" }}>
                 <Button
@@ -258,7 +273,8 @@ const GameLobby = () => {
               bordered
               pagination={false}
               locale={{
-                emptyText: "No games available. Create a new game to get started!",
+                emptyText:
+                  "No games available. Create a new game to get started!",
               }}
               style={{
                 marginTop: "20px",
@@ -308,7 +324,8 @@ const GameLobby = () => {
           </Card>
         </div>
 
-        <style jsx global>{`
+        <style jsx global>
+          {`
           .game-lobby-container {
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
               url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg');
@@ -360,7 +377,8 @@ const GameLobby = () => {
             border-color: #4b5563 !important;
             color: #6b7280 !important;
           }
-        `}</style>
+        `}
+        </style>
       </PageLayout>
     </ProtectedRoute>
   );

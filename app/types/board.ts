@@ -1,7 +1,9 @@
 import { Pawn } from "./pawn";
+import { Wall } from "./wall";
 
 export interface Board {
-  id: number;
-  sizeBoard: number;
+  id: string;
+  sizeBoard: string;
   pawns: Pawn[];
+  walls: Wall[];
 }

@@ -1,13 +1,17 @@
-import { User } from "./user"; // Adjust the path as needed
+import { User } from "./user";
+import { WallOrientation } from "./wall";
+
 export enum MoveType {
-  NORMAL = "NORMAL",
-  JUMP = "JUMP",
-  // Add other move types that exist in your backend MoveType enum
+  MOVE_PAWN = "MOVE_PAWN",
+  ADD_WALL = "ADD_WALL",
+  // Add other move types as defined in your backend if needed
 }
 
 export interface Move {
   startPosition: number[];
   endPosition: number[];
-  user: User;
+  wallPosition: number[];
+  wallOrientation: WallOrientation;
   type: MoveType;
+  user: User;
 }

@@ -29,9 +29,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           height: "100vh",
         }}
       >
-          <Spin size="large" tip="Loading...">
-              <div style={{ minHeight: '100px' }} /> {/* Placeholder content */}
-          </Spin>
+        <Spin size="large" tip="Loading...">
+          <div style={{ minHeight: "100px" }} /> {/* Placeholder content */}
+        </Spin>
       </div>
     );
   }

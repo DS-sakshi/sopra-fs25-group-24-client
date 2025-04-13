@@ -6,7 +6,7 @@ import "@ant-design/v5-patch-for-react-19";
 import { Space } from "antd";
 import { useRouter } from "next/navigation";
 import Groq from "groq-sdk";
-import { router } from "next/client";
+//import { router } from "next/client";
 
 const { Header, Content } = Layout;
 

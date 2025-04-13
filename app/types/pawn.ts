@@ -1,8 +1,8 @@
 export interface Pawn {
-  id: number;
+  id: string;
   color: string;
-  r: number; // row position
-  c: number; // column position
-  boardId: number; // Foreign key reference
-  userId: number; // Foreign key reference
+  r: string; // row position
+  c: string; // column position
+  boardId: string; // Foreign key reference
+  userId: string; // Foreign key reference
 }

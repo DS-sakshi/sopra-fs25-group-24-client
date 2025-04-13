@@ -1,3 +1,9 @@
+export enum UserStatus {
+  ONLINE = "ONLINE",
+  OFFLINE = "OFFLINE",
+  // Add other statuses as defined in your backend if needed
+}
+
 export interface User {
   id: string;
   name: string;
@@ -7,4 +13,7 @@ export interface User {
   creationDate: string | Date;
   birthday?: string | Date | null;
   password?: string;
+  totalGamesWon: string;
+  totalGamesLost: string;
+  totalGamesPlayed: string;
 }

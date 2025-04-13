@@ -104,8 +104,8 @@ export class ApiService {
     const res = await fetch(url, {
       method: "GET",
       headers: this.getHeaders(),
-      mode: 'cors',
-      credentials: 'same-origin', // Include credentials for same-origin requests
+      mode: "cors",
+      credentials: "same-origin", // Include credentials for same-origin requests
     });
     return this.processResponse<T>(
       res,
@@ -125,8 +125,8 @@ export class ApiService {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
-      mode: 'cors',  // Add this line
-      credentials: 'same-origin'
+      mode: "cors", // Add this line
+      credentials: "same-origin",
     });
     return this.processResponse<T>(
       res,
@@ -165,19 +165,29 @@ export class ApiService {
   }
 
   /**
- * DELETE request with body support for user data.
- * @param endpoint - The API endpoint (e.g. "/game-lobby/123").
- * @param userDTO - The user data required for deletion.
- * @returns JSON data of type T.
+ * DELETE request.
+ * @param endpoint - The API endpoint (e.g. "/users/123" or "/game-lobby/123").
+ * @param data - Optional data to send with the DELETE request.
+ * @returns JSON data of type T or empty object for 204 responses.
  */
-public async delete<T>(endpoint: string, userDTO: UserGetDTO): Promise<T> {
+public async delete<T>(endpoint: string, data?: unknown): Promise<T> {
   const url = `${this.baseURL}${endpoint}`;
-  const res = await fetch(url, {
+  console.log(`Making DELETE request to: ${url}`);
+
+  const options: RequestInit = {
     method: "DELETE",
     headers: this.getHeaders(),
-    body: JSON.stringify(userDTO)
-  });
-  
+    mode: "cors",
+    credentials: "same-origin"
+  };
+
+  // Only add body if data is provided
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+
+  const res = await fetch(url, options);
+
   return this.processResponse<T>(
     res,
     "An error occurred while deleting the data.\n",
