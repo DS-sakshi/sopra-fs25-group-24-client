@@ -283,7 +283,7 @@ export default function GameRoomPage() {
                     ) : (
                         <QuoridorBoard
                             currentUser={{
-                              id: Number(currentUser!.id),
+                              id: currentUser!.id,
                               name: currentUser!.name,
                               username: currentUser!.username,
                               status: UserStatus[currentUser!.status as keyof typeof UserStatus] as UserStatus,
