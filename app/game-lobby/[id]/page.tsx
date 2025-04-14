@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Card, Descriptions, message, Spin, Tag, Alert, Modal } from "antd";
 import { ArrowLeftOutlined, CloseCircleOutlined, UserOutlined } from "@ant-design/icons";
+
 import PageLayout from "@/components/PageLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import QuoridorBoard from "./board"; // importing from same directory
@@ -283,7 +284,7 @@ export default function GameRoomPage() {
                     ) : (
                         <QuoridorBoard
                             currentUser={{
-                              id: Number(currentUser!.id),
+                              id: currentUser!.id,
                               name: currentUser!.name,
                               username: currentUser!.username,
                               status: UserStatus[currentUser!.status as keyof typeof UserStatus] as UserStatus,
