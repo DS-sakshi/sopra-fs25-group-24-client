@@ -283,24 +283,23 @@ export default function GameRoomPage() {
                     ) : (
                         <QuoridorBoard
                             currentUser={{
-                              id: currentUser!.id,
-                              name: currentUser!.name,
-                              username: currentUser!.username,
-                              status: UserStatus[currentUser!.status as keyof typeof UserStatus] as UserStatus,
-                              token: currentUser!.token,
-                              creationDate: typeof currentUser!.creationDate === 'string'
-                                  ? currentUser!.creationDate
-                                  : currentUser!.creationDate.toString(),
-                              birthday: currentUser!.birthday || undefined,  // Convert null to undefined
-                              totalGamesWon: Number(currentUser!.totalGamesWon) || 0,
-                              totalGamesLost: Number(currentUser!.totalGamesLost) || 0,
-                              totalGamesPlayed: Number(currentUser!.totalGamesPlayed) || 0
+                                id: Number(currentUser!.id),
+                                name: currentUser!.name,
+                                username: currentUser!.username,
+                                status: UserStatus[currentUser!.status as keyof typeof UserStatus] as UserStatus,
+                                token: currentUser!.token,
+                                creationDate: currentUser!.creationDate.toString(),
+                                birthday: currentUser!.birthday?.toString(),
+                                totalGamesWon: Number(currentUser!.totalGamesWon) || 0,
+                                totalGamesLost: Number(currentUser!.totalGamesLost) || 0,
+                                totalGamesPlayed: Number(currentUser!.totalGamesPlayed) || 0
                             }}
                             game={game}
                             gameId={String(game.id)}
                             apiService={apiService}
                             onUpdateGame={handleUpdateGame}
                         />
+
                     )}
                   </>
               )}
