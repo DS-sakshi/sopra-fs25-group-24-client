@@ -7,14 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { JSX } from "react/jsx-runtime";
-
-interface Game {
-  id: string;
-  creator: { id: string; username: string };
-  gameStatus: string;
-  currentUsers?: { id: string; username: string }[];
-  numberUsers: number;
-}
+import { Game } from "@/types/game";
 
 const GameLobby = () => {
   const { user } = useAuth();
@@ -31,7 +24,9 @@ const GameLobby = () => {
       setLoading(true);
       const response = await apiService.get<Game[]>("/game-lobby");
       // Filter out games with ENDED status
-      const activeGames = response.filter(game => game.gameStatus !== "ENDED");
+      const activeGames = response.filter((game) =>
+        game.gameStatus !== "ENDED"
+      );
       setGames(activeGames);
     } catch (error) {
       message.error("Failed to fetch games");
@@ -45,9 +40,9 @@ const GameLobby = () => {
   const userIsInAnyGame = () => {
     if (!user) return false;
     return games.some((game) =>
-        (game.gameStatus !== "ENDED") && // Only check active games
-        (game.creator.id === user.id ||
-            game.currentUsers?.some((u) => u.id === user.id))
+      (game.gameStatus !== "ENDED") && // Only check active games
+      (game.creator.id === user.id ||
+        game.currentUsers?.some((u) => u.id === user.id))
     );
   };
 
@@ -59,7 +54,7 @@ const GameLobby = () => {
     }
     if (userIsInAnyGame()) {
       message.error(
-          "You are already in an active game. Please finish or abort that game first.",
+        "You are already in an active game. Please finish or abort that game first.",
       );
       return;
     }
@@ -91,13 +86,13 @@ const GameLobby = () => {
     // If joining a game that the user is not already part of and the user is in any other game, prevent joining.
     const targetGame = games.find((game) => game.id === gameId);
     const alreadyInThisGame = targetGame &&
-        targetGame.gameStatus !== "ENDED" &&
-        (targetGame.currentUsers?.some((u) => u.id === user.id) ||
-            targetGame.creator.id === user.id);
+      targetGame.gameStatus !== "ENDED" &&
+      (targetGame.currentUsers?.some((u) => u.id === user.id) ||
+        targetGame.creator.id === user.id);
 
     if (!alreadyInThisGame && userIsInAnyGame()) {
       message.error(
-          "You are already in another active game. Please finish or abort that game first."
+        "You are already in another active game. Please finish or abort that game first.",
       );
       return;
     }
@@ -153,7 +148,7 @@ const GameLobby = () => {
     creator: { id: string; username: string };
     gameStatus: string;
     currentUsers?: { id: string }[];
-    numberUsers: number;
+    numberUsers: string;
   }
 
   interface Column {
@@ -183,14 +178,14 @@ const GameLobby = () => {
       dataIndex: "gameStatus",
       key: "gameStatus",
       render: (status: string) => (
-          <Tag color={getStatusColor(status)}>{status}</Tag>
+        <Tag color={getStatusColor(status)}>{status}</Tag>
       ),
     },
     {
       title: "Players",
       key: "players",
       render: (_, record?: GameRecord) => (
-          <span style={{ color: "#e5e7eb" }}>
+        <span style={{ color: "#e5e7eb" }}>
           {record?.currentUsers?.length || 0}/{record?.numberUsers || 0}
         </span>
       ),
@@ -201,133 +196,133 @@ const GameLobby = () => {
       render: (_, record?: GameRecord) => {
         if (!record) return null;
         const isUserInGame = user &&
-            (record.currentUsers?.some((u) => u.id === user.id) ||
-                record.creator.id === user.id);
-        const isGameFull =
-            (record.currentUsers?.length || 0) >= record.numberUsers;
+          (record.currentUsers?.some((u) => u.id === user.id) ||
+            record.creator.id === user.id);
+        const isGameFull = (record.currentUsers?.length || 0) >=
+          parseInt(record.numberUsers, 10);
         const isGameRunning = record.gameStatus === "RUNNING";
         const isGameEnded = record.gameStatus === "ENDED";
         const canJoin = !isUserInGame && !isGameFull && !isGameRunning;
 
         if (isUserInGame && !isGameEnded) {
           return (
-              <Button
-                  type="primary"
-                  onClick={() => router.push(`/game-lobby/${record.id}`)}
-                  style={{ background: "#4f46e5", borderColor: "#4f46e5" }}
-              >
-                Resume Game
-              </Button>
+            <Button
+              type="primary"
+              onClick={() => router.push(`/game-lobby/${record.id}`)}
+              style={{ background: "#4f46e5", borderColor: "#4f46e5" }}
+            >
+              Resume Game
+            </Button>
           );
         }
 
         return (
-            <Button
-                type="primary"
-                onClick={() => joinGame(record.id)}
-                disabled={!canJoin}
-                className="join-button"
-                style={{ opacity: canJoin ? 1 : 0.5, transition: "all 0.3s" }}
-            >
-              Join Game
-            </Button>
+          <Button
+            type="primary"
+            onClick={() => joinGame(record.id)}
+            disabled={!canJoin}
+            className="join-button"
+            style={{ opacity: canJoin ? 1 : 0.5, transition: "all 0.3s" }}
+          >
+            Join Game
+          </Button>
         );
       },
     },
   ];
 
   return (
-      <ProtectedRoute>
-        <PageLayout requireAuth>
-          <div className="game-lobby-container">
-            <Card
-                title={
-                  <span className="game-lobby-title">Quoridor Game Lobby</span>
-                }
-                extra={
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <Button
-                        type="primary"
-                        onClick={fetchGames}
-                        className="refresh-btn"
-                        style={{ background: "#6366f1", borderColor: "#6366f1" }}
-                    >
-                      Refresh
-                    </Button>
-                    <Button
-                        type="primary"
-                        onClick={createGame}
-                        loading={creatingGame}
-                        className="create-game-btn"
-                    >
-                      New Game
-                    </Button>
-                  </div>
-                }
-                className="game-lobby-card"
-            >
-              <Table
-                  columns={columns}
-                  dataSource={games}
-                  loading={loading}
-                  rowKey="id"
-                  className="game-table"
-                  bordered
-                  pagination={false}
-                  locale={{
-                    emptyText:
-                        "No games available. Create a new game to get started!",
-                  }}
-                  style={{
-                    marginTop: "20px",
-                    background: "rgba(17, 24, 39, 0.5)",
-                  }}
-              />
-              <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    justifyContent: "center",
-                    marginTop: "20px",
-                  }}
-              >
+    <ProtectedRoute>
+      <PageLayout requireAuth>
+        <div className="game-lobby-container">
+          <Card
+            title={
+              <span className="game-lobby-title">Quoridor Game Lobby</span>
+            }
+            extra={
+              <div style={{ display: "flex", gap: "10px" }}>
                 <Button
-                    type="default"
-                    onClick={() => router.push("/game-rules")}
-                    className="tutorial-btn"
-                    style={{
-                      backgroundColor: "#2563eb",
-                      borderColor: "#2563eb",
-                      color: "#ffffff",
-                      fontWeight: "500",
-                      padding: "10px 20px",
-                      borderRadius: "5px",
-                      whiteSpace: "nowrap",
-                    }}
+                  type="primary"
+                  onClick={fetchGames}
+                  className="refresh-btn"
+                  style={{ background: "#6366f1", borderColor: "#6366f1" }}
                 >
-                  View Game Rules
+                  Refresh
                 </Button>
                 <Button
-                    type="default"
-                    onClick={() => router.push("/chatbot")}
-                    style={{
-                      background: "#f59e0b",
-                      borderColor: "#f59e0b",
-                      color: "#ffffff",
-                      fontWeight: "500",
-                      padding: "10px 20px",
-                      borderRadius: "5px",
-                      whiteSpace: "nowrap",
-                    }}
+                  type="primary"
+                  onClick={createGame}
+                  loading={creatingGame}
+                  className="create-game-btn"
                 >
-                  Strategy Tips
+                  New Game
                 </Button>
               </div>
-            </Card>
-          </div>
+            }
+            className="game-lobby-card"
+          >
+            <Table
+              columns={columns}
+              dataSource={games}
+              loading={loading}
+              rowKey="id"
+              className="game-table"
+              bordered
+              pagination={false}
+              locale={{
+                emptyText:
+                  "No games available. Create a new game to get started!",
+              }}
+              style={{
+                marginTop: "20px",
+                background: "rgba(17, 24, 39, 0.5)",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "center",
+                marginTop: "20px",
+              }}
+            >
+              <Button
+                type="default"
+                onClick={() => router.push("/game-rules")}
+                className="tutorial-btn"
+                style={{
+                  backgroundColor: "#2563eb",
+                  borderColor: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: "500",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                View Game Rules
+              </Button>
+              <Button
+                type="default"
+                onClick={() => router.push("/chatbot")}
+                style={{
+                  background: "#f59e0b",
+                  borderColor: "#f59e0b",
+                  color: "#ffffff",
+                  fontWeight: "500",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Strategy Tips
+              </Button>
+            </div>
+          </Card>
+        </div>
 
-          <style jsx global>
-            {`
+        <style jsx global>
+          {`
               .game-lobby-container {
                 background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
                 url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg');
@@ -380,9 +375,9 @@ const GameLobby = () => {
                 color: #6b7280 !important;
               }
             `}
-          </style>
-        </PageLayout>
-      </ProtectedRoute>
+        </style>
+      </PageLayout>
+    </ProtectedRoute>
   );
 };
 

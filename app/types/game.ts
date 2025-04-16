@@ -1,58 +1,31 @@
-export interface User {
-  id: string;
-  username: string;
-  name: string;
-  status: string;
-  token: string;
-}
+import { Board } from "./board";
+import { Pawn } from "./pawn";
+import { Wall, WallOrientation } from "./wall";
+import { Position } from "./board";
 
-export interface Pawn {
-  id: number;
-  userId: number;
-  r: number;
-  c: number;
-  color?: string;
-}
-
-export interface Wall {
-  r: number;
-  c: number;
-  orientation: 'HORIZONTAL' | 'VERTICAL';
-  userId?: number;
-}
-
-export interface Board {
-  pawns: Pawn[];
-  walls?: Wall[];
+export enum GameStatus {
+  WAITING_FOR_USER = "WAITING_FOR_USER",
+  RUNNING = "RUNNING",
+  ENDED = "ENDED",
 }
 
 export interface Game {
-  id: string;
-  creator: User;
-  currentTurn?: User;
-  gameStatus: "WAITING_FOR_USER" | "RUNNING" | "ENDED";
-  sizeBoard: number;
-  board: Board;
-  currentUsers: User[];
-  winner?: string;
-}
-
-export interface GameData {
-  id: string;
-  creator: {
+  id: string; // More flexible than number
+  numberUsers: string; // Keep as number for calculations
+  sizeBoard: number; // Keep as number for board rendering
+  timeLimit?: number; // Optional
+  creator: { // Minimal user info needed
     id: string;
     username: string;
   };
-  currentTurn?: {
-    id: string;
-    username: string;
-  };
-  gameStatus: "WAITING_FOR_USER" | "RUNNING" | "ENDED";
-  sizeBoard: number;
-  board: Board;
-  currentUsers: Array<{
+  currentUsers: Array<{ // Array instead of Set for easier handling
     id: string;
     username: string;
   }>;
-  winner?: string;
+  currentTurn: { // Minimal user info for turn display
+    id: string;
+    username: string;
+  } | null; // Nullable for initial state
+  board: Board;
+  gameStatus: GameStatus;
 }

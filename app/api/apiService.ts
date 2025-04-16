@@ -165,32 +165,32 @@ export class ApiService {
   }
 
   /**
- * DELETE request.
- * @param endpoint - The API endpoint (e.g. "/users/123" or "/game-lobby/123").
- * @param data - Optional data to send with the DELETE request.
- * @returns JSON data of type T or empty object for 204 responses.
- */
-public async delete<T>(endpoint: string, data?: unknown): Promise<T> {
-  const url = `${this.baseURL}${endpoint}`;
-  console.log(`Making DELETE request to: ${url}`);
+   * DELETE request.
+   * @param endpoint - The API endpoint (e.g. "/users/123" or "/game-lobby/123").
+   * @param data - Optional data to send with the DELETE request.
+   * @returns JSON data of type T or empty object for 204 responses.
+   */
+  public async delete<T>(endpoint: string, data?: unknown): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    console.log(`Making DELETE request to: ${url}`);
 
-  const options: RequestInit = {
-    method: "DELETE",
-    headers: this.getHeaders(),
-    mode: "cors",
-    credentials: "same-origin"
-  };
+    const options: RequestInit = {
+      method: "DELETE",
+      headers: this.getHeaders(),
+      mode: "cors",
+      credentials: "same-origin",
+    };
 
-  // Only add body if data is provided
-  if (data) {
-    options.body = JSON.stringify(data);
+    // Only add body if data is provided
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+
+    const res = await fetch(url, options);
+
+    return this.processResponse<T>(
+      res,
+      "An error occurred while deleting the data.\n",
+    );
   }
-
-  const res = await fetch(url, options);
-
-  return this.processResponse<T>(
-    res,
-    "An error occurred while deleting the data.\n",
-  );
-}
 }

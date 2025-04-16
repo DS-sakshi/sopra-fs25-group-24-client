@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!loading && !token && isProtectedRoute) {
       router.push("/login"); //Redirect to users if logged in
     } else if (!loading && token && pathname === "/") {
-      router.push("/game-lobby"); // Redirect to game lobby if authenticated at root
+      router.push("/login"); // Redirect to game lobby if authenticated at root
     }
   }, [pathname, token, loading, router]);
   // Login function

@@ -1,9 +1,4 @@
-export enum UserStatus {
-  ONLINE = "ONLINE",
-  OFFLINE = "OFFLINE",
-  // Add other statuses as defined in your backend if needed
-}
-
+// This file defines the User interface for TypeScript.
 export interface User {
   id: string;
   name: string;
@@ -13,7 +8,7 @@ export interface User {
   creationDate: string | Date;
   birthday?: string | Date | null;
   password?: string;
-  totalGamesWon: string;
-  totalGamesLost: string;
-  totalGamesPlayed: string;
+  totalGamesWon: number; //mathematical operations being performed at backend
+  totalGamesLost: number;
+  totalGamesPlayed: number;
 }

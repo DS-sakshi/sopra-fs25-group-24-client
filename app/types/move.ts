@@ -1,17 +1,18 @@
 import { User } from "./user";
-import { WallOrientation } from "./wall";
 
-export enum MoveType {
-  MOVE_PAWN = "MOVE_PAWN",
-  ADD_WALL = "ADD_WALL",
-  // Add other move types as defined in your backend if needed
-}
+export type MoveType = "MOVE_PAWN" | "ADD_WALL";
+export type WallOrientation = "HORIZONTAL" | "VERTICAL";
+// Enum to match backend MoveType
+//needs to be updated to ADD_WALL and ADD_PAWN ???
 
-export interface Move {
-  startPosition: number[];
-  endPosition: number[];
-  wallPosition: number[];
-  wallOrientation: WallOrientation;
+export interface MovePostDTO {
+  startPosition?: number[];
+  endPosition?: number[];
+  wallPosition?: number[];
+  wallOrientation?: WallOrientation;
+  user: {
+    id: number;
+    username: string;
+  };
   type: MoveType;
-  user: User;
 }
