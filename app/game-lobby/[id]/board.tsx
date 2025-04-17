@@ -39,27 +39,6 @@ interface WallIntersectionProps {
 }
 
 
-interface QuoridorBoardProps {
-    currentUser: {
-        id: number;
-        name: string;
-        username: string;
-        status: UserStatus;
-        token: string;
-        creationDate: string;
-        birthday?: string;
-        totalGamesWon: number;
-        totalGamesLost: number;
-        totalGamesPlayed: number;
-    };
-    game: Game;
-    gameId: string;
-    apiService: ApiService;
-    onUpdateGame: (updatedGame: Game) => void;
-}
-
-
-
 const WallIntersection: React.FC<WallIntersectionProps> = ({ row, col, gapSize, sendPosition }) => {
     const [showButtons, setShowButtons] = useState(false);
 
