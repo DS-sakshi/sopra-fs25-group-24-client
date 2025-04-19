@@ -79,16 +79,16 @@ reason).
 
 ## Contributions Week 4 - [Begin Date] to [End Date]
 
-| **Student**           | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
-| --------------------- | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **Student**           | **Date** | **Link to Commit** | **Description**                                            | **Relevance**                                              |
+| --------------------- | -------- | ------------------ |------------------------------------------------------------|------------------------------------------------------------|
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
+| **[tolipp]**          | [date]   | [Link to Commit ]  | sending a pawn move to the backend, coming from the board. | Logic from a click to a move, that is sent to the Backend. |
+| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
+| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
+| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                            | [Why this contribution is relevant]                        |
 
 ---
 

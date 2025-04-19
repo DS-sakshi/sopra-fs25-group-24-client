@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useApi } from "@/hooks/useApi";
 import { Game } from '@/types/game';
 import { Pawn } from '@/types/pawn';
+import "@ant-design/v5-patch-for-react-19";
+import * as Types from "@/types/user";
+console.log(Types);
 import { WallOrientation } from '@/types/wall';
 import { GameStatus } from "@/types/api";
 
@@ -14,6 +18,17 @@ interface WallIntersectionProps {
     orientation: WallOrientation
   ) => void;
 }
+
+interface UserInputFromBoardClick{
+  row: number,
+  col: number,
+  orientation?: WallOrientation
+}
+
+
+
+
+
 
 const WallIntersection: React.FC<WallIntersectionProps> = ({
   row,
@@ -74,16 +89,40 @@ const QuoridorBoard: React.FC = () => {
   const [game, setGame] = useState<Game | null>(null);
 
   const currentUser = { id: "1" }; // Dummy current user
-
-  const sendPosition = (
-    row: number,
-    col: number,
-    orientation?: WallOrientation
+  const apiService = useApi();
+  const sendPosition = async (
+      row: number,
+      col: number,
+      orientation?: WallOrientation
   ) => {
-    console.log(
-      `Send position: row ${row}, col ${col}, orientation ${orientation}`
-    );
+
+    const payload = {
+      endPosition: [row, col],
+      user: {
+        id: currentUser.id,
+      },
+      type: orientation ? "ADD_WALL" : "MOVE_PAWN",
+    };
+
+    try {
+      const response = await fetch(`/game-lobby/${game.id}/move`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to send move: ${response.statusText}`);
+      }
+
+      console.log("Move sent successfully:", payload);
+    } catch (error) {
+      console.error("Error sending move:", error);
+    }
   };
+
 
   useEffect(() => {
     if (!game) {
