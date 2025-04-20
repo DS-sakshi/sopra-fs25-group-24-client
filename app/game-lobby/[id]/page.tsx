@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Alert,
@@ -36,22 +36,23 @@ export default function GameRoomPage() {
   const router = useRouter();
   const apiService = useApi(); // your custom hook or similar
   const { user: currentUser } = useAuth();
+  const gameId = params.id;
 
-  const gameId = params.id as string; // from [gameId].tsx
+
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const { user } = useAuth();
-  // Poll the game data periodically
-  const fetchGame = async () => {
+
+  // useCallback to memoize fetchGame
+  const fetchGame = useCallback(async () => {
     try {
       setLoading(true);
       const data: Game = await apiService.get(`/game-lobby/${gameId}`);
       if (!data?.id) {
         throw new Error("Invalid game data");
       }
-
       setGame(data);
       setError(null);
     } catch (err) {
@@ -60,13 +61,12 @@ export default function GameRoomPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiService, gameId]);
 
   useEffect(() => {
+    // Fetch game data on initial load
     fetchGame();
-    const interval = setInterval(fetchGame, 5000); //refresh time
-    return () => clearInterval(interval);
-  }, [gameId]);
+  }, [fetchGame]); // Removed gameId from dependency array
 
   const handleUpdateGame = (updatedGame: Game) => {
     setGame(updatedGame);
@@ -99,67 +99,7 @@ export default function GameRoomPage() {
       setConfirmModalVisible(false);
     }
   };
-
-  const renderGameDetails = () => {
-    if (!game) return null;
-
-    // E.g., highlight the game's status, board size, etc.
-    return (
-      <Descriptions bordered column={2} style={{ marginBottom: 20 }}>
-        <Descriptions.Item
-          label={<span style={{ color: "#e5e7eb" }}>Status</span>}
-        >
-          <Tag
-            color={game.gameStatus === GameStatus.WAITING_FOR_USER
-              ? "orange"
-              : game.gameStatus === GameStatus.RUNNING
-              ? "green"
-              : "red"}
-          >
-            {game.gameStatus}
-          </Tag>
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={<span style={{ color: "#e5e7eb" }}>Board Size</span>}
-        >
-          <span style={{ color: "#e5e7eb" }}>
-            {game.sizeBoard} x {game.sizeBoard}
-          </span>
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={
-            <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Creator (Blue)
-            </span>
-          }
-        >
-          <span style={{ color: "#e5e7eb" }}>
-            {game.creator?.username}
-            {game.currentTurn?.id === game.creator.id && " (Current Turn)"}
-          </span>
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={
-            <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Opponent (Red)
-            </span>
-          }
-        >
-          <span style={{ color: "#e5e7eb" }}>
-            {game.currentUsers
-              .filter((u) => u.id !== game.creator.id)
-              .map((u) => u.username)
-              .join(", ") || "Waiting for player..."}
-            {game.currentTurn &&
-              game.currentTurn.id !== game.creator.id &&
-              game.gameStatus === GameStatus.RUNNING &&
-              " (Current Turn)"}
-          </span>
-        </Descriptions.Item>
-      </Descriptions>
-    );
-  };
-
+  
   return (
     <ProtectedRoute>
       <PageLayout requireAuth>
@@ -233,8 +173,6 @@ export default function GameRoomPage() {
               ? <Spin tip="Loading game..." />
               : (
                 <>
-                  {renderGameDetails()}
-
                   {/* Conditional alerts */}
                   {game.gameStatus === GameStatus.WAITING_FOR_USER && (
                     <Alert
@@ -257,8 +195,7 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
-                        <QuoridorBoard
-                          //game={game}
+                        <QuoridorBoard gameId={""}                          //game={game}
                           //gameId={gameId}
                           //currentUser={user!}
                           //onMoveComplete={handleUpdateGame}

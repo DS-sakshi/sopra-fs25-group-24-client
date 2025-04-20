@@ -19,6 +19,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   refreshUser: () => Promise<void>;
+  getUser: () => User | null; // <-- Added
 }
 // RegisterData interface for registration form
 interface RegisterData {
@@ -45,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Update API service with current user ID whenever user changes
   useEffect(() => {
     if (user && user.id) {
-      // Ensure we're consistently using a string representation of the ID
       apiService.setCurrentUserId(String(user.id));
       console.log("Set current user ID in API service:", user.id);
     } else {
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (storedUser && token) {
       console.log("Restoring user from localStorage:", storedUser);
-      setUser(storedUser); //Set user from localStorage
+      setUser(storedUser);
       setLoading(false);
     } else if (!token) {
       setUser(null);
@@ -66,7 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       fetchCurrentUser();
     }
-  }, [storedUser, token]); //Only run on mount
+  }, [storedUser, token]);
+  
   // Fetch current user from API
   const fetchCurrentUser = async () => {
     if (!token) {
@@ -74,26 +75,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    // Set loading state while fetching user
     try {
       setLoading(true);
-      // In a real app, you would have a /me endpoint
-      // Here we fake it - in a real app this would be more reliable
       const users = await apiService.get<User[]>("/users");
-
-      // Find user with matching token - this is more reliable than using first user
       const foundUser = users.find((u) => u.token === token);
-      // If user is found, set user state and store in localStorage
       if (foundUser) {
         console.log("Found current user:", foundUser);
         setUser(foundUser);
-        setStoredUser(foundUser); // Store in localStorage
+        setStoredUser(foundUser);
       } else {
         console.warn("User not found with token, clearing auth state");
         clearToken();
         clearStoredUser();
         setUser(null);
-      } //Catch any errors and clear auth state
+      }
     } catch (error) {
       console.error("Failed to fetch current user:", error);
       clearToken();
@@ -109,14 +104,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const protectedRoutes = ["/game-lobby", "/game-lobby/"];
     const isProtectedRoute = protectedRoutes.some((route) =>
       pathname === route || pathname?.startsWith("/game-lobby/")
-    ); //Redirect to login if not logged in
-
+    );
     if (!loading && !token && isProtectedRoute) {
-      router.push("/login"); //Redirect to users if logged in
+      router.push("/login");
     } else if (!loading && token && pathname === "/") {
-      router.push("/login"); // Redirect to game lobby if authenticated at root
+      router.push("/login");
     }
   }, [pathname, token, loading, router]);
+
   // Login function
   const login = async (username: string, password: string) => {
     setLoading(true);
@@ -124,12 +119,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await apiService.post<User>("/login", {
         username,
         password,
-      }); //If login is successful, set token and user state
+      });
       if (response && response.token) {
         console.log("Login successful, user:", response);
         setToken(response.token);
         setUser(response);
-        setStoredUser(response); // Store in localStorage
+        setStoredUser(response);
         router.push("/game-lobby");
       }
     } catch (error) {
@@ -139,16 +134,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
+
   // Registration function
   const register = async (userData: RegisterData) => {
-    setLoading(true); //Try to register user
+    setLoading(true);
     try {
       const response = await apiService.post<User>("/users", userData);
       if (response && response.token) {
         console.log("Registration successful, user:", response);
         setToken(response.token);
         setUser(response);
-        setStoredUser(response); // Store in localStorage
+        setStoredUser(response);
         router.push("/game-lobby");
       }
     } catch (error) {
@@ -158,11 +154,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
+
   // Logout function
   const logout = async () => {
     setLoading(true);
     try {
-      // If you have a logout API endpoint
       if (user?.id) {
         await apiService.post(`/logout/${user.id}`, {});
       }
@@ -172,7 +168,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push("/login");
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if logout fails on server, clear local state
       clearToken();
       clearStoredUser();
       setUser(null);
@@ -180,10 +175,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
+
   // Refresh user function
   const refreshUser = async () => {
     return fetchCurrentUser();
   };
+
+  // getUser function
+  const getUser = () => user; // <-- Added
+
   // Provide context to children
   return (
     <AuthContext.Provider
@@ -194,12 +194,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         register,
         refreshUser,
+        getUser, // <-- Added
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
+
 // Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useApi } from "@/hooks/useApi";
-import { Game } from '@/types/game';
-import { Pawn } from '@/types/pawn';
+import { Game } from "@/types/game";
+import { User } from "@/types/user";
+import { Pawn } from "@/types/pawn";
+import { Wall, WallOrientation } from "@/types/wall";
 import "@ant-design/v5-patch-for-react-19";
 import * as Types from "@/types/user";
-console.log(Types);
-import { WallOrientation } from '@/types/wall';
 import { GameStatus } from "@/types/api";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { log } from "console";
 
 interface WallIntersectionProps {
   row: number;
@@ -19,16 +22,9 @@ interface WallIntersectionProps {
   ) => void;
 }
 
-interface UserInputFromBoardClick{
-  row: number,
-  col: number,
-  orientation?: WallOrientation
+interface QuoridorBoardProps {
+  gameId: string;
 }
-
-
-
-
-
 
 const WallIntersection: React.FC<WallIntersectionProps> = ({
   row,
@@ -61,43 +57,83 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
             zIndex: 10,
           }}
         >
-        <button
-          style={{ fontSize: "8px", padding: "2px" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            sendPosition(row, col, WallOrientation.VERTICAL || WallOrientation.HORIZONTAL);
-            setShowOptions(false);
-          }}
-        >
-          Vertical
-        </button>
-        <button
-          style={{ fontSize: "8px", padding: "2px" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            sendPosition(row, col, WallOrientation.HORIZONTAL);
-          }}
-        >
-          Horizontal
-        </button>
-      </div>)}
+          <button
+            style={{ fontSize: "8px", padding: "2px" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              sendPosition(row, col, WallOrientation.VERTICAL);
+              setShowOptions(false);
+            }}
+          >
+            Vertical
+          </button>
+          <button
+            style={{ fontSize: "8px", padding: "2px" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              sendPosition(row, col, WallOrientation.HORIZONTAL);
+              setShowOptions(false);
+            }}
+          >
+            Horizontal
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
-const QuoridorBoard: React.FC = () => {
+const QuoridorBoard: React.FC<QuoridorBoardProps> = () => {
   const [game, setGame] = useState<Game | null>(null);
-
-  const currentUser = { id: "1" }; // Dummy current user
+  const [pawns, setPawns] = useState<Pawn[]>([]);
+  const [walls, setWalls] = useState<Wall[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const currentUser = useState<User | null>(null); // Dummy current user
   const apiService = useApi();
+  const params = useParams();
+  const gameId = params.id;
+  const { getUser } = useAuth();
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      apiService.get<Game>(`/game-lobby/${gameId}`),
+      apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
+      apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
+    ])
+      .then(([gameData, pawnsData, wallsData]) => {
+        setGame(gameData);
+        setPawns(pawnsData);
+        setWalls(wallsData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Failed to fetch game data.");
+        setLoading(false);
+      });
+    // eslint-disable-next-line
+  }, [gameId]);
+
   const sendPosition = async (
-      row: number,
-      col: number,
-      orientation?: WallOrientation
+    row: number,
+    col: number,
+    orientation?: WallOrientation
   ) => {
+    if (!game) return;
+
+    const currentUser = getUser();
+    if (!currentUser) {
+      setError("No user logged in.");
+      return;
+    }
 
     const payload = {
-      endPosition: [row, col],
+      endPosition: orientation ? null : [row, col],
+      wallPosition: orientation ? [row, col] : null,
+      wallOrientation: orientation ? orientation : null, 
       user: {
         id: currentUser.id,
       },
@@ -105,49 +141,24 @@ const QuoridorBoard: React.FC = () => {
     };
 
     try {
-      const response = await fetch(`/game-lobby/${game.id}/move`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to send move: ${response.statusText}`);
+      console.log(payload);
+      const response = await apiService.post<Game>(
+        `/game-lobby/${game.id}/move`,
+        payload
+      );
+      if (response) {
+        setGame(response);
+        const [newPawns, newWalls] = await Promise.all([
+          apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
+          apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
+        ]);
+        setPawns(newPawns);
+        setWalls(newWalls);
       }
-
-      console.log("Move sent successfully:", payload);
     } catch (error) {
       console.error("Error sending move:", error);
     }
   };
-
-
-  useEffect(() => {
-    if (!game) {
-      const dummyGame: Game = {
-        id: '1',
-        numberUsers: '2',
-        sizeBoard: 9,
-        currentUsers: [{ id: '1', username: 'player1' }],
-        board: {
-          id: '1',
-          sizeBoard: 9,
-          pawns: [
-            { id: "pawn1", r: 0, c: 4, color: "blue", userId: '1', boardId: '1' },
-            { id: "pawn2", r: 8, c: 4, color: "red", userId: '2', boardId: '2' },
-          ],
-          walls: [],
-        },
-        creator: { id: "1", username: "player1" },
-        currentTurn: { id: '1', username: 'player1' },
-        gameStatus: GameStatus.RUNNING,
-      };
-      setGame(dummyGame);
-    }
-  }, [game]);
-
   const boardSize = 9;
   const cellSize = 20;
   const gapSize = 10;
@@ -161,7 +172,7 @@ const QuoridorBoard: React.FC = () => {
   }
 
   const renderBoard = () => {
-    if (!game || !game.board) return null;
+    if (!game) return null;
 
     return (
       <div className="quoridor-board-container">
@@ -178,6 +189,7 @@ const QuoridorBoard: React.FC = () => {
               gridTemplateRows: rows.join(" "),
               width: `${totalSize}px`,
               height: `${totalSize}px`,
+              backgroundColor: "lightgrey", // Add a background color
             }}
           >
             {Array.from({ length: 289 }).map((_, index) => {
@@ -186,6 +198,7 @@ const QuoridorBoard: React.FC = () => {
               const isOddRow = rowIndex % 2 === 1;
               const isOddCol = colIndex % 2 === 1;
 
+              // Wall intersection button
               if (isOddRow && isOddCol) {
                 return (
                   <WallIntersection
@@ -196,22 +209,23 @@ const QuoridorBoard: React.FC = () => {
                     sendPosition={sendPosition}
                   />
                 );
-              } else if (!isOddRow && !isOddCol) {
-                const cellRow = rowIndex / 2;
-                const cellCol = colIndex / 2;
+              }
 
-                const pawn = game.board.pawns?.find(
+              // Pawn cell
+              if (!isOddRow && !isOddCol) {
+                const cellRow = rowIndex;
+                const cellCol = colIndex;
+                const pawn = pawns.find(
                   (pawn) => pawn.r === cellRow && pawn.c === cellCol
                 );
-
                 return (
                   <div
                     key={index}
-                    onClick={() => console.log(`Move pawn to ${cellRow}, ${cellCol}`)}
+                    onClick={() => sendPosition(cellRow, cellCol)}
                     style={{
                       width: cellSize,
                       height: cellSize,
-                      backgroundColor: "#FFDEAD",
+                      backgroundColor: "white", // Set square color to white
                       border: "1px solid #8B4513",
                       display: "flex",
                       justifyContent: "center",
@@ -224,39 +238,50 @@ const QuoridorBoard: React.FC = () => {
                           width: "80%",
                           height: "80%",
                           borderRadius: "50%",
-                          backgroundColor: pawn.userId === currentUser.id ? "blue" : "red",
+                          backgroundColor: pawn.color,
                         }}
+                        title={pawn.id}
                       />
                     )}
                   </div>
                 );
-              } else {
-                // Wall slots
-                const wallRow = isOddRow ? (rowIndex - 1) / 2 : rowIndex / 2;
-                const wallCol = isOddCol ? (colIndex - 1) / 2 : colIndex / 2;
-                const orientation = isOddRow
-                  ? WallOrientation.HORIZONTAL
-                  : WallOrientation.VERTICAL;
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => sendPosition(wallRow, wallCol, orientation)}
-                    style={{
-                      width: isOddCol ? gapSize : cellSize,
-                      height: isOddRow ? gapSize : cellSize,
-                      background: "#000",
-                      cursor: "pointer",
-                    }}
-                  />
-                );
               }
+
+              // Wall slots
+              const wallRow = isOddRow ? rowIndex - 1 : rowIndex;
+              const wallCol = isOddCol ? colIndex - 1 : colIndex;
+              const orientation = isOddRow
+                ? WallOrientation.HORIZONTAL
+                : WallOrientation.VERTICAL;
+
+              const wallHere = walls.find(
+                (w) =>
+                  w.r === wallRow &&
+                  w.c === wallCol &&
+                  w.orientation === orientation
+              );
+
+              return (
+                <div
+                  key={index}
+                  style={{
+                    width: isOddCol ? gapSize : cellSize,
+                    height: isOddRow ? gapSize : cellSize,
+                    backgroundColor: "blue", // Set line color to blue
+                    opacity: 1, // Make lines fully visible
+                    cursor: "pointer",
+                  }}
+                />
+              );
             })}
           </div>
         </div>
       </div>
     );
   };
+
+  if (loading) return <div>Loading game...</div>;
+  if (error) return <div>{error}</div>;
 
   return <>{renderBoard()}</>;
 };
