@@ -19,6 +19,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   refreshUser: () => Promise<void>;
+  getUser: () => User | null;
 }
 // RegisterData interface for registration form
 interface RegisterData {
@@ -45,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Update API service with current user ID whenever user changes
   useEffect(() => {
     if (user && user.id) {
-      // Ensure we're consistently using a string representation of the ID
       apiService.setCurrentUserId(String(user.id));
       console.log("Set current user ID in API service:", user.id);
     } else {
@@ -184,6 +184,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     return fetchCurrentUser();
   };
+  // getUser function
+  const getUser = () => user;
+
   // Provide context to children
   return (
     <AuthContext.Provider
@@ -194,6 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         register,
         refreshUser,
+        getUser,
       }}
     >
       {children}
