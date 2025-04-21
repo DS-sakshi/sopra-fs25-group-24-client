@@ -19,7 +19,7 @@ import {
 } from "@ant-design/icons";
 import PageLayout from "@/components/PageLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import QuoridorBoard from "./board"; // importing from same directory
+import Board from "./board"; // importing from same directory
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
@@ -28,7 +28,7 @@ import { Wall } from "@/types/wall";
 import { Pawn } from "@/types/pawn";
 import { ApiService } from "@/api/apiService";
 //import { Move } from "@/types/move";
-import { Board } from "@/types/board";
+//import { Board } from "@/types/board";
 import { ApplicationError } from "@/types/error";
 
 export default function GameRoomPage() {
@@ -245,8 +245,8 @@ export default function GameRoomPage() {
                     />
                   )}
                   {game.gameStatus === GameStatus.RUNNING &&
-                      game.currentUsers.length === 2
-                    ? (
+                      game.currentUsers.length === 2 && user ?
+                     (
                       <div className="game-page">
                         <h1
                           style={{
@@ -257,11 +257,11 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
-                        <QuoridorBoard
-                          //game={game}
-                          //gameId={gameId}
-                          //currentUser={user!}
-                          //onMoveComplete={handleUpdateGame}
+                        <Board
+                          game={game}
+                          gameId={gameId}
+                          currentUser={user}
+                          onGameStatusChange={handleUpdateGame}
                         />
                       </div>
                     )

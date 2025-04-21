@@ -26,6 +26,6 @@ export interface Game {
     id: string;
     username: string;
   } | null; // Nullable for initial state
-  board: Board;
+  //board: Board;
   gameStatus: GameStatus;
 }
