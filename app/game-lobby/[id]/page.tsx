@@ -64,7 +64,7 @@ export default function GameRoomPage() {
 
   useEffect(() => {
     fetchGame();
-    const interval = setInterval(fetchGame, 1000);
+    const interval = setInterval(fetchGame, 5000); //refresh time
     return () => clearInterval(interval);
   }, [gameId]);
 

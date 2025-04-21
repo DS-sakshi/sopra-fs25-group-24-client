@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useApi } from "@/hooks/useApi";
 import { Game } from '@/types/game';
+import { User } from "@/types/user";
 import { Pawn } from '@/types/pawn';
+import "@ant-design/v5-patch-for-react-19";
+import * as Types from "@/types/user";
+console.log(Types);
 import { WallOrientation } from '@/types/wall';
 import { GameStatus } from "@/types/api";
 
@@ -13,6 +18,19 @@ interface WallIntersectionProps {
     col: number,
     orientation: WallOrientation
   ) => void;
+}
+
+interface UserInputFromBoardClick{
+  row: number,
+  col: number,
+  orientation?: WallOrientation
+}
+
+interface QuoridorBoardProps {
+  game: Game;
+  gameId: string;
+  currentUser: User;
+  onMoveComplete: (updatedGame: Game) => void;
 }
 
 const WallIntersection: React.FC<WallIntersectionProps> = ({
@@ -50,7 +68,7 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
           style={{ fontSize: "8px", padding: "2px" }}
           onClick={(e) => {
             e.stopPropagation();
-            sendPosition(row, col, WallOrientation.VERTICAL || WallOrientation.HORIZONTAL);
+            sendPosition(row, col, WallOrientation.VERTICAL);
             setShowOptions(false);
           }}
         >
@@ -74,16 +92,62 @@ const QuoridorBoard: React.FC = () => {
   const [game, setGame] = useState<Game | null>(null);
 
   const currentUser = { id: "1" }; // Dummy current user
-
-  const sendPosition = (
-    row: number,
-    col: number,
-    orientation?: WallOrientation
+  const apiService = useApi();
+  const sendPosition = async (
+      row: number,
+      col: number,
+      orientation?: WallOrientation
   ) => {
-    console.log(
-      `Send position: row ${row}, col ${col}, orientation ${orientation}`
+
+    alert(
+        `Row: ${row}\nCol: ${col}\nOrientation: ${orientation ?? "N/A"}`
     );
+
+    let payload: any;
+
+    if (row % 2 === 1 && col % 2 === 1) {
+      payload = {
+        wallPosition: [row, col],
+        user: {
+          id: currentUser.id,
+        },
+        type: "ADD_WALL",
+        wallOrientation: orientation === WallOrientation.VERTICAL ? "VERTICAL" : "HORIZONTAL",
+      };
+    } else if (row % 2 === 0 && col % 2 === 0) {
+      payload = {
+        endPosition: [row, col],
+        user: {
+          id: currentUser.id,
+        },
+        type: "MOVE_PAWN",
+      };
+    } else {
+      alert(
+          `Click on a blue field for placing walls and on a bright field to move your pawn`
+      );
+      return; // Exit the function early since there's no valid payload
+    }
+
+    try {
+      const response = await fetch(`/game-lobby/${game.id}/move`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to send move: ${response.statusText}`);
+      }
+
+      console.log("Move sent successfully:", payload);
+    } catch (error) {
+      console.error("Error sending move:", error);
+    }
   };
+
 
   useEffect(() => {
     if (!game) {
@@ -168,7 +232,7 @@ const QuoridorBoard: React.FC = () => {
                 return (
                   <div
                     key={index}
-                    onClick={() => console.log(`Move pawn to ${cellRow}, ${cellCol}`)}
+                    onClick={() => sendPosition(cellRow, cellCol)}
                     style={{
                       width: cellSize,
                       height: cellSize,
