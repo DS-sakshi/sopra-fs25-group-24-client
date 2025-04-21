@@ -3,11 +3,12 @@ import { useApi } from "@/hooks/useApi";
 import { Game } from '@/types/game';
 import { User } from "@/types/user";
 import { Pawn } from '@/types/pawn';
+import { Wall, WallOrientation } from "@/types/wall";
 import "@ant-design/v5-patch-for-react-19";
-import * as Types from "@/types/user";
-console.log(Types);
-import { WallOrientation } from '@/types/wall';
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { GameStatus } from "@/types/api";
+import { log } from "console";
 
 interface WallIntersectionProps {
   row: number;
@@ -27,10 +28,7 @@ interface UserInputFromBoardClick{
 }
 
 interface QuoridorBoardProps {
-  game: Game;
   gameId: string;
-  currentUser: User;
-  onMoveComplete: (updatedGame: Game) => void;
 }
 
 const WallIntersection: React.FC<WallIntersectionProps> = ({
@@ -88,61 +86,83 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
   );
 };
 
-const QuoridorBoard: React.FC = () => {
+const QuoridorBoard: React.FC<QuoridorBoardProps> = () => {
   const [game, setGame] = useState<Game | null>(null);
-
-  const currentUser = { id: "1" }; // Dummy current user
+  const [pawns, setPawns] = useState<Pawn[]>([]);
+  const [walls, setWalls] = useState<Wall[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const currentUser = useState<User | null>(null); // Dummy current user
   const apiService = useApi();
+  const params = useParams();
+  const gameId = params.id;
+  const { getUser } = useAuth();
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      apiService.get<Game>(`/game-lobby/${gameId}`),
+      apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
+      apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
+    ])
+        .then(([gameData, pawnsData, wallsData]) => {
+          setGame(gameData);
+          setPawns(pawnsData);
+          setWalls(wallsData);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError("Failed to fetch game data.");
+          setLoading(false);
+        });
+    // eslint-disable-next-line
+  }, [gameId]);
+
   const sendPosition = async (
       row: number,
       col: number,
       orientation?: WallOrientation
   ) => {
 
-    alert(
-        `Row: ${row}\nCol: ${col}\nOrientation: ${orientation ?? "N/A"}`
-    );
+    if (!game) return;
 
-    let payload: any;
-
-    if (row % 2 === 1 && col % 2 === 1) {
-      payload = {
-        wallPosition: [row, col],
-        user: {
-          id: currentUser.id,
-        },
-        type: "ADD_WALL",
-        wallOrientation: orientation === WallOrientation.VERTICAL ? "VERTICAL" : "HORIZONTAL",
-      };
-    } else if (row % 2 === 0 && col % 2 === 0) {
-      payload = {
-        endPosition: [row, col],
-        user: {
-          id: currentUser.id,
-        },
-        type: "MOVE_PAWN",
-      };
-    } else {
-      alert(
-          `Click on a blue field for placing walls and on a bright field to move your pawn`
-      );
-      return; // Exit the function early since there's no valid payload
+    const currentUser = getUser();
+    if (!currentUser) {
+      setError("No user logged in.");
+      return;
     }
 
+    alert(
+        `Row: ${row}\n Col: ${col}\n Orientation: ${orientation ?? "N/A"}`
+    );
+
+    const payload = {
+      endPosition: orientation ? null : [row, col],
+      wallPosition: orientation ? [row, col] : null,
+      wallOrientation: orientation ? orientation : null,
+      user: {
+        id: currentUser.id,
+      },
+      type: orientation ? "ADD_WALL" : "MOVE_PAWN",
+    };
+
     try {
-      const response = await fetch(`/game-lobby/${game.id}/move`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to send move: ${response.statusText}`);
+      console.log(payload);
+      const response = await apiService.post<Game>(
+          `/game-lobby/${game.id}/move`,
+          payload
+      );
+      if (response) {
+        setGame(response);
+        const [newPawns, newWalls] = await Promise.all([
+          apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
+          apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
+        ]);
+        setPawns(newPawns);
+        setWalls(newWalls);
       }
-
-      console.log("Move sent successfully:", payload);
     } catch (error) {
       console.error("Error sending move:", error);
     }
@@ -186,7 +206,7 @@ const QuoridorBoard: React.FC = () => {
   }
 
   const renderBoard = () => {
-    if (!game || !game.board) return null;
+    if (!game) return null;
 
     return (
       <div className="quoridor-board-container">
@@ -203,6 +223,7 @@ const QuoridorBoard: React.FC = () => {
               gridTemplateRows: rows.join(" "),
               width: `${totalSize}px`,
               height: `${totalSize}px`,
+              backgroundColor: "lightgrey", // Add a background color
             }}
           >
             {Array.from({ length: 289 }).map((_, index) => {

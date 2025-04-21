@@ -37,6 +37,7 @@ export default function GameRoomPage() {
   const apiService = useApi(); // your custom hook or similar
   const { user: currentUser } = useAuth();
 
+
   const gameId = params.id as string; // from [gameId].tsx
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
