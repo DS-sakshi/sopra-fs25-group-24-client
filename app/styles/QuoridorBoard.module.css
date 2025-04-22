@@ -1,4 +1,4 @@
-/* QuoridorBoard.module.css */
+/* QuoridorBoard.module.css - Updated styles */
 .boardContainer {
   display: flex;
   flex-direction: column;
@@ -82,10 +82,11 @@
   font-weight: bold;
 }
 
+/* Updated Board Layout */
 .gameBoard {
   display: grid;
-  grid-template-columns: repeat(17, 30px);
-  grid-template-rows: repeat(17, 30px);
+  grid-template-columns: repeat(17, minmax(20px, 30px));
+  grid-template-rows: repeat(17, minmax(20px, 30px));
   gap: 0;
   border: 2px solid #333;
   background-color: #f9e7c9;
@@ -100,9 +101,32 @@
   box-sizing: border-box;
 }
 
+/* Pawn cells - squares where pawns can move (9x9 grid) */
 .pawnCell {
   background-color: #e6c89c;
   border: 1px solid #d4b483;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Wall placement areas */
+.horizontalWallSlot {
+  background-color: #f9e7c9;
+  height: 10px;
+  width: 100%;
+}
+
+.verticalWallSlot {
+  background-color: #f9e7c9;
+  width: 10px;
+  height: 100%;
+}
+
+.intersectionCell {
+  background-color: #f9e7c9;
+  width: 10px;
+  height: 10px;
 }
 
 .selectedCell {
@@ -111,8 +135,8 @@
 }
 
 .pawn {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -141,6 +165,7 @@
   background-color: #ffeb3b;
 }
 
+/* Wall styles */
 .wall {
   background-color: #795548;
 }
@@ -173,10 +198,6 @@
 .verticalPlacement {
   width: 10px;
   height: 100%;
-}
-
-.intersectionCell {
-  background-color: #d4b483;
 }
 
 .waitingMessage {

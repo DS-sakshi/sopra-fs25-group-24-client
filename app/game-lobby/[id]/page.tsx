@@ -127,36 +127,31 @@ export default function GameRoomPage() {
           </span>
         </Descriptions.Item>
         <Descriptions.Item
-          label={
-            <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Creator (Blue)
-            </span>
-          }
-        >
+        label={
           <span style={{ color: "#e5e7eb" }}>
-            {game.creator?.username}
-            {game.currentTurn?.id === game.creator.id && " (Current Turn)"}
+            <UserOutlined /> Creator (Red)
           </span>
-        </Descriptions.Item>
+        }
+      >
+        <span style={{ color: "#e5e7eb" }}>
+          {game.creator?.username || "Unknown"}
+        </span>
+      </Descriptions.Item>
         <Descriptions.Item
           label={
             <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Opponent (Red)
+              <UserOutlined /> Opponent (blue)
             </span>
           }
         >
           <span style={{ color: "#e5e7eb" }}>
-            {game.currentUsers
-              .filter((u) => u.id !== game.creator.id)
-              .map((u) => u.username)
-              .join(", ") || "Waiting for player..."}
-            {game.currentTurn &&
-              game.currentTurn.id !== game.creator.id &&
-              game.gameStatus === GameStatus.RUNNING &&
-              " (Current Turn)"}
-          </span>
-        </Descriptions.Item>
-      </Descriptions>
+          {game.creator && game.currentUsers
+            .filter((u) => u.id !== game.creator?.id)
+            .map((u) => u.username)
+            .join(", ") || "Waiting for player..."}
+        </span>
+      </Descriptions.Item>
+    </Descriptions>
     );
   };
 
@@ -268,13 +263,11 @@ export default function GameRoomPage() {
                     : (
                       game.gameStatus === GameStatus.ENDED && (
                         <Alert
-                          message="Game Over"
-                          description={game.currentTurn?.id === game.creator.id
-                            ? "You won!"
-                            : "You lost!"}
-                          type="success"
-                          showIcon
-                          style={{ marginBottom: 20 }}
+                        message="Game Over"
+                        description="The game has ended. Thank you for playing!"
+                        type="success"
+                        showIcon
+                        style={{ marginBottom: 20 }}
                         />
                       )
                     )}

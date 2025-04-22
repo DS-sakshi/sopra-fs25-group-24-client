@@ -16,7 +16,7 @@ export interface MovePostDTO {
   wallOrientation?: WallOrientation | null;
   user: {
     id: number;
-    username: string;
+    //username: string;
   };
   type: MoveType;
 }
