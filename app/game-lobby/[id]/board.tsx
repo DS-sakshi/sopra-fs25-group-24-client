@@ -1,310 +1,259 @@
-import React, { useEffect, useState } from "react";
-import { useApi } from "@/hooks/useApi";
-import { Game } from '@/types/game';
-import { User } from "@/types/user";
-import { Pawn } from '@/types/pawn';
-import { Wall, WallOrientation } from "@/types/wall";
-import "@ant-design/v5-patch-for-react-19";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { message } from "antd";
+import styles from '@/styles/QuoridorBoard.module.css';
 import { useAuth } from "@/context/AuthContext";
-import { GameStatus } from "@/types/api";
-import { log } from "console";
+import { useRouter } from "next/navigation";
+import { useApi } from "@/hooks/useApi";
+import { Game, GameStatus } from "@/types/game";
+import { User } from "@/types/user";
+import { Wall, WallOrientation } from "@/types/wall";
+import { Pawn } from "@/types/pawn";
+import { MovePostDTO, MoveType } from "@/types/move";
 
-interface WallIntersectionProps {
-  row: number;
-  col: number;
-  gapSize: number;
-  sendPosition: (
-    row: number,
-    col: number,
-    orientation: WallOrientation
-  ) => void;
-}
-
-interface UserInputFromBoardClick{
-  row: number,
-  col: number,
-  orientation?: WallOrientation
-}
-
-interface QuoridorBoardProps {
+type BoardProps = {
   gameId: string;
-}
+  currentUser: User;
+  game: Game;
+  onGameStatusChange: (game: Game) => void;
+};
 
-const WallIntersection: React.FC<WallIntersectionProps> = ({
-  row,
-  col,
-  gapSize,
-  sendPosition,
-}) => {
-  const [showOptions, setShowOptions] = useState(false);
+const Board: React.FC<BoardProps> = ({ gameId, currentUser, game, onGameStatusChange }) => {
+  const [pawns, setPawns] = useState<Pawn[]>([]);
+  const [walls, setWalls] = useState<Wall[]>([]);
+  const [selectedPawn, setSelectedPawn] = useState<Pawn | null>(null);
+  const [selectedWallPosition, setSelectedWallPosition] = useState<{ r: number, c: number } | null>(null);
+  const [wallOrientation, setWallOrientation] = useState<WallOrientation>(WallOrientation.HORIZONTAL);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  //const [isMyTurn, setIsMyTurn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const apiService = useApi();
+  const router = useRouter();
+  const boardSize = 17;
+
+  // 1. On mount, fetch the game state
+  useEffect(() => {
+    const fetchGame = async () => {
+      try {
+        const gameData = await apiService.get<Game>(`/game-lobby/${gameId}`);
+        onGameStatusChange(gameData);
+      } catch (error) {
+        console.error("Failed to fetch game:", error);
+      }
+    };
+    fetchGame();
+  }, [gameId, apiService, onGameStatusChange]);
+ 
+
+
+  // 4. Fetch board state (pawns & walls). This can be redundant if game.board always returns updated info.
+  useEffect(() => {
+    if (gameId && game?.gameStatus === GameStatus.RUNNING) {
+      fetchPawns();
+      fetchWalls();
+    }
+  }, [gameId, game?.gameStatus]);
+
+  const fetchPawns = async () => {
+    try {
+      const pawns = await apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`);
+      setPawns(pawns);
+    } catch (error) {
+      console.error("Error fetching pawns:", error);
+      setErrorMessage("Failed to fetch pawns");
+    }
+  };
+
+  const fetchWalls = async () => {
+    try {
+      const walls = await apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`);
+      setWalls(walls);
+    } catch (error) {
+      console.error("Error fetching walls:", error);
+      setErrorMessage("Failed to fetch walls");
+    }
+  };
+
+  // 5. Handle pawn move - let backend update turn; no manual turn update here.
+  const movePawn = async (pawn: Pawn, targetR: number, targetC: number) => {
+    try {
+      setIsLoading(true);
+      const moveData: MovePostDTO = {
+        type: MoveType.MOVE_PAWN,
+        user: { 
+          id: Number(currentUser.id)
+        },
+        startPosition: [pawn.r, pawn.c],
+        endPosition: [targetR, targetC]
+      };
+
+      const updatedGame = await apiService.post<Game>(`/game-lobby/${gameId}/move`, moveData);
+      onGameStatusChange(updatedGame);
+      setSelectedPawn(null);
+    } catch (error: any) {
+      const errMsg = error.response?.data?.message || "Failed to move pawn";
+      setErrorMessage(errMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 6. Handle wall placement - backend validates position & updates turn accordingly.
+  const placeWall = async (orientation: WallOrientation) => {
+    try {
+      setIsLoading(true);
+      if (!selectedWallPosition) {
+        throw new Error("Wall position not selected");
+      }
+
+      const moveData: MovePostDTO = {
+        type: MoveType.ADD_WALL,
+        user: { 
+          id: Number(currentUser.id)
+        },
+        wallPosition: [selectedWallPosition.r, selectedWallPosition.c],
+        wallOrientation: orientation
+      };
+
+      const updatedGame = await apiService.post<Game>(`/game-lobby/${gameId}/move`, moveData);
+      updateGameState(updatedGame);
+      setSelectedWallPosition(null);
+    } catch (error) {
+      console.error("Error placing wall:", error);
+      setErrorMessage("Failed to place wall");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update game state using the updated game from the backend
+  const updateGameState = (updatedGame: Game) => {
+    onGameStatusChange(updatedGame);
+    if (updatedGame.board) {
+      setPawns(updatedGame.board.pawns || []);
+      setWalls(updatedGame.board.walls || []);
+    }
+    if (updatedGame.gameStatus === GameStatus.ENDED) {
+      const winner = updatedGame.currentTurn?.id || "Unknown";
+      message.info(`Game ended! Winner: ${winner}`);
+    }
+  };
+
+  const isPawnPosition = (r: number, c: number) => r % 2 === 0 && c % 2 === 0;
+  const isWallPosition = (r: number, c: number) => r % 2 === 1 && c % 2 === 1;
+  const getWallAt = (r: number, c: number, orientation: WallOrientation) =>
+    walls.find(w => w.r === r && w.c === c && w.orientation === orientation);
+  const getPawnAt = (r: number, c: number) =>
+    pawns.find(p => p.r === r && p.c === c);
+
+  const handleCellClick = (r: number, c: number) => {
+    setErrorMessage(null);
+    if (isWallPosition(r, c)) {
+      setSelectedPawn(null);
+      setSelectedWallPosition({ r, c });
+    } else if (isPawnPosition(r, c)) {
+      setSelectedWallPosition(null);
+      const myPawn = pawns.find(p => p.userId === currentUser.id);
+      if (selectedPawn && myPawn && selectedPawn.id === myPawn.id) {
+        movePawn(myPawn, r, c);
+      } else if (myPawn && myPawn.r === r && myPawn.c === c) {
+        setSelectedPawn(myPawn);
+      }
+    }
+  };
+
+  const renderBoard = () => {
+    const cells = [];
+    for (let r = 0; r < boardSize; r++) {
+      for (let c = 0; c < boardSize; c++) {
+        let cellContent = null;
+        let cellClass = [styles.boardCell];
+        if (isPawnPosition(r, c)) {
+          const pawn = getPawnAt(r, c);
+          cellClass.push(styles.pawnCell);
+          if (pawn) {
+            cellContent = (
+              <div
+                className={`${styles.pawn} ${styles[pawn.color]}  
+                  ${pawn.userId === currentUser.id ? styles.myPawn : ''}  
+                  ${selectedPawn?.id === pawn.id ? styles.selected : ''}`}
+                title={`Player: ${pawn.userId}`}
+              />
+            );
+          }
+        } else if (isWallPosition(r, c)) {
+          cellClass.push(styles.wallPosition);
+          const horizontalWall = getWallAt(r, c, WallOrientation.HORIZONTAL);
+          const verticalWall = getWallAt(r, c, WallOrientation.VERTICAL);
+          if (horizontalWall) {
+            cellContent = (
+              <div 
+                className={`${styles.wall} ${styles.horizontalWall} ${styles[horizontalWall.color]}`} 
+              />
+            );
+          } else if (verticalWall) {
+            cellContent = (
+              <div 
+                className={`${styles.wall} ${styles.verticalWall} ${styles[verticalWall.color]}`} 
+              />
+            );
+          } else if (selectedWallPosition && selectedWallPosition.r === r && selectedWallPosition.c === c) {
+            cellClass.push(styles.selectedWallPosition);
+          }
+        } else {
+          cellClass.push(styles.spacerCell);
+        }
+        cells.push(
+          <div
+            key={`${r}-${c}`}
+            className={cellClass.join(" ")}
+            onClick={() => handleCellClick(r, c)}
+          >
+            {cellContent}
+          </div>
+        );
+      }
+    }
+    return <div className={styles.gameBoard}>{cells}</div>;
+  };
+
   return (
-    <div
-      style={{
-        width: gapSize,
-        height: gapSize,
-        background: "blue",
-        cursor: "pointer",
-        position: "relative",
-      }}
-      onClick={() => setShowOptions(!showOptions)}
-    >
-      {showOptions && (
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "2px",
-            zIndex: 10,
-          }}
-        >
-        <button
-          style={{ fontSize: "8px", padding: "2px" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            sendPosition(row, col, WallOrientation.VERTICAL);
-            setShowOptions(false);
-          }}
-        >
-          Vertical
-        </button>
-        <button
-          style={{ fontSize: "8px", padding: "2px" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            sendPosition(row, col, WallOrientation.HORIZONTAL);
-          }}
-        >
-          Horizontal
-        </button>
-      </div>)}
+    <div className={styles.boardContainer}>
+      {/* Visual turn indicator */}
+      <div className={styles.gameInfo}>
+        <div className={styles.turnIndicator}>
+          {game?.gameStatus === GameStatus.RUNNING ? (
+            <>
+            </>
+          ) : (
+            <span>
+              Game {game?.gameStatus?.toLowerCase() || 'loading'}...
+            </span>
+          )}
+        </div>
+      </div>
+      <div className={styles.boardControls}>
+        { game?.gameStatus === GameStatus.RUNNING && selectedWallPosition && (
+          <div className={styles.actions}>
+            <button className={styles.actionBtn} onClick={() => placeWall(WallOrientation.HORIZONTAL)}>
+              Horizontal Wall
+            </button>
+            <button className={styles.actionBtn} onClick={() => placeWall(WallOrientation.VERTICAL)}>
+              Vertical Wall
+            </button>
+          </div>
+        )}
+        {errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
+      </div>
+      {game?.gameStatus === GameStatus.RUNNING ? renderBoard() : (
+        <div className={styles.waitingMessage}>
+          {game?.gameStatus === GameStatus.WAITING_FOR_USER
+            ? "Waiting for another player to join..."
+            : "Game has ended."}
+        </div>
+      )}
     </div>
   );
 };
 
-const QuoridorBoard: React.FC<QuoridorBoardProps> = () => {
-  const [game, setGame] = useState<Game | null>(null);
-  const [pawns, setPawns] = useState<Pawn[]>([]);
-  const [walls, setWalls] = useState<Wall[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const currentUser = useState<User | null>(null); // Dummy current user
-  const apiService = useApi();
-  const params = useParams();
-  const gameId = params.id;
-  const { getUser } = useAuth();
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    Promise.all([
-      apiService.get<Game>(`/game-lobby/${gameId}`),
-      apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
-      apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
-    ])
-        .then(([gameData, pawnsData, wallsData]) => {
-          setGame(gameData);
-          setPawns(pawnsData);
-          setWalls(wallsData);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError("Failed to fetch game data.");
-          setLoading(false);
-        });
-    // eslint-disable-next-line
-  }, [gameId]);
-
-  const sendPosition = async (
-      row: number,
-      col: number,
-      orientation?: WallOrientation
-  ) => {
-
-    if (!game) return;
-
-    const currentUser = getUser();
-    if (!currentUser) {
-      setError("No user logged in.");
-      return;
-    }
-
-    alert(
-        `Row: ${row}\n Col: ${col}\n Orientation: ${orientation ?? "N/A"}`
-    );
-
-    const payload = {
-      endPosition: orientation ? null : [row, col],
-      wallPosition: orientation ? [row, col] : null,
-      wallOrientation: orientation ? orientation : null,
-      user: {
-        id: currentUser.id,
-      },
-      type: orientation ? "ADD_WALL" : "MOVE_PAWN",
-    };
-
-    try {
-      console.log(payload);
-      const response = await apiService.post<Game>(
-          `/game-lobby/${game.id}/move`,
-          payload
-      );
-      if (response) {
-        setGame(response);
-        const [newPawns, newWalls] = await Promise.all([
-          apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
-          apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
-        ]);
-        setPawns(newPawns);
-        setWalls(newWalls);
-      }
-    } catch (error) {
-      console.error("Error sending move:", error);
-    }
-  };
-
-
-  useEffect(() => {
-    if (!game) {
-      const dummyGame: Game = {
-        id: '1',
-        numberUsers: '2',
-        sizeBoard: 9,
-        currentUsers: [{ id: '1', username: 'player1' }],
-        board: {
-          id: '1',
-          sizeBoard: 9,
-          pawns: [
-            { id: "pawn1", r: 0, c: 4, color: "blue", userId: '1', boardId: '1' },
-            { id: "pawn2", r: 8, c: 4, color: "red", userId: '2', boardId: '2' },
-          ],
-          walls: [],
-        },
-        creator: { id: "1", username: "player1" },
-        currentTurn: { id: '1', username: 'player1' },
-        gameStatus: GameStatus.RUNNING,
-      };
-      setGame(dummyGame);
-    }
-  }, [game]);
-
-  const boardSize = 9;
-  const cellSize = 20;
-  const gapSize = 10;
-  const totalSize = boardSize * cellSize + (boardSize - 1) * gapSize;
-
-  const columns: string[] = [];
-  const rows: string[] = [];
-  for (let i = 0; i < 17; i++) {
-    columns.push(i % 2 === 0 ? `${cellSize}px` : `${gapSize}px`);
-    rows.push(i % 2 === 0 ? `${cellSize}px` : `${gapSize}px`);
-  }
-
-  const renderBoard = () => {
-    if (!game) return null;
-
-    return (
-      <div className="quoridor-board-container">
-        <div
-          style={{
-            margin: "40px auto",
-            width: `${totalSize}px`,
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: columns.join(" "),
-              gridTemplateRows: rows.join(" "),
-              width: `${totalSize}px`,
-              height: `${totalSize}px`,
-              backgroundColor: "lightgrey", // Add a background color
-            }}
-          >
-            {Array.from({ length: 289 }).map((_, index) => {
-              const rowIndex = Math.floor(index / 17);
-              const colIndex = index % 17;
-              const isOddRow = rowIndex % 2 === 1;
-              const isOddCol = colIndex % 2 === 1;
-
-              if (isOddRow && isOddCol) {
-                return (
-                  <WallIntersection
-                    key={index}
-                    row={rowIndex}
-                    col={colIndex}
-                    gapSize={gapSize}
-                    sendPosition={sendPosition}
-                  />
-                );
-              } else if (!isOddRow && !isOddCol) {
-                const cellRow = rowIndex / 2;
-                const cellCol = colIndex / 2;
-
-                const pawn = game.board.pawns?.find(
-                  (pawn) => pawn.r === cellRow && pawn.c === cellCol
-                );
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => sendPosition(cellRow, cellCol)}
-                    style={{
-                      width: cellSize,
-                      height: cellSize,
-                      backgroundColor: "#FFDEAD",
-                      border: "1px solid #8B4513",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    {pawn && (
-                      <div
-                        style={{
-                          width: "80%",
-                          height: "80%",
-                          borderRadius: "50%",
-                          backgroundColor: pawn.userId === currentUser.id ? "blue" : "red",
-                        }}
-                      />
-                    )}
-                  </div>
-                );
-              } else {
-                // Wall slots
-                const wallRow = isOddRow ? (rowIndex - 1) / 2 : rowIndex / 2;
-                const wallCol = isOddCol ? (colIndex - 1) / 2 : colIndex / 2;
-                const orientation = isOddRow
-                  ? WallOrientation.HORIZONTAL
-                  : WallOrientation.VERTICAL;
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => sendPosition(wallRow, wallCol, orientation)}
-                    style={{
-                      width: isOddCol ? gapSize : cellSize,
-                      height: isOddRow ? gapSize : cellSize,
-                      background: "#000",
-                      cursor: "pointer",
-                    }}
-                  />
-                );
-              }
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  return <>{renderBoard()}</>;
-};
-
-export default QuoridorBoard;
+export default Board;

@@ -25,7 +25,7 @@ export interface Game {
   currentTurn: { // Minimal user info for turn display
     id: string;
     username: string;
-  } | null; // Nullable for initial state
+  }; // Nullable for initial state
   board: Board;
   gameStatus: GameStatus;
 }

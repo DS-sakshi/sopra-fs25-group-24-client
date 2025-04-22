@@ -19,7 +19,7 @@ import {
 } from "@ant-design/icons";
 import PageLayout from "@/components/PageLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import QuoridorBoard from "./board"; // importing from same directory
+import Board from "./board"; // importing from same directory
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
@@ -28,7 +28,7 @@ import { Wall } from "@/types/wall";
 import { Pawn } from "@/types/pawn";
 import { ApiService } from "@/api/apiService";
 //import { Move } from "@/types/move";
-import { Board } from "@/types/board";
+//import { Board } from "@/types/board";
 import { ApplicationError } from "@/types/error";
 
 export default function GameRoomPage() {
@@ -36,7 +36,6 @@ export default function GameRoomPage() {
   const router = useRouter();
   const apiService = useApi(); // your custom hook or similar
   const { user: currentUser } = useAuth();
-
 
   const gameId = params.id as string; // from [gameId].tsx
   const [game, setGame] = useState<Game | null>(null);
@@ -128,36 +127,31 @@ export default function GameRoomPage() {
           </span>
         </Descriptions.Item>
         <Descriptions.Item
-          label={
-            <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Creator (Blue)
-            </span>
-          }
-        >
+        label={
           <span style={{ color: "#e5e7eb" }}>
-            {game.creator?.username}
-            {game.currentTurn?.id === game.creator.id && " (Current Turn)"}
+            <UserOutlined /> Creator (Red)
           </span>
-        </Descriptions.Item>
+        }
+      >
+        <span style={{ color: "#e5e7eb" }}>
+          {game.creator?.username || "Unknown"}
+        </span>
+      </Descriptions.Item>
         <Descriptions.Item
           label={
             <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Opponent (Red)
+              <UserOutlined /> Opponent (blue)
             </span>
           }
         >
           <span style={{ color: "#e5e7eb" }}>
-            {game.currentUsers
-              .filter((u) => u.id !== game.creator.id)
-              .map((u) => u.username)
-              .join(", ") || "Waiting for player..."}
-            {game.currentTurn &&
-              game.currentTurn.id !== game.creator.id &&
-              game.gameStatus === GameStatus.RUNNING &&
-              " (Current Turn)"}
-          </span>
-        </Descriptions.Item>
-      </Descriptions>
+          {game.creator && game.currentUsers
+            .filter((u) => u.id !== game.creator?.id)
+            .map((u) => u.username)
+            .join(", ") || "Waiting for player..."}
+        </span>
+      </Descriptions.Item>
+    </Descriptions>
     );
   };
 
@@ -246,8 +240,8 @@ export default function GameRoomPage() {
                     />
                   )}
                   {game.gameStatus === GameStatus.RUNNING &&
-                      game.currentUsers.length === 2
-                    ? (
+                      game.currentUsers.length === 2 && user ?
+                     (
                       <div className="game-page">
                         <h1
                           style={{
@@ -258,24 +252,22 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
-                        <QuoridorBoard
-                          //game={game}
-                          //gameId={gameId}
-                          //currentUser={user!}
-                          //onMoveComplete={handleUpdateGame}
+                        <Board
+                          game={game}
+                          gameId={gameId}
+                          currentUser={user}
+                          onGameStatusChange={handleUpdateGame}
                         />
                       </div>
                     )
                     : (
                       game.gameStatus === GameStatus.ENDED && (
                         <Alert
-                          message="Game Over"
-                          description={game.currentTurn?.id === game.creator.id
-                            ? "You won!"
-                            : "You lost!"}
-                          type="success"
-                          showIcon
-                          style={{ marginBottom: 20 }}
+                        message="Game Over"
+                        description="The game has ended. Thank you for playing!"
+                        type="success"
+                        showIcon
+                        style={{ marginBottom: 20 }}
                         />
                       )
                     )}
