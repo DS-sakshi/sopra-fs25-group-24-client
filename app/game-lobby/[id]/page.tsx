@@ -23,21 +23,15 @@ import QuoridorBoard from "./board"; // importing from same directory
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
-import { User } from "@/types/user";
-import { Wall } from "@/types/wall";
-import { Pawn } from "@/types/pawn";
-import { ApiService } from "@/api/apiService";
-//import { Move } from "@/types/move";
-import { Board } from "@/types/board";
 import { ApplicationError } from "@/types/error";
 
 export default function GameRoomPage() {
   const params = useParams();
   const router = useRouter();
-  const apiService = useApi(); // your custom hook or similar
+  const apiService = useApi();
   const { user: currentUser } = useAuth();
-  const gameId = params.id;
-
+  // Ensure gameId is properly extracted from params
+  const gameId = params?.id ? String(params.id) : "";
 
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +43,7 @@ export default function GameRoomPage() {
   const fetchGame = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("Fetching game with ID:", gameId);
       const data: Game = await apiService.get(`/game-lobby/${gameId}`);
       if (!data?.id) {
         throw new Error("Invalid game data");
@@ -56,19 +51,22 @@ export default function GameRoomPage() {
       setGame(data);
       setError(null);
     } catch (err) {
+      console.error("Failed to load game:", err);
       setError("Failed to load game");
-      console.error(err);
     } finally {
       setLoading(false);
     }
   }, [apiService, gameId]);
 
   useEffect(() => {
-    // Fetch game data on initial load
-    fetchGame();
-  }, [fetchGame]); // Removed gameId from dependency array
+    if (gameId) {
+      // Fetch game data on initial load
+      fetchGame();
+    }
+  }, [fetchGame, gameId]);
 
   const handleUpdateGame = (updatedGame: Game) => {
+    console.log("Game updated:", updatedGame);
     setGame(updatedGame);
   };
 
@@ -79,12 +77,15 @@ export default function GameRoomPage() {
 
   const confirmAbortGame = async () => {
     try {
-      // Send only the required data fields that match backend DTO structure
+      if (!user) {
+        throw new Error("No authenticated user");
+      }
+      
+      // Send user data correctly formatted
       await apiService.delete(`/game-lobby/${gameId}`, {
-        id: Number(localStorage.getItem("id")),
-        username: localStorage.getItem("username"),
-        status: localStorage.getItem("status"),
-        // Only send fields that the backend needs
+        id: user.id,
+        username: user.username,
+        status: user.status,
       });
 
       message.success("Game aborted successfully");
@@ -150,7 +151,7 @@ export default function GameRoomPage() {
               </Button>
             }
           >
-            {error
+            {error && !game
               ? (
                 <Alert
                   message="Error"
@@ -183,7 +184,7 @@ export default function GameRoomPage() {
                     />
                   )}
                   {game.gameStatus === GameStatus.RUNNING &&
-                      game.currentUsers.length === 2
+                      game.currentUsers && game.currentUsers.length === 2
                     ? (
                       <div className="game-page">
                         <h1
@@ -195,10 +196,9 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
-                        <QuoridorBoard gameId={""}                          //game={game}
-                          //gameId={gameId}
-                          //currentUser={user!}
-                          //onMoveComplete={handleUpdateGame}
+                        <QuoridorBoard 
+                          gameId={gameId}
+                          onMoveComplete={handleUpdateGame}
                         />
                       </div>
                     )

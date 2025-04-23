@@ -18,7 +18,8 @@
     "node-localstorage": "^3.0.5",
     "process": "^0.11.10",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sopra-fs25-template-client": "file:"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
