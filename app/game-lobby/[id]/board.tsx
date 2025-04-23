@@ -39,7 +39,7 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
       style={{
         width: gapSize,
         height: gapSize,
-        background: isHovered ? "#2c4a7c" : "#1a365d",
+        background: isHovered ? "white" : "white",
         cursor: "pointer",
         position: "relative",
         transition: "all 0.2s ease",
@@ -76,11 +76,11 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
             flexDirection: "column",
             gap: "4px",
             zIndex: 30,
-            backgroundColor: "rgba(30, 41, 59, 0.9)",
+            backgroundColor: "rgba(251, 252, 253, 0.9)",
             padding: "6px",
             borderRadius: "4px",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            boxShadow: "0 4px 8px rgba(252, 250, 250, 0.3)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
             width: "80px",
           }}
         >
@@ -325,25 +325,40 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     rows.push(i % 2 === 0 ? `${cellSize}px` : `${gapSize}px`);
   }
 
-  // Helper functions for cell type detection
-  const isPawnPosition = (r: number, c: number) => r % 2 === 0 && c % 2 === 0;
-  const isWallIntersection = (r: number, c: number) => r % 2 === 1 && c % 2 === 1;
-  const isHorizontalWallPosition = (r: number, c: number) => r % 2 === 1 && c % 2 === 0;
-  const isVerticalWallPosition = (r: number, c: number) => r % 2 === 0 && c % 2 === 1;
-  
+
   // Check if there's a wall at the given position and orientation
-  const getWallAt = (r: number, c: number, orientation: WallOrientation) => {
+  const getWallAt = (r: number, c: number) => {
     const wall = walls.find(w => 
       w.r === r && 
-      w.c === c && 
-      w.orientation === orientation
+      w.c === c  +1  &&
+      w.orientation == "HORIZONTAL"
+    );
+
+    const wall1 = walls.find(w => 
+      w.r === r && 
+      w.c === c  -1 &&
+      w.orientation == "HORIZONTAL"
+    );
+
+    const wall2 = walls.find(w => 
+      w.r === r +1&& 
+      w.c === c    &&
+      w.orientation == "VERTICAL"
+    );
+
+    const wall3 = walls.find(w => 
+      w.r === r  -1 && 
+      w.c === c &&
+      w.orientation == "VERTICAL"
     );
     
-    if (wall) {
-      console.log(`Found wall at r=${r}, c=${c}, orientation=${orientation}`);
+    if (wall || wall1 ||wall2||wall3) {
+      console.log(`Found wall at r=${r}, c=${c}`);
+      return "a";
+    } else {
+      return "b";
     }
     
-    return wall;
   };
 
   const renderBoard = () => {
@@ -413,7 +428,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                       justifyContent: "center",
                       alignItems: "center",
                       cursor: "pointer",
-                      position: "relative",
+                      position: "relative", 
                       boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
                     }}
                   >
@@ -437,53 +452,86 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               // Horizontal wall slots (odd row, even column)
               if (isOddRow && !isOddCol) {
                 // Look for horizontal walls
-                const wallHere = getWallAt(rowIndex, colIndex, WallOrientation.HORIZONTAL);
-                
+                const wallHere = getWallAt(rowIndex, colIndex);
+                if(wallHere === "a") {                
                 return (
                   <div
                     key={`hwall-${rowIndex}-${colIndex}`}
                     style={{
                       width: cellSize,
-                      height: gapSize,
-                      backgroundColor: wallHere ? (wallHere.color || "#8B4513") : "#cbd5e1",
-                      opacity: wallHere ? 1 : 0.3,
-                      position: "relative",
-                    }}
-                  />
-                );
-              }
-
-              // Vertical wall slots (even row, odd column)
-              if (!isOddRow && isOddCol) {
-                // Look for vertical walls
-                const wallHere = getWallAt(rowIndex, colIndex, WallOrientation.VERTICAL);
-                
-                return (
-                  <div
-                    key={`vwall-${rowIndex}-${colIndex}`}
-                    style={{
-                      width: gapSize,
                       height: cellSize,
-                      backgroundColor: wallHere ? (wallHere.color || "#8B4513") : "#cbd5e1",
-                      opacity: wallHere ? 1 : 0.3,
-                      position: "relative",
+                      backgroundColor: "black",
+                      border: "1px solidrgb(19, 139, 59)",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      position: "relative", 
+                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
                     }}
                   />
                 );
               }
-
-              // Gap cells (empty spaces)
+              else{
+               // Gap cells (empty spaces)
               return (
                 <div
                   key={`gap-${rowIndex}-${colIndex}`}
                   style={{
                     width: gapSize,
                     height: gapSize,
-                    backgroundColor: "#cbd5e1",
+                    backgroundColor: "white",
                     opacity: 0.3,
                   }}
                 />
               );
+
+              }
+            }
+
+              // Vertical wall slots (even row, odd column)
+              if (!isOddRow && isOddCol) {
+                // Look for vertical walls
+                const wallHere = getWallAt(rowIndex, colIndex);
+                
+                if (wallHere === "a"){
+                return (
+                  <div
+                    key={`vwall-${rowIndex}-${colIndex}`}
+                    style={{
+                      width: cellSize,
+                      height: cellSize,
+                      backgroundColor: "black",
+                      border: "1px solidrgb(252, 251, 250)",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      position: "relative", 
+                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  
+                );
+
+              }else{
+                  // Gap cells (empty spaces)
+                 return (
+                   <div
+                     key={`gap-${rowIndex}-${colIndex}`}
+                     style={{
+                       width: gapSize,
+                       height: gapSize,
+                       backgroundColor: "white",
+                       opacity: 0.3,
+                     }}
+                   />
+                 );
+   
+                 }
+              }
+
+
             })}
           </div>
         </div>
