@@ -32,17 +32,39 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
   sendPosition,
 }) => {
   const [showOptions, setShowOptions] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  
   return (
     <div
       style={{
         width: gapSize,
         height: gapSize,
-        background: "#1a365d",
+        background: isHovered ? "#2c4a7c" : "#1a365d",
         cursor: "pointer",
         position: "relative",
+        transition: "all 0.2s ease",
+        boxShadow: isHovered ? "0 0 5px rgba(255,255,255,0.3)" : "none",
+        borderRadius: "2px",
+        zIndex: showOptions ? 20 : 1,
       }}
       onClick={() => setShowOptions(!showOptions)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Visual indicator that this is an interactive element */}
+      {isHovered && !showOptions && (
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "4px",
+          height: "4px",
+          backgroundColor: "white",
+          borderRadius: "50%",
+        }} />
+      )}
+      
       {showOptions && (
         <div
           style={{
@@ -52,12 +74,29 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
             transform: "translate(-50%, -50%)",
             display: "flex",
             flexDirection: "column",
-            gap: "2px",
-            zIndex: 10,
+            gap: "4px",
+            zIndex: 30,
+            backgroundColor: "rgba(30, 41, 59, 0.9)",
+            padding: "6px",
+            borderRadius: "4px",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            width: "80px",
           }}
         >
           <button
-            style={{ fontSize: "8px", padding: "2px" }}
+            style={{ 
+              fontSize: "10px", 
+              padding: "4px",
+              backgroundColor: "#2563eb",
+              color: "white",
+              border: "none",
+              borderRadius: "3px",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1d4ed8"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#2563eb"}
             onClick={(e) => {
               e.stopPropagation();
               sendPosition(row, col, WallOrientation.VERTICAL);
@@ -67,7 +106,18 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
             Vertical
           </button>
           <button
-            style={{ fontSize: "8px", padding: "2px" }}
+            style={{ 
+              fontSize: "10px", 
+              padding: "4px",
+              backgroundColor: "#2563eb",
+              color: "white",
+              border: "none",
+              borderRadius: "3px",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1d4ed8"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#2563eb"}
             onClick={(e) => {
               e.stopPropagation();
               sendPosition(row, col, WallOrientation.HORIZONTAL);
@@ -91,6 +141,18 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
   const apiService = useApi();
   const { getUser } = useAuth();
 
+  // Debug function to log wall data for troubleshooting
+  const logWalls = (wallsData: Wall[]) => {
+    console.log(`Wall count: ${wallsData?.length || 0}`);
+    if (wallsData && wallsData.length > 0) {
+      wallsData.forEach((wall, idx) => {
+        console.log(`Wall ${idx}: r=${wall.r}, c=${wall.c}, orientation=${wall.orientation}, color=${wall.color}`);
+      });
+    } else {
+      console.log("No walls found in the data");
+    }
+  };
+
   useEffect(() => {
     if (!gameId) return;
     
@@ -106,9 +168,13 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         console.log("Game data:", gameData);
         console.log("Pawns data:", pawnsData);
         console.log("Walls data:", wallsData);
+        
+        // Log additional wall information for debugging
+        logWalls(wallsData);
+
         setGame(gameData);
-        setPawns(pawnsData);
-        setWalls(wallsData);
+        setPawns(pawnsData || []);
+        setWalls(wallsData || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -138,9 +204,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       return;
     }
 
-    // The backend expects correct coordinates in the 17x17 grid where:
-    // - Even indices (0,2,4...) are for pawns
-    // - Odd indices (1,3,5...) are for walls/gaps
     let payload;
     
     if (orientation) {
@@ -180,13 +243,24 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         setGame(response);
         
         // Refresh pawns and walls after move
-        const [newPawns, newWalls] = await Promise.all([
-          apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
-          apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
-        ]);
+        try {
+          const [newPawns, newWalls] = await Promise.all([
+            apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
+            apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
+          ]);
+          
+          console.log("Updated pawns data:", newPawns);
+          console.log("Updated walls data:", newWalls);
+          
+          // Log additional wall information for debugging
+          logWalls(newWalls);
+          
+          setPawns(newPawns || []);
+          setWalls(newWalls || []);
+        } catch (refreshError) {
+          console.error("Error refreshing game state:", refreshError);
+        }
         
-        setPawns(newPawns);
-        setWalls(newWalls);
         setError(null); // Clear any previous errors
         
         // Notify parent component if callback provided
@@ -218,9 +292,16 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
       ]);
       
+      console.log("Refreshed game data:", gameData);
+      console.log("Refreshed pawns data:", pawnsData);
+      console.log("Refreshed walls data:", wallsData);
+      
+      // Log additional wall information for debugging
+      logWalls(wallsData);
+      
       setGame(gameData);
-      setPawns(pawnsData);
-      setWalls(wallsData);
+      setPawns(pawnsData || []);
+      setWalls(wallsData || []);
       setError(null); // Clear any previous errors
       setLoading(false);
     } catch (err) {
@@ -244,11 +325,35 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     rows.push(i % 2 === 0 ? `${cellSize}px` : `${gapSize}px`);
   }
 
+  // Helper functions for cell type detection
+  const isPawnPosition = (r: number, c: number) => r % 2 === 0 && c % 2 === 0;
+  const isWallIntersection = (r: number, c: number) => r % 2 === 1 && c % 2 === 1;
+  const isHorizontalWallPosition = (r: number, c: number) => r % 2 === 1 && c % 2 === 0;
+  const isVerticalWallPosition = (r: number, c: number) => r % 2 === 0 && c % 2 === 1;
+  
+  // Check if there's a wall at the given position and orientation
+  const getWallAt = (r: number, c: number, orientation: WallOrientation) => {
+    const wall = walls.find(w => 
+      w.r === r && 
+      w.c === c && 
+      w.orientation === orientation
+    );
+    
+    if (wall) {
+      console.log(`Found wall at r=${r}, c=${c}, orientation=${orientation}`);
+    }
+    
+    return wall;
+  };
+
   const renderBoard = () => {
     if (!game) return null;
 
     const currentUser = getUser();
-
+    
+    // For debugging
+    console.log("Rendering board with walls count:", walls.length);
+    
     return (
       <div className="quoridor-board-container">
         <div
@@ -265,8 +370,12 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               width: `${(cellSize * 9) + (gapSize * 8)}px`,
               height: `${(cellSize * 9) + (gapSize * 8)}px`,
               backgroundColor: "#e2e8f0", // Lighter background
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              borderRadius: "4px",
+              position: "relative",
             }}
           >
+            {/* Render cells for the board */}
             {Array.from({ length: boardSize * boardSize }).map((_, index) => {
               const rowIndex = Math.floor(index / boardSize);
               const colIndex = index % boardSize;
@@ -277,7 +386,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               if (isOddRow && isOddCol) {
                 return (
                   <WallIntersection
-                    key={index}
+                    key={`intersection-${rowIndex}-${colIndex}`}
                     row={rowIndex}
                     col={colIndex}
                     gapSize={gapSize}
@@ -293,7 +402,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                 );
                 return (
                   <div
-                    key={index}
+                    key={`cell-${rowIndex}-${colIndex}`}
                     onClick={() => sendPosition(rowIndex, colIndex)}
                     style={{
                       width: cellSize,
@@ -304,6 +413,8 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                       justifyContent: "center",
                       alignItems: "center",
                       cursor: "pointer",
+                      position: "relative",
+                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
                     }}
                   >
                     {pawn && (
@@ -313,6 +424,8 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                           height: "80%",
                           borderRadius: "50%",
                           backgroundColor: pawn.color || "#ff5722",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                          border: "2px solid white",
                         }}
                         title={`Player: ${pawn.userId}`}
                       />
@@ -321,23 +434,53 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                 );
               }
 
-              // Wall slots (odd row, even column = horizontal wall; even row, odd column = vertical wall)
-              const wallOrientation = isOddRow 
-                ? WallOrientation.HORIZONTAL 
-                : WallOrientation.VERTICAL;
+              // Horizontal wall slots (odd row, even column)
+              if (isOddRow && !isOddCol) {
+                // Look for horizontal walls
+                const wallHere = getWallAt(rowIndex, colIndex, WallOrientation.HORIZONTAL);
                 
-              const wallHere = walls.find(
-                (w) => w.r === rowIndex && w.c === colIndex && w.orientation === wallOrientation
-              );
+                return (
+                  <div
+                    key={`hwall-${rowIndex}-${colIndex}`}
+                    style={{
+                      width: cellSize,
+                      height: gapSize,
+                      backgroundColor: wallHere ? (wallHere.color || "#8B4513") : "#cbd5e1",
+                      opacity: wallHere ? 1 : 0.3,
+                      position: "relative",
+                    }}
+                  />
+                );
+              }
 
+              // Vertical wall slots (even row, odd column)
+              if (!isOddRow && isOddCol) {
+                // Look for vertical walls
+                const wallHere = getWallAt(rowIndex, colIndex, WallOrientation.VERTICAL);
+                
+                return (
+                  <div
+                    key={`vwall-${rowIndex}-${colIndex}`}
+                    style={{
+                      width: gapSize,
+                      height: cellSize,
+                      backgroundColor: wallHere ? (wallHere.color || "#8B4513") : "#cbd5e1",
+                      opacity: wallHere ? 1 : 0.3,
+                      position: "relative",
+                    }}
+                  />
+                );
+              }
+
+              // Gap cells (empty spaces)
               return (
                 <div
-                  key={index}
+                  key={`gap-${rowIndex}-${colIndex}`}
                   style={{
-                    width: isOddCol ? gapSize : cellSize,
-                    height: isOddRow ? gapSize : cellSize,
-                    backgroundColor: wallHere ? wallHere.color || "#8B4513" : "#cbd5e1",
-                    opacity: wallHere ? 1 : 0.3,
+                    width: gapSize,
+                    height: gapSize,
+                    backgroundColor: "#cbd5e1",
+                    opacity: 0.3,
                   }}
                 />
               );
@@ -366,9 +509,91 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
             </p>
           )}
           <div style={{ marginTop: "10px", display: "flex", justifyContent: "center", gap: "20px" }}>
-            <div>
-              <p>Wall Count:</p>
-              <p>{walls.filter(w => w.userId === currentUser?.id).length} / 10</p>
+            {/* Wall counter with improved visualization */}
+            <div style={{ 
+              padding: "10px 15px", 
+              backgroundColor: "rgba(0,0,0,0.4)", 
+              borderRadius: "8px",
+              border: "1px solid rgba(255,255,255,0.1)" 
+            }}>
+              <p style={{ marginBottom: "5px" }}>Your Walls:</p>
+              <div style={{ display: "flex", gap: "3px", justifyContent: "center" }}>
+                {Array(10).fill(0).map((_, i) => {
+                  const wallsPlaced = currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0;
+                  const isUsed = i < wallsPlaced;
+                  
+                  return (
+                    <div key={i} style={{
+                      width: "12px",
+                      height: "12px",
+                      backgroundColor: isUsed ? "#8B4513" : "rgba(255,255,255,0.3)",
+                      border: isUsed ? "1px solid #6B3E23" : "1px solid rgba(255,255,255,0.1)",
+                      boxShadow: isUsed ? "inset 0 0 3px rgba(0,0,0,0.3)" : "none",
+                      borderRadius: "2px"
+                    }}></div>
+                  );
+                })}
+              </div>
+              <p style={{ fontSize: "14px", marginTop: "5px" }}>
+                {currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0} / 10
+              </p>
+            </div>
+            
+            {/* Opponent wall counter if needed */}
+            {game.currentUsers && game.currentUsers.length > 1 && (
+              <div style={{ 
+                padding: "10px 15px", 
+                backgroundColor: "rgba(0,0,0,0.4)", 
+                borderRadius: "8px",
+                border: "1px solid rgba(255,255,255,0.1)" 
+              }}>
+                <p style={{ marginBottom: "5px" }}>Opponent Walls:</p>
+                <div style={{ display: "flex", gap: "3px", justifyContent: "center" }}>
+                  {Array(10).fill(0).map((_, i) => {
+                    const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
+                    const wallsPlaced = opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
+                    const isUsed = i < wallsPlaced;
+                    
+                    return (
+                      <div key={i} style={{
+                        width: "12px",
+                        height: "12px",
+                        backgroundColor: isUsed ? "#DC2626" : "rgba(255,255,255,0.3)",
+                        border: isUsed ? "1px solid #B91C1C" : "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: isUsed ? "inset 0 0 3px rgba(0,0,0,0.3)" : "none",
+                        borderRadius: "2px"
+                      }}></div>
+                    );
+                  })}
+                </div>
+                <p style={{ fontSize: "14px", marginTop: "5px" }}>
+                  {(() => {
+                    const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
+                    return opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
+                  })()} / 10
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Debug/refresh button */}
+          <div style={{ marginTop: "15px" }}>
+            <button 
+              onClick={refreshGameData} 
+              style={{ 
+                padding: "6px 12px", 
+                backgroundColor: "#2563eb",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px"
+              }}
+            >
+              Refresh Game Data
+            </button>
+            <div style={{ marginTop: "10px", fontSize: "12px", color: "#94a3b8" }}>
+              Walls count: {walls.length}
             </div>
           </div>
         </div>
