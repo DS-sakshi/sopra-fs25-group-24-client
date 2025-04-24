@@ -19,19 +19,10 @@ import {
 } from "@ant-design/icons";
 import PageLayout from "@/components/PageLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Board from "./board"; // importing from same directory
+import QuoridorBoard from "./board"; // importing from same directory
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
-<<<<<<< HEAD
-import { User } from "@/types/user";
-import { Wall } from "@/types/wall";
-import { Pawn } from "@/types/pawn";
-import { ApiService } from "@/api/apiService";
-//import { Move } from "@/types/move";
-//import { Board } from "@/types/board";
-=======
->>>>>>> changes_wall
 import { ApplicationError } from "@/types/error";
 
 export default function GameRoomPage() {
@@ -109,66 +100,7 @@ export default function GameRoomPage() {
       setConfirmModalVisible(false);
     }
   };
-<<<<<<< HEAD
-
-  const renderGameDetails = () => {
-    if (!game) return null;
-
-    // E.g., highlight the game's status, board size, etc.
-    return (
-      <Descriptions bordered column={2} style={{ marginBottom: 20 }}>
-        <Descriptions.Item
-          label={<span style={{ color: "#e5e7eb" }}>Status</span>}
-        >
-          <Tag
-            color={game.gameStatus === GameStatus.WAITING_FOR_USER
-              ? "orange"
-              : game.gameStatus === GameStatus.RUNNING
-              ? "green"
-              : "red"}
-          >
-            {game.gameStatus}
-          </Tag>
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={<span style={{ color: "#e5e7eb" }}>Board Size</span>}
-        >
-          <span style={{ color: "#e5e7eb" }}>
-            {game.sizeBoard} x {game.sizeBoard}
-          </span>
-        </Descriptions.Item>
-        <Descriptions.Item
-        label={
-          <span style={{ color: "#e5e7eb" }}>
-            <UserOutlined /> Creator (Red)
-          </span>
-        }
-      >
-        <span style={{ color: "#e5e7eb" }}>
-          {game.creator?.username || "Unknown"}
-        </span>
-      </Descriptions.Item>
-        <Descriptions.Item
-          label={
-            <span style={{ color: "#e5e7eb" }}>
-              <UserOutlined /> Opponent (blue)
-            </span>
-          }
-        >
-          <span style={{ color: "#e5e7eb" }}>
-          {game.creator && game.currentUsers
-            .filter((u) => u.id !== game.creator?.id)
-            .map((u) => u.username)
-            .join(", ") || "Waiting for player..."}
-        </span>
-      </Descriptions.Item>
-    </Descriptions>
-    );
-  };
-
-=======
   
->>>>>>> changes_wall
   return (
     <ProtectedRoute>
       <PageLayout requireAuth>
@@ -252,13 +184,8 @@ export default function GameRoomPage() {
                     />
                   )}
                   {game.gameStatus === GameStatus.RUNNING &&
-<<<<<<< HEAD
-                      game.currentUsers.length === 2 && user ?
-                     (
-=======
                       game.currentUsers && game.currentUsers.length === 2
                     ? (
->>>>>>> changes_wall
                       <div className="game-page">
                         <h1
                           style={{
@@ -269,28 +196,22 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
-<<<<<<< HEAD
-                        <Board
-                          game={game}
-                          gameId={gameId}
-                          currentUser={user}
-                          onGameStatusChange={handleUpdateGame}
-=======
                         <QuoridorBoard 
                           gameId={gameId}
                           onMoveComplete={handleUpdateGame}
->>>>>>> changes_wall
                         />
                       </div>
                     )
                     : (
                       game.gameStatus === GameStatus.ENDED && (
                         <Alert
-                        message="Game Over"
-                        description="The game has ended. Thank you for playing!"
-                        type="success"
-                        showIcon
-                        style={{ marginBottom: 20 }}
+                          message="Game Over"
+                          description={game.currentTurn?.id === game.creator.id
+                            ? "You won!"
+                            : "You lost!"}
+                          type="success"
+                          showIcon
+                          style={{ marginBottom: 20 }}
                         />
                       )
                     )}
