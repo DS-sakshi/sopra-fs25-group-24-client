@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Alert,
@@ -23,52 +23,59 @@ import Board from "./board"; // importing from same directory
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
+<<<<<<< HEAD
 import { User } from "@/types/user";
 import { Wall } from "@/types/wall";
 import { Pawn } from "@/types/pawn";
 import { ApiService } from "@/api/apiService";
 //import { Move } from "@/types/move";
 //import { Board } from "@/types/board";
+=======
+>>>>>>> changes_wall
 import { ApplicationError } from "@/types/error";
 
 export default function GameRoomPage() {
   const params = useParams();
   const router = useRouter();
-  const apiService = useApi(); // your custom hook or similar
+  const apiService = useApi();
   const { user: currentUser } = useAuth();
+  // Ensure gameId is properly extracted from params
+  const gameId = params?.id ? String(params.id) : "";
 
-  const gameId = params.id as string; // from [gameId].tsx
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const { user } = useAuth();
-  // Poll the game data periodically
-  const fetchGame = async () => {
+
+  // useCallback to memoize fetchGame
+  const fetchGame = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("Fetching game with ID:", gameId);
       const data: Game = await apiService.get(`/game-lobby/${gameId}`);
       if (!data?.id) {
         throw new Error("Invalid game data");
       }
-
       setGame(data);
       setError(null);
     } catch (err) {
+      console.error("Failed to load game:", err);
       setError("Failed to load game");
-      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiService, gameId]);
 
   useEffect(() => {
-    fetchGame();
-    const interval = setInterval(fetchGame, 5000); //refresh time
-    return () => clearInterval(interval);
-  }, [gameId]);
+    if (gameId) {
+      // Fetch game data on initial load
+      fetchGame();
+    }
+  }, [fetchGame, gameId]);
 
   const handleUpdateGame = (updatedGame: Game) => {
+    console.log("Game updated:", updatedGame);
     setGame(updatedGame);
   };
 
@@ -79,12 +86,15 @@ export default function GameRoomPage() {
 
   const confirmAbortGame = async () => {
     try {
-      // Send only the required data fields that match backend DTO structure
+      if (!user) {
+        throw new Error("No authenticated user");
+      }
+      
+      // Send user data correctly formatted
       await apiService.delete(`/game-lobby/${gameId}`, {
-        id: Number(localStorage.getItem("id")),
-        username: localStorage.getItem("username"),
-        status: localStorage.getItem("status"),
-        // Only send fields that the backend needs
+        id: user.id,
+        username: user.username,
+        status: user.status,
       });
 
       message.success("Game aborted successfully");
@@ -99,6 +109,7 @@ export default function GameRoomPage() {
       setConfirmModalVisible(false);
     }
   };
+<<<<<<< HEAD
 
   const renderGameDetails = () => {
     if (!game) return null;
@@ -155,6 +166,9 @@ export default function GameRoomPage() {
     );
   };
 
+=======
+  
+>>>>>>> changes_wall
   return (
     <ProtectedRoute>
       <PageLayout requireAuth>
@@ -205,7 +219,7 @@ export default function GameRoomPage() {
               </Button>
             }
           >
-            {error
+            {error && !game
               ? (
                 <Alert
                   message="Error"
@@ -228,8 +242,6 @@ export default function GameRoomPage() {
               ? <Spin tip="Loading game..." />
               : (
                 <>
-                  {renderGameDetails()}
-
                   {/* Conditional alerts */}
                   {game.gameStatus === GameStatus.WAITING_FOR_USER && (
                     <Alert
@@ -240,8 +252,13 @@ export default function GameRoomPage() {
                     />
                   )}
                   {game.gameStatus === GameStatus.RUNNING &&
+<<<<<<< HEAD
                       game.currentUsers.length === 2 && user ?
                      (
+=======
+                      game.currentUsers && game.currentUsers.length === 2
+                    ? (
+>>>>>>> changes_wall
                       <div className="game-page">
                         <h1
                           style={{
@@ -252,11 +269,17 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
+<<<<<<< HEAD
                         <Board
                           game={game}
                           gameId={gameId}
                           currentUser={user}
                           onGameStatusChange={handleUpdateGame}
+=======
+                        <QuoridorBoard 
+                          gameId={gameId}
+                          onMoveComplete={handleUpdateGame}
+>>>>>>> changes_wall
                         />
                       </div>
                     )
