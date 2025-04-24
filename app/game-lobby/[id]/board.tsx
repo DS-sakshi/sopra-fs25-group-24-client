@@ -309,7 +309,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       setError("Failed to refresh game data.");
       setLoading(false);
     }
-  };
+  }; 
 
   // This represents a 17x17 grid for a 9x9 Quoridor board
   // with alternating cells and gaps
@@ -330,36 +330,32 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
   const getWallAt = (r: number, c: number) => {
     const wall = walls.find(w => 
       w.r === r && 
-      w.c === c  +1  &&
-      w.orientation == "HORIZONTAL"
+      w.c === c + 1 &&
+      w.orientation === "HORIZONTAL"
     );
-
+  
     const wall1 = walls.find(w => 
       w.r === r && 
-      w.c === c  -1 &&
-      w.orientation == "HORIZONTAL"
+      w.c === c - 1 &&
+      w.orientation === "HORIZONTAL"
     );
-
+  
     const wall2 = walls.find(w => 
-      w.r === r +1&& 
-      w.c === c    &&
-      w.orientation == "VERTICAL"
-    );
-
-    const wall3 = walls.find(w => 
-      w.r === r  -1 && 
+      w.r === r + 1 && 
       w.c === c &&
-      w.orientation == "VERTICAL"
+      w.orientation === "VERTICAL"
+    );
+  
+    const wall3 = walls.find(w => 
+      w.r === r - 1 && 
+      w.c === c &&
+      w.orientation === "VERTICAL"
     );
     
-    if (wall || wall1 ||wall2||wall3) {
-      console.log(`Found wall at r=${r}, c=${c}`);
-      return "a";
-    } else {
-      return "b";
-    }
-    
-  };
+    return wall || wall1 || wall2 || wall3 || null;
+  }; //{console.log(`Found wall at r=${r}, c=${c}`);return "a";
+    //} //else {
+      //return "b";};
 
   const renderBoard = () => {
     if (!game) return null;
@@ -453,14 +449,15 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               if (isOddRow && !isOddCol) {
                 // Look for horizontal walls
                 const wallHere = getWallAt(rowIndex, colIndex);
-                if(wallHere === "a") {                
+                if(wallHere) {    
+                  const wallOwner = pawns.find(p => p.userId === wallHere.userId);            
                 return (
                   <div
                     key={`hwall-${rowIndex}-${colIndex}`}
                     style={{
                       width: cellSize,
                       height: cellSize,
-                      backgroundColor: "black",
+                      backgroundColor: wallOwner?.color,
                       border: "1px solidrgb(19, 139, 59)",
                       display: "flex",
                       justifyContent: "center",
@@ -494,14 +491,15 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                 // Look for vertical walls
                 const wallHere = getWallAt(rowIndex, colIndex);
                 
-                if (wallHere === "a"){
+                if (wallHere){
+                  const wallOwner = pawns.find(p => p.userId === wallHere.userId);
                 return (
                   <div
                     key={`vwall-${rowIndex}-${colIndex}`}
                     style={{
                       width: cellSize,
                       height: cellSize,
-                      backgroundColor: "black",
+                      backgroundColor: wallOwner?.color,
                       border: "1px solidrgb(252, 251, 250)",
                       display: "flex",
                       justifyContent: "center",
@@ -627,7 +625,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
           {/* Debug/refresh button */}
           <div style={{ marginTop: "15px" }}>
             <button 
-              onClick={refreshGameData} 
+              onClick= {refreshGameData} 
               style={{ 
                 padding: "6px 12px", 
                 backgroundColor: "#2563eb",
