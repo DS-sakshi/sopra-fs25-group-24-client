@@ -119,3 +119,18 @@ reason).
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
 | **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
 | **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+
+---
+
+## Contributions Week 7 - [Begin Date] to [End Date]
+
+| **Student**           | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| --------------------- | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |

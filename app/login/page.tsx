@@ -1,5 +1,5 @@
 "use client";
-
+import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, Card, Form, Input, message } from "antd";
@@ -26,10 +26,10 @@ const Login: React.FC = () => {
   const handleLogin = async (values: FormFieldProps) => {
     try {
       await login(values.username, values.password);
-      message.success("Stellar entry confirmed!");
+      message.success("Cosmic entry confirmed!");
     } catch (error) {
       if (error instanceof Error) {
-        message.error(`Orbital access denied: ${error.message}`);
+        message.error(`Cosmic access denied: ${error.message}`);
       } else {
         message.error("Cosmic interference detected. Try again!");
       }
@@ -91,21 +91,51 @@ const Login: React.FC = () => {
         }}
       >
         <Card
-          title={
-            <span
-              style={{
-                color: "#e0e6ff",
-                fontSize: "1.8em",
-                fontWeight: "600",
-                textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                background: "linear-gradient(45deg, #5c77eb, #aab8f5)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Celestial Gateway
-            </span>
-          }
+            title={
+                <div>
+                    <div
+                        style={{
+                            color: "#e0e6ff",
+                            fontSize: "2.4em",
+                            fontWeight: "800",
+                            textAlign: "center",
+                            marginBottom: "0.9em",
+                            letterSpacing: "0.01em",
+                            textShadow: "0 3px 8px rgba(0,0,0,0.25)",
+                            background: "linear-gradient(45deg, #aab8f5 10%, #5c77eb 90%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                        }}
+                    >
+                        Login
+                    </div>
+                    <span
+                        style={{
+                            color: "#e0e6ff",
+                            fontSize: "1.8em",
+                            fontWeight: "600",
+                            textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            background: "linear-gradient(45deg, #5c77eb, #aab8f5)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                        }}
+                    >
+      Quoridor online
+    </span>
+                    <div
+                        style={{
+                            fontSize: "0.95em",
+                            color: "#aab8f5",
+                            fontStyle: "italic",
+                            marginTop: "0.25em",
+                            textShadow: "0 1px 2px rgba(0,0,0,0.15)",
+                            marginBottom: "0.9em",
+                        }}
+                    >
+                        The passage to the other side
+                    </div>
+                </div>
+            }
           headStyle={{
             borderBottom: "1px solid rgba(92, 119, 235, 0.3)",
             textAlign: "center",
@@ -121,14 +151,14 @@ const Login: React.FC = () => {
           >
             <Form.Item
               name="username"
-              label={<span style={{ color: "#aab8f5" }}>Stellar Identity</span>}
+              label={<span style={{ color: "#aab8f5" }}>Cosmic Username</span>}
               rules={[{
                 required: true,
                 message: "Cosmic credentials required!",
               }]}
             >
               <Input
-                placeholder="Enter Identity"
+                placeholder="Enter Username"
                 style={cosmicStyles.inputStyle}
                 prefix={
                   <span style={{ color: "#5c77eb", marginRight: 8 }}>✦</span>
@@ -138,11 +168,11 @@ const Login: React.FC = () => {
 
             <Form.Item
               name="password"
-              label={<span style={{ color: "#aab8f5" }}>Stellar Key</span>}
-              rules={[{ required: true, message: "Stellar lock required!" }]}
+              label={<span style={{ color: "#aab8f5" }}>Word of Passing</span>}
+              rules={[{ required: true, message: "Cosmic lock required!" }]}
             >
               <Input.Password
-                placeholder="Enter universal secret"
+                placeholder="!(You shall not pass)"
                 style={cosmicStyles.inputStyle}
                 prefix={
                   <span style={{ color: "#5c77eb", marginRight: 8 }}>🔑</span>
@@ -158,7 +188,7 @@ const Login: React.FC = () => {
                 loading={loading}
                 style={cosmicStyles.buttonStyle}
               >
-                Initiate Cosmic Connection
+                Enter the matrix
               </Button>
             </Form.Item>
           </Form>
@@ -179,7 +209,7 @@ const Login: React.FC = () => {
                 textShadow: "0 1px 2px rgba(0,0,0,0.2)",
               }}
             >
-              Create Stellar Identity
+              Register
             </Link>
           </div>
         </Card>
