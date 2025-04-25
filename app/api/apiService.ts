@@ -15,6 +15,8 @@ export class ApiService {
     this.defaultHeaders = {
       "Content-Type": "application/json", //Default headers for JSON content
     };
+
+  }
     
   
 
