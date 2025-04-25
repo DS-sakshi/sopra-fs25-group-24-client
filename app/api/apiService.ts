@@ -16,11 +16,7 @@ export class ApiService {
       "Content-Type": "application/json", //Default headers for JSON content
     };
     
-    // Store client ID in localStorage if in browser environment
-    if (typeof window !== 'undefined' && !localStorage.getItem('client_id')) {
-      localStorage.setItem('client_id', this.clientId);
-    }
-  }
+  
 
 
 
