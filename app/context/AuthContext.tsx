@@ -19,8 +19,9 @@ interface AuthContextType {
   logout: () => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   refreshUser: () => Promise<void>;
-  getUser: () => User | null; // <-- Added
+  getUser: () => User | null;
 }
+
 // RegisterData interface for registration form
 interface RegisterData {
   username: string;
@@ -36,9 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { value: storedUser, set: setStoredUser, clear: clearStoredUser } =
     useLocalStorage<User | null>("currentUser", null);
-  const { value: token, set: setToken, clear: clearToken } = useLocalStorage<
-    string
-  >("token", "");
+  const { value: token, set: setToken, clear: clearToken } = useLocalStorage<string>("token", "");
   const router = useRouter();
   const pathname = usePathname();
   const apiService = useApi();
@@ -54,19 +53,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [apiService, user]);
 
-  // Initialize user from localStorage on mount
+  // Validate session on initialization
   useEffect(() => {
-    if (storedUser && token) {
-      console.log("Restoring user from localStorage:", storedUser);
-      setUser(storedUser);
-      setLoading(false);
-    } else if (!token) {
-      setUser(null);
-      setLoading(false);
-    } else {
-      fetchCurrentUser();
-    }
-  }, [storedUser, token]);
+    const validateSession = async () => {
+      if (token) {
+        try {
+          await fetchCurrentUser();
+        } catch (error) {
+          console.error("Session validation failed:", error);
+          clearToken();
+          clearStoredUser();
+          setUser(null);
+          setLoading(false);
+        }
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    };
+    
+    validateSession();
+  }, []);
   
   // Fetch current user from API
   const fetchCurrentUser = async () => {
@@ -75,19 +82,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
+    
     try {
       setLoading(true);
       const users = await apiService.get<User[]>("/users");
       const foundUser = users.find((u) => u.token === token);
-      if (foundUser) {
+      
+      if (foundUser && foundUser.status === "ONLINE") {
         console.log("Found current user:", foundUser);
         setUser(foundUser);
         setStoredUser(foundUser);
       } else {
-        console.warn("User not found with token, clearing auth state");
+        console.warn("User not found or not ONLINE, clearing auth state");
+        // Clear authentication state
         clearToken();
         clearStoredUser();
         setUser(null);
+        if (pathname !== "/login" && pathname !== "/register") {
+          router.push("/login");
+        }
       }
     } catch (error) {
       console.error("Failed to fetch current user:", error);
@@ -105,12 +118,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isProtectedRoute = protectedRoutes.some((route) =>
       pathname === route || pathname?.startsWith("/game-lobby/")
     );
-    if (!loading && !token && isProtectedRoute) {
+    if (!loading && !user && isProtectedRoute) {
       router.push("/login");
-    } else if (!loading && token && pathname === "/") {
-      router.push("/login");
+    } else if (!loading && user && pathname === "/") {
+      router.push("/game-lobby");
     }
-  }, [pathname, token, loading, router]);
+  }, [pathname, user, loading, router]);
 
   // Login function
   const login = async (username: string, password: string) => {
@@ -160,14 +173,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       if (user?.id) {
-        await apiService.post(`/logout/${user.id}`, {});
+        try {
+          // Try to call the server, but don't wait if it fails
+          await apiService.post(`/logout/${user.id}`, {});
+        } catch (logoutError) {
+          console.error("Server logout failed, continuing with local logout:", logoutError);
+        }
       }
+      // Always clear local state regardless of server response
       clearToken();
       clearStoredUser();
       setUser(null);
       router.push("/login");
     } catch (error) {
       console.error("Logout error:", error);
+      // Force cleanup in case of error
       clearToken();
       clearStoredUser();
       setUser(null);
@@ -182,7 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // getUser function
-  const getUser = () => user; // <-- Added
+  const getUser = () => user;
 
   // Provide context to children
   return (
@@ -194,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         register,
         refreshUser,
-        getUser, // <-- Added
+        getUser,
       }}
     >
       {children}
