@@ -1,17 +1,35 @@
 import { getApiDomain } from "@/utils/domain";
 import { ApplicationError } from "@/types/error";
+import { generateUUID } from "@/utils/uuid";
+
 //ApiService class to handle API requests
 export class ApiService {
   private baseURL: string; // Base URL for API requests
   private defaultHeaders: HeadersInit; // Default headers for API requests
   private currentUserId?: string | null; // Current user ID for authenticated requests
 
+
+
   constructor() {
     this.baseURL = getApiDomain(); //Initialize base URL from a utility function
     this.defaultHeaders = {
       "Content-Type": "application/json", //Default headers for JSON content
-      //"Access-Control-Allow-Origin": "*", //Allow all origins for CORS
     };
+    
+    // Store client ID in localStorage if in browser environment
+    if (typeof window !== 'undefined' && !localStorage.getItem('client_id')) {
+      localStorage.setItem('client_id', this.clientId);
+    }
+  }
+
+
+
+  /**
+   * Get authentication token from localStorage
+   * @returns The stored auth token or null if not available
+   */
+  private getAuthToken(): string | null {
+    return typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   }
 
   /**
@@ -24,18 +42,23 @@ export class ApiService {
   }
 
   /**
-   * Get headers with optional user ID
-   * @returns Headers with potential user ID
+   * Get headers with authentication and tracking information
+   * @returns Headers with auth token, user ID, and client ID
    */
   private getHeaders(): HeadersInit {
     const headers: HeadersInit = { ...this.defaultHeaders };
+    const authToken = this.getAuthToken();
+    const timestamp = new Date().toISOString();
 
+    // Add authentication token if available
+    if (authToken) {
+      (headers as Record<string, string>)["Authorization"] = `Bearer ${authToken}`;
+    }
+
+
+    // Add current user ID if available
     if (this.currentUserId) {
-      // TypeScript-safe way to add CurrentUserId header
-      // Make sure the ID is sent as a string, even if it's stored as a number
-      (headers as Record<string, string>)["CurrentUserId"] = String(
-        this.currentUserId,
-      );
+      (headers as Record<string, string>)["CurrentUserId"] = String(this.currentUserId);
       console.log("Request headers with CurrentUserId:", this.currentUserId);
     }
 
@@ -55,6 +78,15 @@ export class ApiService {
     res: Response,
     errorMessage: string,
   ): Promise<T> {
+    // Handle token expiration or invalid tokens
+    if (res.status === 401) {
+      // Clear token if it's invalid
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        console.log("Cleared invalid auth token after 401 response");
+      }
+    }
+
     if (!res.ok) {
       let errorDetail = res.statusText;
       try {
@@ -125,7 +157,7 @@ export class ApiService {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
-      mode: "cors", // Add this line
+      mode: "cors", 
       credentials: "same-origin",
     });
     return this.processResponse<T>(
@@ -150,6 +182,8 @@ export class ApiService {
       method: "PUT",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
+      mode: "cors",
+      credentials: "same-origin",
     });
 
     // For 204 responses, we don't need to parse the body
