@@ -91,51 +91,52 @@ const Login: React.FC = () => {
         }}
       >
         <Card
-            title={
-                <div>
-                    <div
-                        style={{
-                            color: "#e0e6ff",
-                            fontSize: "2.4em",
-                            fontWeight: "800",
-                            textAlign: "center",
-                            marginBottom: "0.9em",
-                            letterSpacing: "0.01em",
-                            textShadow: "0 3px 8px rgba(0,0,0,0.25)",
-                            background: "linear-gradient(45deg, #aab8f5 10%, #5c77eb 90%)",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                        }}
-                    >
-                        Login
-                    </div>
-                    <span
-                        style={{
-                            color: "#e0e6ff",
-                            fontSize: "1.8em",
-                            fontWeight: "600",
-                            textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                            background: "linear-gradient(45deg, #5c77eb, #aab8f5)",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                        }}
-                    >
-      Quoridor online
-    </span>
-                    <div
-                        style={{
-                            fontSize: "0.95em",
-                            color: "#aab8f5",
-                            fontStyle: "italic",
-                            marginTop: "0.25em",
-                            textShadow: "0 1px 2px rgba(0,0,0,0.15)",
-                            marginBottom: "0.9em",
-                        }}
-                    >
-                        The passage to the other side
-                    </div>
-                </div>
-            }
+          title={
+            <div>
+              <div
+                style={{
+                  color: "#e0e6ff",
+                  fontSize: "2.4em",
+                  fontWeight: "800",
+                  textAlign: "center",
+                  marginBottom: "0.9em",
+                  letterSpacing: "0.01em",
+                  textShadow: "0 3px 8px rgba(0,0,0,0.25)",
+                  background:
+                    "linear-gradient(45deg, #aab8f5 10%, #5c77eb 90%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Login
+              </div>
+              <span
+                style={{
+                  color: "#e0e6ff",
+                  fontSize: "1.8em",
+                  fontWeight: "600",
+                  textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                  background: "linear-gradient(45deg, #5c77eb, #aab8f5)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Quoridor online
+              </span>
+              <div
+                style={{
+                  fontSize: "0.95em",
+                  color: "#aab8f5",
+                  fontStyle: "italic",
+                  marginTop: "0.25em",
+                  textShadow: "0 1px 2px rgba(0,0,0,0.15)",
+                  marginBottom: "0.9em",
+                }}
+              >
+                The passage to the other side
+              </div>
+            </div>
+          }
           headStyle={{
             borderBottom: "1px solid rgba(92, 119, 235, 0.3)",
             textAlign: "center",

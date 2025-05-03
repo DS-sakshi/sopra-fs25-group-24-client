@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Alert,
@@ -25,11 +25,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
 import { ApplicationError } from "@/types/error";
 
+
 export default function GameRoomPage() {
+  console.log("Component mounted");
   const params = useParams();
   const router = useRouter();
   const apiService = useApi();
-  const { user: currentUser } = useAuth();
   // Ensure gameId is properly extracted from params
   const gameId = params?.id ? String(params.id) : "";
 
@@ -40,7 +41,7 @@ export default function GameRoomPage() {
   const { user } = useAuth();
 
   // useCallback to memoize fetchGame
-  const fetchGame = useCallback(async () => {
+  const fetchGame = async () => {
     try {
       setLoading(true);
       console.log("Fetching game with ID:", gameId);
@@ -56,14 +57,29 @@ export default function GameRoomPage() {
     } finally {
       setLoading(false);
     }
-  }, [apiService, gameId]);
+  };
 
   useEffect(() => {
     if (gameId) {
-      // Fetch game data on initial load
       fetchGame();
     }
-  }, [fetchGame, gameId]);
+    }, []);
+
+    useEffect(() => {
+      const socket = new WebSocket('ws://localhost:8080/refresh-websocket');
+    
+      socket.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        fetchGame();
+        console.log("SFASFD")
+  
+      });
+    
+       return () => {
+        socket.close();
+       };
+    }, []);
+    
 
   const handleUpdateGame = (updatedGame: Game) => {
     console.log("Game updated:", updatedGame);
@@ -80,7 +96,7 @@ export default function GameRoomPage() {
       if (!user) {
         throw new Error("No authenticated user");
       }
-      
+
       // Send user data correctly formatted
       await apiService.delete(`/game-lobby/${gameId}`, {
         id: user.id,
@@ -100,7 +116,7 @@ export default function GameRoomPage() {
       setConfirmModalVisible(false);
     }
   };
-  
+
   return (
     <ProtectedRoute>
       <PageLayout requireAuth>
@@ -196,7 +212,7 @@ export default function GameRoomPage() {
                         >
                           Quoridor Game
                         </h1>
-                        <QuoridorBoard 
+                        <QuoridorBoard
                           gameId={gameId}
                           onMoveComplete={handleUpdateGame}
                         />

@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import { Game } from "@/types/game";
-import { User } from "@/types/user";
 import { Pawn } from "@/types/pawn";
 import { Wall, WallOrientation } from "@/types/wall";
 import "@ant-design/v5-patch-for-react-19";
-import { GameStatus } from "@/types/api";
-import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 interface WallIntersectionProps {
@@ -153,6 +150,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     }
   };
 
+
   useEffect(() => {
     if (!gameId) return;
     
@@ -182,7 +180,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         setError("Failed to fetch game data.");
         setLoading(false);
       });
-  }, [gameId, apiService]);
+  }, []);
 
   const sendPosition = async (
     row: number,

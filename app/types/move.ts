@@ -5,9 +5,8 @@ export type WallOrientation = "HORIZONTAL" | "VERTICAL";
 // Enum to match backend MoveType
 export enum MoveType {
   MOVE_PAWN = "MOVE_PAWN",
-  ADD_WALL = "ADD_WALL"
+  ADD_WALL = "ADD_WALL",
 }
-
 
 export interface MovePostDTO {
   startPosition?: number[];

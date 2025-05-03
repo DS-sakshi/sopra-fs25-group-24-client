@@ -8,26 +8,19 @@ export class ApiService {
   private defaultHeaders: HeadersInit; // Default headers for API requests
   private currentUserId?: string | null; // Current user ID for authenticated requests
 
-
-
   constructor() {
     this.baseURL = getApiDomain(); //Initialize base URL from a utility function
     this.defaultHeaders = {
       "Content-Type": "application/json", //Default headers for JSON content
     };
-
   }
-    
-  
-
-
 
   /**
    * Get authentication token from localStorage
    * @returns The stored auth token or null if not available
    */
   private getAuthToken(): string | null {
-    return typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    return typeof window !== "undefined" ? localStorage.getItem("token") : null;
   }
 
   /**
@@ -46,17 +39,18 @@ export class ApiService {
   private getHeaders(): HeadersInit {
     const headers: HeadersInit = { ...this.defaultHeaders };
     const authToken = this.getAuthToken();
-    const timestamp = new Date().toISOString();
 
     // Add authentication token if available
     if (authToken) {
-      (headers as Record<string, string>)["Authorization"] = `Bearer ${authToken}`;
+      (headers as Record<string, string>)["Authorization"] =
+        `Bearer ${authToken}`;
     }
-
 
     // Add current user ID if available
     if (this.currentUserId) {
-      (headers as Record<string, string>)["CurrentUserId"] = String(this.currentUserId);
+      (headers as Record<string, string>)["CurrentUserId"] = String(
+        this.currentUserId,
+      );
       console.log("Request headers with CurrentUserId:", this.currentUserId);
     }
 
@@ -79,8 +73,8 @@ export class ApiService {
     // Handle token expiration or invalid tokens
     if (res.status === 401) {
       // Clear token if it's invalid
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
         console.log("Cleared invalid auth token after 401 response");
       }
     }
@@ -155,7 +149,7 @@ export class ApiService {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
-      mode: "cors", 
+      mode: "cors",
       credentials: "same-origin",
     });
     return this.processResponse<T>(

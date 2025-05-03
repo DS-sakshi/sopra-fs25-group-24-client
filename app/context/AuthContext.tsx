@@ -37,7 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { value: storedUser, set: setStoredUser, clear: clearStoredUser } =
     useLocalStorage<User | null>("currentUser", null);
-  const { value: token, set: setToken, clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: token, set: setToken, clear: clearToken } = useLocalStorage<
+    string
+  >("token", "");
   const router = useRouter();
   const pathname = usePathname();
   const apiService = useApi();
@@ -71,10 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     };
-    
+
     validateSession();
   }, []);
-  
+
   // Fetch current user from API
   const fetchCurrentUser = async () => {
     if (!token) {
@@ -82,12 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    
+
     try {
       setLoading(true);
       const users = await apiService.get<User[]>("/users");
       const foundUser = users.find((u) => u.token === token);
-      
+
       if (foundUser && foundUser.status === "ONLINE") {
         console.log("Found current user:", foundUser);
         setUser(foundUser);
@@ -177,7 +179,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Try to call the server, but don't wait if it fails
           await apiService.post(`/logout/${user.id}`, {});
         } catch (logoutError) {
-          console.error("Server logout failed, continuing with local logout:", logoutError);
+          console.error(
+            "Server logout failed, continuing with local logout:",
+            logoutError,
+          );
         }
       }
       // Always clear local state regardless of server response
