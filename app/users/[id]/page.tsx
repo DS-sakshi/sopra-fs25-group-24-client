@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Progress } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
@@ -74,6 +75,7 @@ export default function UserPage() {
         padding: "12px 16px !important",
       },
     },
+
     buttonStyle: {
       background: "linear-gradient(135deg, #3b4d9e 0%, #5c77eb 100%)",
       border: "none",
@@ -321,6 +323,44 @@ export default function UserPage() {
                       </span>
                     )}
                   </Descriptions.Item>
+                  <Descriptions.Item label="Game Stats">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div>
+                        <span style={{ color: "#aab8f5" }}>Played:</span> {user.totalGamesPlayed}
+                      </div>
+                      <div>
+                        <span style={{ color: "#aab8f5" }}>Won:</span> {user.totalGamesWon}
+                        <Progress
+                            percent={
+                              user.totalGamesPlayed
+                                  ? Math.round((user.totalGamesWon / user.totalGamesPlayed) * 100)
+                                  : 0
+                            }
+                            status="active"
+                            showInfo={true}
+                            size="small"
+                            strokeColor="#5c77eb"
+                            style={{ width: 180, marginLeft: 12, verticalAlign: "middle" }}
+                        />
+                      </div>
+                      <div>
+                        <span style={{ color: "#aab8f5" }}>Lost:</span> {user.totalGamesLost}
+                        <Progress
+                            percent={
+                              user.totalGamesPlayed
+                                  ? Math.round((user.totalGamesLost / user.totalGamesPlayed) * 100)
+                                  : 0
+                            }
+                            status="exception"
+                            showInfo={true}
+                            size="small"
+                            strokeColor="#ff4d4f"
+                            style={{ width: 180, marginLeft: 12, verticalAlign: "middle" }}
+                        />
+                      </div>
+                    </div>
+                  </Descriptions.Item>
+
                 </Descriptions>
               )
               : user && isEditing
