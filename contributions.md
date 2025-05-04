@@ -102,8 +102,8 @@ reason).
 
 | **Student**           | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | --------------------- | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[DS-sakshi]**       | [4/5/2025]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/7f09f9c2743bfced2dd1e1c6cbcfdbdd41577cad]  | [Creating Live chat feature for opponents to chat while playing game] | [To finish one User story] |
+| **[DS-sakshi]**       | [4/5/2025]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/7f09f9c2743bfced2dd1e1c6cbcfdbdd41577cad]  | [Linking Firebase API with Board component] | [To achieve the desired features in the game] |
 | **[MoanaStadelmann]** | [May 3, 2025]   | [[Link to Commit](https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/d4b43a4881ee882513d461ed59ecf533721fad9f) ]  | [Include Websocket for Client] | [This is relevant for the game play to update smoothly] |
 | **[MoanaStadelmann]** | [May 3, 2025]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/beeb4458a6cb6bcba9d9b8f04404b16a9b808fab, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/08890a5958c0614d82083cce7c2105512d7dd89b  ]  | [Include Websocket for Server] | [This is relevant for the game play to update smoothly] |
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
