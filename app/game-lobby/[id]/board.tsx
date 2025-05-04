@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import { Game } from "@/types/game";
 import { Pawn } from "@/types/pawn";
+import { getDatabase, ref, push, onValue, set } from "firebase/database";
 import { Wall, WallOrientation } from "@/types/wall";
-import "@ant-design/v5-patch-for-react-19";
 import { useAuth } from "@/context/AuthContext";
-
+import styles from "@/styles/QuoridorBoard.module.css";
+import Chat from "./chatcomponent";
 interface WallIntersectionProps {
   row: number;
   col: number;
@@ -33,67 +34,21 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
   
   return (
     <div
-      style={{
-        width: gapSize,
-        height: gapSize,
-        background: isHovered ? "white" : "white",
-        cursor: "pointer",
-        position: "relative",
-        transition: "all 0.2s ease",
-        boxShadow: isHovered ? "0 0 5px rgba(255,255,255,0.3)" : "none",
-        borderRadius: "2px",
-        zIndex: showOptions ? 20 : 1,
-      }}
+      className={`${styles.wallIntersection} ${showOptions ? styles.wallIntersectionActive : ''}`}
+      style={{ width: gapSize, height: gapSize }}
       onClick={() => setShowOptions(!showOptions)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Visual indicator that this is an interactive element */}
       {isHovered && !showOptions && (
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "4px",
-          height: "4px",
-          backgroundColor: "white",
-          borderRadius: "50%",
-        }} />
+        <div className={styles.wallIndicator} />
       )}
       
       {showOptions && (
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "4px",
-            zIndex: 30,
-            backgroundColor: "rgba(251, 252, 253, 0.9)",
-            padding: "6px",
-            borderRadius: "4px",
-            boxShadow: "0 4px 8px rgba(252, 250, 250, 0.3)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            width: "80px",
-          }}
-        >
+        <div className={styles.wallOptionsMenu}>
           <button
-            style={{ 
-              fontSize: "10px", 
-              padding: "4px",
-              backgroundColor: "#2563eb",
-              color: "white",
-              border: "none",
-              borderRadius: "3px",
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1d4ed8"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#2563eb"}
+            className={styles.wallOptionButton}
             onClick={(e) => {
               e.stopPropagation();
               sendPosition(row, col, WallOrientation.VERTICAL);
@@ -103,18 +58,7 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
             Vertical
           </button>
           <button
-            style={{ 
-              fontSize: "10px", 
-              padding: "4px",
-              backgroundColor: "#2563eb",
-              color: "white",
-              border: "none",
-              borderRadius: "3px",
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1d4ed8"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#2563eb"}
+            className={styles.wallOptionButton}
             onClick={(e) => {
               e.stopPropagation();
               sendPosition(row, col, WallOrientation.HORIZONTAL);
@@ -137,8 +81,9 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
   const [error, setError] = useState<string | null>(null);
   const apiService = useApi();
   const { getUser } = useAuth();
-
-  // Debug function to log wall data for troubleshooting
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  // Debug function to log wall data
   const logWalls = (wallsData: Wall[]) => {
     console.log(`Wall count: ${wallsData?.length || 0}`);
     if (wallsData && wallsData.length > 0) {
@@ -150,6 +95,39 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     }
   };
 
+  // Listen for new messages and update unread count
+  useEffect(() => {
+    if (!gameId) return;
+    
+    // Only track unread messages when chat is closed
+    if (isChatOpen) return;
+    
+    const database = getDatabase();
+    const messagesRef = ref(database, `chats/${gameId}/messages`);
+    
+    // This variable will track the last message count we've seen
+    let lastKnownCount = 0;
+    
+    const unsubscribe = onValue(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      
+      if (data) {
+        const messageCount = Object.keys(data).length;
+        // Only update unread count if there are new messages
+        if (messageCount > lastKnownCount) {
+          setUnreadMessages(prev => prev + (messageCount - lastKnownCount));
+          lastKnownCount = messageCount;
+        }
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [gameId, isChatOpen]);
+
+  const handleOpenChat = () => {
+    setIsChatOpen(true);
+    setUnreadMessages(0);
+  };
 
   useEffect(() => {
     if (!gameId) return;
@@ -167,7 +145,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         console.log("Pawns data:", pawnsData);
         console.log("Walls data:", wallsData);
         
-        // Log additional wall information for debugging
         logWalls(wallsData);
 
         setGame(gameData);
@@ -187,6 +164,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     col: number,
     orientation?: WallOrientation
   ) => {
+    // Your existing sendPosition logic - no styling to remove
     if (!game) return;
 
     const currentUser = getUser();
@@ -205,7 +183,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     let payload;
     
     if (orientation) {
-      // For wall placement
       payload = {
         wallPosition: [row, col],
         wallOrientation: orientation,
@@ -216,7 +193,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         type: "ADD_WALL",
       };
     } else {
-      // For pawn movement
       payload = {
         startPosition: [userPawn!.r, userPawn!.c],
         endPosition: [row, col],
@@ -229,7 +205,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     }
 
     try {
-      // Log the payload for debugging
       console.log("Sending move payload:", JSON.stringify(payload, null, 2));
       
       const response = await apiService.post<Game>(
@@ -240,7 +215,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       if (response) {
         setGame(response);
         
-        // Refresh pawns and walls after move
         try {
           const [newPawns, newWalls] = await Promise.all([
             apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
@@ -250,7 +224,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
           console.log("Updated pawns data:", newPawns);
           console.log("Updated walls data:", newWalls);
           
-          // Log additional wall information for debugging
           logWalls(newWalls);
           
           setPawns(newPawns || []);
@@ -259,18 +232,15 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
           console.error("Error refreshing game state:", refreshError);
         }
         
-        setError(null); // Clear any previous errors
+        setError(null);
         
-        // Notify parent component if callback provided
         if (onMoveComplete) {
           onMoveComplete(response);
         }
       }
     } catch (error: any) {
       console.error("Error sending move:", error);
-      // Extract the detailed error message if available
       const errorMessage = error.message || "Failed to make move";
-      // Check for specific error messages from the API
       if (errorMessage.includes("Not users turn")) {
         setError("It's not your turn!");
       } else if (errorMessage.includes("Invalid pawn move")) {
@@ -294,13 +264,12 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       console.log("Refreshed pawns data:", pawnsData);
       console.log("Refreshed walls data:", wallsData);
       
-      // Log additional wall information for debugging
       logWalls(wallsData);
       
       setGame(gameData);
       setPawns(pawnsData || []);
       setWalls(wallsData || []);
-      setError(null); // Clear any previous errors
+      setError(null);
       setLoading(false);
     } catch (err) {
       console.error("Error refreshing game data:", err);
@@ -309,8 +278,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     }
   }; 
 
-  // This represents a 17x17 grid for a 9x9 Quoridor board
-  // with alternating cells and gaps
+  // Board dimensions
   const boardSize = 17;
   const cellSize = 40;
   const gapSize = 10;
@@ -323,8 +291,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     rows.push(i % 2 === 0 ? `${cellSize}px` : `${gapSize}px`);
   }
 
-
-  // Check if there's a wall at the given position and orientation
+  // Check if there's a wall at the given position
   const getWallAt = (r: number, c: number) => {
     const wall = walls.find(w => 
       w.r === r && 
@@ -351,41 +318,24 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     );
     
     return wall || wall1 || wall2 || wall3 || null;
-  }; //{
-      //console.log(`Found wall at r=${r}, c=${c}`);
-      //return "a";
-    //} //else {
-      //return "b";
-    
-  //};
+  };
 
   const renderBoard = () => {
     if (!game) return null;
 
     const currentUser = getUser();
-    
-    // For debugging
     console.log("Rendering board with walls count:", walls.length);
     
     return (
-      <div className="quoridor-board-container">
-        <div
-          style={{
-            margin: "40px auto",
-            width: `${(cellSize * 9) + (gapSize * 8)}px`,
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
+      <div className={styles.quoridorBoardContainer}>
+        <div style={{ width: `${(cellSize * 9) + (gapSize * 8)}px` }}>
+          <div 
+            className={styles.boardGrid}
+            style={{ 
               gridTemplateColumns: columns.join(" "),
               gridTemplateRows: rows.join(" "),
               width: `${(cellSize * 9) + (gapSize * 8)}px`,
               height: `${(cellSize * 9) + (gapSize * 8)}px`,
-              backgroundColor: "#e2e8f0", // Lighter background
-              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-              borderRadius: "4px",
-              position: "relative",
             }}
           >
             {/* Render cells for the board */}
@@ -416,30 +366,14 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
                 return (
                   <div
                     key={`cell-${rowIndex}-${colIndex}`}
+                    className={styles.pawnCell}
                     onClick={() => sendPosition(rowIndex, colIndex)}
-                    style={{
-                      width: cellSize,
-                      height: cellSize,
-                      backgroundColor: "white",
-                      border: "1px solid #8B4513",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      cursor: "pointer",
-                      position: "relative", 
-                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
-                    }}
+                    style={{ width: cellSize, height: cellSize }}
                   >
                     {pawn && (
                       <div
-                        style={{
-                          width: "80%",
-                          height: "80%",
-                          borderRadius: "50%",
-                          backgroundColor: pawn.color || "#ff5722",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                          border: "2px solid white",
-                        }}
+                        className={styles.pawn}
+                        style={{ backgroundColor: pawn.color || "#ff5722" }}
                         title={`Player: ${pawn.userId}`}
                       />
                     )}
@@ -449,136 +383,95 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
 
               // Horizontal wall slots (odd row, even column)
               if (isOddRow && !isOddCol) {
-                // Look for horizontal walls
                 const wallHere = getWallAt(rowIndex, colIndex);
                 if(wallHere) {    
                   const wallOwner = pawns.find(p => p.userId === wallHere.userId);            
-                return (
-                  <div
-                    key={`hwall-${rowIndex}-${colIndex}`}
-                    style={{
-                      width: cellSize,
-                      height: cellSize,
-                      backgroundColor: wallOwner?.color,
-                      border: "1px solidrgb(19, 139, 59)",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      cursor: "pointer",
-                      position: "relative", 
-                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                );
+                  return (
+                    <div
+                      key={`hwall-${rowIndex}-${colIndex}`}
+                      className={styles.wallHorizontal}
+                      style={{ 
+                        width: cellSize, 
+                        height: cellSize,
+                        backgroundColor: wallOwner?.color 
+                      }}
+                    />
+                  );
+                } else {
+                  return (
+                    <div
+                      key={`gap-${rowIndex}-${colIndex}`}
+                      className={styles.gapCell}
+                      style={{ width: gapSize, height: gapSize }}
+                    />
+                  );
+                }
               }
-              else{
-               // Gap cells (empty spaces)
-              return (
-                <div
-                  key={`gap-${rowIndex}-${colIndex}`}
-                  style={{
-                    width: gapSize,
-                    height: gapSize,
-                    backgroundColor: "white",
-                    opacity: 0.3,
-                  }}
-                />
-              );
-
-              }
-            }
 
               // Vertical wall slots (even row, odd column)
               if (!isOddRow && isOddCol) {
-                // Look for vertical walls
                 const wallHere = getWallAt(rowIndex, colIndex);
-                
-                if (wallHere){
+                if (wallHere) {
                   const wallOwner = pawns.find(p => p.userId === wallHere.userId);
-                return (
-                  <div
-                    key={`vwall-${rowIndex}-${colIndex}`}
-                    style={{
-                      width: cellSize,
-                      height: cellSize,
-                      backgroundColor: wallOwner?.color,
-                      border: "1px solidrgb(252, 251, 250)",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      cursor: "pointer",
-                      position: "relative", 
-                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  
-                );
-
-              }else{
-                  // Gap cells (empty spaces)
-                 return (
-                   <div
-                     key={`gap-${rowIndex}-${colIndex}`}
-                     style={{
-                       width: gapSize,
-                       height: gapSize,
-                       backgroundColor: "white",
-                       opacity: 0.3,
-                     }}
-                   />
-                 );
-   
-                 }
+                  return (
+                    <div
+                      key={`vwall-${rowIndex}-${colIndex}`}
+                      className={styles.wallVertical}
+                      style={{ 
+                        width: cellSize, 
+                        height: cellSize,
+                        backgroundColor: wallOwner?.color
+                      }}
+                    />
+                  );
+                } else {
+                  return (
+                    <div
+                      key={`gap-${rowIndex}-${colIndex}`}
+                      className={styles.gapCell}
+                      style={{ width: gapSize, height: gapSize }}
+                    />
+                  );
+                }
               }
-
-
             })}
           </div>
         </div>
         
         {/* Game status info */}
-        <div style={{ marginTop: "20px", textAlign: "center", color: "white" }}>
+        <div className={styles.gameStatusContainer}>
           {game.currentTurn && (
             <div>
-              <p style={{ fontSize: "18px", fontWeight: "bold" }}>
-                Current turn: <span style={{ color: game.currentTurn.id === currentUser?.id ? "#22c55e" : "#f87171" }}>
+              <p className={styles.currentTurnText}>
+                Current turn: <span className={game.currentTurn.id === currentUser?.id ? styles.yourTurn : styles.opponentTurn}>
                   {game.currentTurn.username}
                   {game.currentTurn.id === currentUser?.id ? " (You)" : ""}
                 </span>
               </p>
               {game.currentTurn.id !== currentUser?.id && (
-                <p style={{ color: "#cbd5e1" }}>Waiting for your opponent to make a move...</p>
+                <p className={styles.waitingText}>Waiting for your opponent to make a move...</p>
               )}
             </div>
           )}
+          
           {error && (
-            <p style={{ color: "#f87171", backgroundColor: "rgba(0,0,0,0.3)", padding: "8px", borderRadius: "4px" }}>
-              {error}
-            </p>
+            <p className={styles.errorMessage}>{error}</p>
           )}
-          <div style={{ marginTop: "10px", display: "flex", justifyContent: "center", gap: "20px" }}>
-            {/* Wall counter with improved visualization */}
-            <div style={{ 
-              padding: "10px 15px", 
-              backgroundColor: "rgba(0,0,0,0.4)", 
-              borderRadius: "8px",
-              border: "1px solid rgba(255,255,255,0.1)" 
-            }}>
+          
+          <div className={styles.wallCountersContainer}>
+            {/* Wall counter */}
+            <div className={styles.wallCounter}>
               <p style={{ marginBottom: "5px" }}>Your Walls:</p>
-              <div style={{ display: "flex", gap: "3px", justifyContent: "center" }}>
+              <div className={styles.wallBlocks}>
                 {Array(10).fill(0).map((_, i) => {
                   const wallsPlaced = currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0;
                   const isUsed = i < wallsPlaced;
                   
                   return (
-                    <div key={i} style={{
-                      width: "12px",
-                      height: "12px",
-                      backgroundColor: isUsed ? "#8B4513" : "rgba(255,255,255,0.3)",
-                      border: isUsed ? "1px solid #6B3E23" : "1px solid rgba(255,255,255,0.1)",
-                      boxShadow: isUsed ? "inset 0 0 3px rgba(0,0,0,0.3)" : "none",
-                      borderRadius: "2px"
-                    }}></div>
+                    <div 
+                      key={i} 
+                      className={`${styles.wallBlock} ${isUsed ? styles.wallBlockUsed : styles.wallBlockUnused}`}
+                    />
                   );
                 })}
               </div>
@@ -587,30 +480,21 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               </p>
             </div>
             
-            {/* Opponent wall counter if needed */}
+            {/* Opponent wall counter */}
             {game.currentUsers && game.currentUsers.length > 1 && (
-              <div style={{ 
-                padding: "10px 15px", 
-                backgroundColor: "rgba(0,0,0,0.4)", 
-                borderRadius: "8px",
-                border: "1px solid rgba(255,255,255,0.1)" 
-              }}>
+              <div className={styles.wallCounter}>
                 <p style={{ marginBottom: "5px" }}>Opponent Walls:</p>
-                <div style={{ display: "flex", gap: "3px", justifyContent: "center" }}>
+                <div className={styles.wallBlocks}>
                   {Array(10).fill(0).map((_, i) => {
                     const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
                     const wallsPlaced = opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
                     const isUsed = i < wallsPlaced;
                     
                     return (
-                      <div key={i} style={{
-                        width: "12px",
-                        height: "12px",
-                        backgroundColor: isUsed ? "#DC2626" : "rgba(255,255,255,0.3)",
-                        border: isUsed ? "1px solid #B91C1C" : "1px solid rgba(255,255,255,0.1)",
-                        boxShadow: isUsed ? "inset 0 0 3px rgba(0,0,0,0.3)" : "none",
-                        borderRadius: "2px"
-                      }}></div>
+                      <div 
+                        key={i} 
+                        className={`${styles.wallBlock} ${isUsed ? styles.opponentWallBlockUsed : styles.wallBlockUnused}`} 
+                      />
                     );
                   })}
                 </div>
@@ -624,24 +508,15 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
             )}
           </div>
           
-          {/* Debug/refresh button */}
+          {/* Refresh button */}
           <div style={{ marginTop: "15px" }}>
             <button 
-              onClick={ refreshGameData
-              } 
-              style={{ 
-                padding: "6px 12px", 
-                backgroundColor: "#2563eb",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontSize: "14px"
-              }}
+              onClick={refreshGameData} 
+              className={styles.refreshButton}
             >
               Refresh Game Data
             </button>
-            <div style={{ marginTop: "10px", fontSize: "12px", color: "#94a3b8" }}>
+            <div className={styles.wallsCountText}>
               Walls count: {walls.length}
             </div>
           </div>
@@ -653,7 +528,106 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
   if (loading) return <div>Loading game...</div>;
   if (error && !game) return <div>{error}</div>;
 
-  return <>{renderBoard()}</>;
+  return (
+    <div style={{ 
+      position: "relative",
+      display: 'flex', 
+      flexDirection: 'row', 
+      justifyContent: 'center',
+      maxWidth: '1600px',
+      margin: '0 auto'
+    }}>
+      <div>
+        {renderBoard()}
+      </div>
+
+      {/* Floating Chat Button with Notification Badge */}
+      <button 
+        onClick={handleOpenChat}
+        style={{
+          position: "fixed",
+          right: "20px",
+          bottom: "20px",
+          zIndex: 1000,
+          borderRadius: "50%",
+          width: "60px",
+          height: "60px",
+          fontSize: "24px",
+          backgroundColor: "#2563eb",
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+      >
+        💬
+        {/* Notification Badge */}
+        {unreadMessages > 0 && (
+          <div style={{
+            position: "absolute",
+            top: "-5px",
+            right: "-5px",
+            backgroundColor: "#ef4444",
+            color: "white",
+            borderRadius: "50%",
+            width: "24px",
+            height: "24px",
+            fontSize: "14px",
+            fontWeight: "bold",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+          }}>
+            {unreadMessages > 9 ? '9+' : unreadMessages}
+          </div>
+        )}
+      </button>
+
+      {/* Chat Panel: Only visible when isChatOpen is true */}
+      {isChatOpen && (
+        <div style={{
+          position: "fixed",
+          right: "20px",
+          bottom: "100px",
+          zIndex: 1000,
+          width: "220px",
+          height: "250px",
+          backgroundColor: "#1a2234",
+          //borderRadius: "8px",
+          overflow: "hidden",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          display: "flex",
+          flexDirection: "column"
+        }}>
+          <div style={{ 
+            //display: "flex", 
+            //justifyContent: "space-between", 
+            //alignItems: "center",
+            //padding: "10px", 
+            //borderBottom: "1px solid #334155"
+          }}> 
+            <button 
+              onClick={() => setIsChatOpen(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "Yellow",
+                cursor: "pointer",
+                fontSize: "15px"
+              }}
+            >
+              ✕
+            </button>
+          </div>
+          <Chat gameId={gameId} />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default QuoridorBoard;
