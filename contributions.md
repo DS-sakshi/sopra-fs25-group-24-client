@@ -98,7 +98,7 @@ reason).
 
 ---
 
-## Contributions Week 5 - [Begin Date] to [End Date]
+## Contributions Week 5 - [28.04] to [04.05]
 
 | **Student**           | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | --------------------- | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -108,8 +108,8 @@ reason).
 | **[MoanaStadelmann]** | [May 3, 2025]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/beeb4458a6cb6bcba9d9b8f04404b16a9b808fab, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/08890a5958c0614d82083cce7c2105512d7dd89b  ]  | [Include Websocket for Server] | [This is relevant for the game play to update smoothly] |
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[DorSilva]**        | [last week]   | [ -  ]  | [One contribution from last week] | [ - ] |
+| **[DorSilva]**        | [02.05 - 04.05]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/35e5d49df91a148f6e42353a4c298bc7d683b37c, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/fb09bef2b3a7b72667bfb77d77922f22837263e5, https://github.com/DS-sakshi/sopra-fs25-group-24-server/compare/main...136-player-can-move-diagonally-around-opponents-pawn-if-wall-is-behind-it ]  | [Made Stats available in User endpoint, fixed old Wall logic, Reintroduced Jump logic, changes to FindPath] | [Making the backend better as all of these things were implemented but not functioning properly] |
 
 ---
 
