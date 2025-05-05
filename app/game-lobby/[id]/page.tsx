@@ -24,6 +24,7 @@ import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
 import { ApplicationError } from "@/types/error";
+import { getWebsocketDomain } from "@/utils/domain";
 
 
 export default function GameRoomPage() {
@@ -66,7 +67,9 @@ export default function GameRoomPage() {
     }, []);
 
     useEffect(() => {
-      const socket = new WebSocket('ws://localhost:8080/refresh-websocket');
+
+      const domain = getWebsocketDomain();
+      const socket = new WebSocket(`${domain}/refresh-websocket`);
     
       socket.addEventListener('message', (event) => {
         const data = JSON.parse(event.data);

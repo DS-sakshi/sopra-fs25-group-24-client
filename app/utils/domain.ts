@@ -13,7 +13,7 @@ export function getApiDomain(): string {
 }
 
 export const getWebsocketDomain = () => {
-  const prodUrl = "ws://sopra-fs25-saksch-new-server.oa.r.appspot.com/ws"; // TODO: insert your prod url for server (once deployed)
+  const prodUrl = "ws://sopra-fs25-saksch-new-server.oa.r.appspot.com"; // TODO: insert your prod url for server (once deployed)
   const devUrl = "ws://localhost:8080";
 
   return isProduction() ? prodUrl : devUrl;
