@@ -127,69 +127,92 @@ const ChatInterface = () => {
               alignItems: "center",
             }}
           >
-            <Card
-              style={{
-                width: "100%",
-                maxWidth: 800,
-                backgroundColor: "rgba(17, 24, 39, 0.5)",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                borderRadius: "12px",
-              }}
-            >
-              <Button
-                size="middle"
-                type="primary"
-                onClick={() => router.push("/game-lobby")}
+              <Card
+                  style={{
+                      width: "100%",
+                      maxWidth: 800,
+                      backgroundColor: "rgba(17, 24, 39, 0.5)",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                      borderRadius: "12px",
+                  }}
               >
-                Return to Lobby
-              </Button>
-              <List
-                dataSource={messages}
-                renderItem={(item) => (
-                  <List.Item
-                    style={{
-                      display: "flex",
-                      justifyContent: item.role === "user"
-                        ? "flex-end"
-                        : "flex-start",
-                    }}
-                  >
-                    <div className={`message ${item.role}`}>
-                      {item.content}
-                    </div>
-                  </List.Item>
-                )}
-              />
-              <div style={{ marginTop: 24 }}>
-                <Space.Compact style={{ width: "100%" }}>
-                  <Input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type your message..."
-                    onPressEnter={handleSubmit}
-                    style={{
-                      width: "calc(100% - 100px)",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "5px",
-                    }}
-                  />
                   <Button
-                    type="primary"
-                    onClick={handleSubmit}
-                    style={{
-                      width: 100,
-                      backgroundColor: "#2563eb",
-                      borderColor: "#2563eb",
-                      color: "#ffffff",
-                      fontWeight: "500",
-                      borderRadius: "5px",
-                    }}
+                      size="middle"
+                      type="primary"
+                      onClick={() => router.push("/game-lobby")}
                   >
-                    Send
+                      Return to Lobby
                   </Button>
-                </Space.Compact>
-              </div>
-            </Card>
+
+                  {/* --- Intro Text Block START --- */}
+                  <div
+                      style={{
+                          background: "rgba(37, 99, 235, 0.15)",
+                          border: "1px solid #2563eb",
+                          borderRadius: 8,
+                          padding: 16,
+                          margin: "24px 0",
+                          color: "#fff",
+                          fontSize: "1.1rem",
+                          fontWeight: 500,
+                          textAlign: "center",
+                          lineHeight: 1.6,
+                      }}
+                  >
+                      <span role="img" aria-label="maze">🧱</span> <b>Stuck in a maze of walls?</b> Let’s outsmart your opponent!<br />
+                      Need a clever move or curious about winning strategies in <b>Quoridor</b>? <span role="img" aria-label="lightbulb">💡</span> Chat with our strategy bot for quick tips, move suggestions, and smart tactics to gain the upper hand.<br />
+                      Whether you're a beginner or a seasoned player, your next brilliant play is just a message away!<br /><br />
+                      <b>Start chatting now – your winning move is waiting.</b> <span role="img" aria-label="target">🎯</span>
+                  </div>
+                  {/* --- Intro Text Block END --- */}
+
+                  <List
+                      dataSource={messages}
+                      renderItem={(item) => (
+                          <List.Item
+                              style={{
+                                  display: "flex",
+                                  justifyContent: item.role === "user"
+                                      ? "flex-end"
+                                      : "flex-start",
+                              }}
+                          >
+                              <div className={`message ${item.role}`}>
+                                  {item.content}
+                              </div>
+                          </List.Item>
+                      )}
+                  />
+                  <div style={{ marginTop: 24 }}>
+                      <Space.Compact style={{ width: "100%" }}>
+                          <Input
+                              value={input}
+                              onChange={(e) => setInput(e.target.value)}
+                              placeholder="Type your message..."
+                              onPressEnter={handleSubmit}
+                              style={{
+                                  width: "calc(100% - 100px)",
+                                  backgroundColor: "#ffffff",
+                                  borderRadius: "5px",
+                              }}
+                          />
+                          <Button
+                              type="primary"
+                              onClick={handleSubmit}
+                              style={{
+                                  width: 100,
+                                  backgroundColor: "#2563eb",
+                                  borderColor: "#2563eb",
+                                  color: "#ffffff",
+                                  fontWeight: "500",
+                                  borderRadius: "5px",
+                              }}
+                          >
+                              Send
+                          </Button>
+                      </Space.Compact>
+                  </div>
+              </Card>
           </Content>
         </Layout>
       </div>
