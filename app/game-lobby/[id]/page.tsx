@@ -74,8 +74,14 @@ export default function GameRoomPage() {
     const ws = new WebSocket(`${domain}/refresh-websocket`);
     setSocket(ws);
 
-    ws.addEventListener('open', () => {
-      console.log('WebSocket connection established');
+    ws.addEventListener('message', (event) => {
+
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh" && data.gameId === gameId) {
+        fetchGame();
+        console.log("Received refresh for gameId:", gameId);
+      }
+
     });
 
   return () => {
@@ -83,7 +89,7 @@ export default function GameRoomPage() {
       ws.close();
     }
   };
-}, []);
+  }, []);
 
     
 
