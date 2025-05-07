@@ -40,6 +40,7 @@ export default function GameRoomPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const { user } = useAuth();
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   // useCallback to memoize fetchGame
   const fetchGame = async () => {
@@ -66,22 +67,24 @@ export default function GameRoomPage() {
     }
     }, []);
 
-    useEffect(() => {
 
-      const domain = getWebsocketDomain();
-      const socket = new WebSocket(`${domain}/refresh-websocket`);
-    
-      socket.addEventListener('message', (event) => {
-        const data = JSON.parse(event.data);
-        fetchGame();
-        console.log("SFASFD")
-  
-      });
-    
-       return () => {
-        socket.close();
-       };
-    }, []);
+
+  useEffect(() => {
+    const domain = getWebsocketDomain();
+    const ws = new WebSocket(`${domain}/refresh-websocket`);
+    setSocket(ws);
+
+    ws.addEventListener('open', () => {
+      console.log('WebSocket connection established');
+    });
+
+  return () => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.close();
+    }
+  };
+}, []);
+
     
 
   const handleUpdateGame = (updatedGame: Game) => {
