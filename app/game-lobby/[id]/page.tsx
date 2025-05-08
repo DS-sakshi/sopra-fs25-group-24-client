@@ -77,8 +77,10 @@ export default function GameRoomPage() {
     ws.addEventListener('message', (event) => {
 
       const data = JSON.parse(event.data);
+      console.log(data);
       if (data.type === "refresh" && data.gameId === gameId) {
         fetchGame();
+        console.log(data.gameId);
         console.log("Received refresh for gameId:", gameId);
       }
 
