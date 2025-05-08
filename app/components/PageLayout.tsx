@@ -67,6 +67,12 @@ const PageLayout: React.FC<PageLayoutProps> = (
           >
             Game Lobby
           </Link>
+            <Link
+                href="/leaderboard"
+                style={{ color: "white", fontSize: "18px", marginRight: "20px" }}
+            >
+                Leaderboard
+            </Link>
         </div>
         <div>
           {user && (
