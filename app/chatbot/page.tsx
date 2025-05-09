@@ -55,7 +55,16 @@ const ChatInterface = () => {
                 body: JSON.stringify({ userMessage: input }),
             });
 
-            const data = await response.json();
+            // Check for non-200 response
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Server error:", response.status, errorText);
+                throw new Error("Server returned an error response.");
+            }
+
+            // Ensure the response has content before parsing
+            const text = await response.text();
+            const data = text ? JSON.parse(text) : { message: "No response body received" };
 
             const aiMessage: Message = {
                 content: data.message ?? "No response from assistant.",
