@@ -1,13 +1,14 @@
 import Groq from "groq-sdk";
 
-// Sanity check
-if (!process.env.GROQ_API_KEY) {
-    throw new Error("GROQ_API_KEY is not set. Please define it in your environment (.env.local)");
-}
-
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-});
+// Delay API key check until runtime instead of during build
+const getGroqClient = () => {
+    if (process.env.GROQ_API_KEY) {
+        return new Groq({
+            apiKey: process.env.GROQ_API_KEY,
+        });
+    }
+    return null;
+};
 
 export async function POST(req: Request) {
     try {
@@ -16,6 +17,28 @@ export async function POST(req: Request) {
         if (!userMessage || typeof userMessage !== "string") {
             return new Response(JSON.stringify({ error: "Invalid user message" }), {
                 status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        // Only try to use the API if we have a key
+        if (!process.env.GROQ_API_KEY) {
+            console.warn("GROQ_API_KEY is not set. The API will not function correctly.");
+            return new Response(JSON.stringify({
+                message: "GROQ API key not configured. Please set the GROQ_API_KEY environment variable.",
+                error: "Missing API key"
+            }), {
+                status: 503,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        const groq = getGroqClient();
+        if (!groq) {
+            return new Response(JSON.stringify({
+                error: "Failed to initialize Groq client"
+            }), {
+                status: 500,
                 headers: { "Content-Type": "application/json" },
             });
         }
