@@ -2,7 +2,7 @@ import Groq from "groq-sdk";
 
 // Sanity check
 if (!process.env.GROQ_API_KEY) {
-    throw new Error("🚨 GROQ_API_KEY is not set. Please define it in your environment (.env.local)");
+    throw new Error("GROQ_API_KEY is not set. Please define it in your environment (.env.local)");
 }
 
 const groq = new Groq({
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
                 messages: [
                     {
                         role: "system",
-                        content: "You are a helpful assistant who ONLY answers questions about the board game Quoridor. You are savvy, strategic, and love sharing advanced tips and clever tactics for Quoridor 🧠🎲. If the question is unrelated, kindly explain you only help with Quoridor topics. Use emojis to make the conversation fun and engaging! 😊"
+                        content: "You are a helpful assistant who ONLY answers questions about the board game Quoridor. You are savvy, strategic, and love sharing advanced tips and clever tactics for Quoridor 🎲. If the question is unrelated, kindly explain you only help with Quoridor topics. Use emojis to make the conversation fun and engaging! 🧠"
                     },
                     {
                         role: "user",
