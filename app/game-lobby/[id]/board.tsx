@@ -527,6 +527,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
 
   if (loading) return <div>Loading game...</div>;
   if (error && !game) return <div>{error}</div>;
+  
 
   return (
     <div style={{ 
