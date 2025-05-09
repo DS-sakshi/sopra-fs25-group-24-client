@@ -5,7 +5,7 @@ import { Button, Card, Input, Layout, List } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import { Space } from "antd";
 import { useRouter } from "next/navigation";
-import Groq from "groq-sdk";
+
 //import { router } from "next/client";
 
 const { Header, Content } = Layout;
@@ -16,10 +16,7 @@ interface Message {
   id: string;
 }
 
-const groq = new Groq({
-  apiKey: "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",
-  dangerouslyAllowBrowser: true,
-});
+
 
 const ChatInterface = () => {
   const [input, setInput] = useState("");
@@ -40,42 +37,49 @@ const ChatInterface = () => {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
 
-  const handleSubmit = async () => {
-    if (!input.trim()) return;
+    const handleSubmit = async () => {
+        if (!input.trim()) return;
 
-    const userMessage: Message = {
-      content: input,
-      role: "user",
-      id: Date.now().toString(),
+        const userMessage: Message = {
+            content: input,
+            role: "user",
+            id: Date.now().toString(),
+        };
+
+        setMessages((prev) => [...prev, userMessage]);
+
+        try {
+            const response = await fetch("/api/groq-chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userMessage: input }),
+            });
+
+            const data = await response.json();
+
+            const aiMessage: Message = {
+                content: data.message ?? "No response from assistant.",
+                role: "assistant",
+                id: Date.now().toString(),
+            };
+
+            setMessages((prev) => [...prev, aiMessage]);
+        } catch (error) {
+            console.error("Error:", error);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    content: "Error processing your request",
+                    role: "assistant",
+                    id: Date.now().toString(),
+                },
+            ]);
+        }
+
+        setInput("");
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-
-    try {
-      const chatCompletion = await groq.chat.completions.create({
-        messages: [{ role: "user", content: input }],
-        model: "llama-3.3-70b-versatile",
-      });
-
-      const aiMessage: Message = {
-        content: chatCompletion.choices[0].message.content ?? "",
-        role: "assistant",
-        id: Date.now().toString(),
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("Error:", error);
-      setMessages((prev) => [...prev, {
-        content: "Error processing your request",
-        role: "assistant",
-        id: Date.now().toString(),
-      }]);
-    }
-
-    setInput("");
-  };
-  return (
+    return (
     <>
       <style jsx global>
         {`

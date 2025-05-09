@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import { Button, Card, message, Table, Tag } from "antd";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageLayout from "@/components/PageLayout";

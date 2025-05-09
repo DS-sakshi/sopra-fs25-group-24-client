@@ -114,16 +114,16 @@ reason).
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
 
-| **Student**           | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
-| --------------------- | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **Student**           | **Date** | **Link to Commit** | **Description**                                                               | **Relevance**                       |
+| --------------------- | -------- | ------------------ |-------------------------------------------------------------------------------| ----------------------------------- |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[tolipp]**          | [06.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/665cf8a | Fixing errors of the login and register page. Chatbot changed to instructing. | Improved user experience with clearer chatbot instructions and enhanced registration visuals using themed UI and Ant Design feedback mechanisms. |
+| **[tolipp]**          | [08.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/83a3a69 | Implemented the Leaderboard page with podium visuals and win-rate bars.       | Provides players with a clear, engaging ranking overview, highlighting top performers and improving user motivation and game transparency. |
+| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
 
 ---
 
