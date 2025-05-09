@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { Button, Card } from "antd";
+import "@ant-design/v5-patch-for-react-19";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";

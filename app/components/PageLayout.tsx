@@ -1,6 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import { Button, Layout, Spin } from "antd";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

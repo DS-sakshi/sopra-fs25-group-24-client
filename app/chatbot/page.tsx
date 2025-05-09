@@ -198,6 +198,7 @@ const ChatInterface = () => {
                                   width: "calc(100% - 100px)",
                                   backgroundColor: "#ffffff",
                                   borderRadius: "5px",
+                                  color: "#00008B", // Dark blue
                               }}
                           />
                           <Button

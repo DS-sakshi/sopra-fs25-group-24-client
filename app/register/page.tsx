@@ -1,5 +1,5 @@
 "use client";
-
+import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Alert, Button, Card, Form, Input, message } from "antd";
