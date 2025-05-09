@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";

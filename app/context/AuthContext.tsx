@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import { useApi } from "@/hooks/useApi";
+import "@ant-design/v5-patch-for-react-19";
 
 interface AuthContextType {
   user: User | null;

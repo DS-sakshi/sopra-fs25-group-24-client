@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Spin } from "antd";
