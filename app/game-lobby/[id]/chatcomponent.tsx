@@ -4,6 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getDatabase, ref, push, onValue, set, remove, Database } from "firebase/database";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./Chat.module.css";
+
 import { GameStatus } from '@/types/game';
 
 // Firebase configuration - put in an environment variable in production
