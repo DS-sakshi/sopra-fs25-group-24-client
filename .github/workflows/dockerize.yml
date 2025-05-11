@@ -42,6 +42,7 @@ jobs:
           platforms: linux/amd64
           build-args: |
             GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
           cache-from: type=registry,ref=${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:cache
           cache-to: type=inline,mode=max
 
