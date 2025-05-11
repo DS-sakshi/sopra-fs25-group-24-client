@@ -122,8 +122,8 @@ reason).
 | **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
 | **[tolipp]**          | [06.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/665cf8a | Fixing errors of the login and register page. Chatbot changed to instructing. | Improved user experience with clearer chatbot instructions and enhanced registration visuals using themed UI and Ant Design feedback mechanisms. |
 | **[tolipp]**          | [08.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/83a3a69 | Implemented the Leaderboard page with podium visuals and win-rate bars.       | Provides players with a clear, engaging ranking overview, highlighting top performers and improving user motivation and game transparency. |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[DorSilva]**        | [06.05 - 11.05]   | [ https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/9f8345fabe4bfe3441308f472c929c18c35389bb#diff-08ba901387859ea68bf530eebdb99b0f16b2738e478f9696b39d1a1909cead55, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/a3f6a9c46742c5fbbce0e45b86da383b957520b6, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/207a3d1d7b8b6da6f67566e75ce64837c6c656cb ]  | [Correcting Game logic, adding tests, correcting DB parameters]                                               | [Correct functionality of backend] |
+| **[DorSilva]**        | [11.05]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/3061f15072293db816e26deafb2c205e415a5061]  | [Change of DB, so it does not delete itself after 30 mins when deployed]                                               | [Leaderboard is possible, users can track their progress] |
 
 ---
 
