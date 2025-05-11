@@ -10,6 +10,7 @@ export enum GameStatus {
 }
 
 export interface Game {
+  status: GameStatus;
   id: string; // More flexible than number
   numberUsers: string; // Keep as number for calculations
   sizeBoard: number; // Keep as number for board rendering

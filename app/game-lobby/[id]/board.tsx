@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useApi } from "@/hooks/useApi";
-import { Game } from "@/types/game";
 import { Pawn } from "@/types/pawn";
 import { getDatabase, ref, push, onValue, set } from "firebase/database";
 import { Wall, WallOrientation } from "@/types/wall";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/styles/QuoridorBoard.module.css";
 import Chat from "./chatcomponent";
+import Suggestion from "./suggestion";
+import { Game, GameStatus } from "@/types/game";
 interface WallIntersectionProps {
   row: number;
   col: number;
@@ -80,7 +81,9 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const apiService = useApi();
+  const isGameEnded = game?.status === GameStatus.ENDED;
   const { getUser } = useAuth();
+  const [isSuggestionVisible, setIsSuggestionVisible] = useState(false); 
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   // Debug function to log wall data
@@ -320,6 +323,13 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     return wall || wall1 || wall2 || wall3 || null;
   };
 
+  const handleToggleSuggestion = () => {
+    setIsSuggestionVisible(!isSuggestionVisible);
+    if (isChatOpen) {
+      setIsChatOpen(false);
+    }
+  };
+
   const renderBoard = () => {
     if (!game) return null;
 
@@ -542,6 +552,31 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         {renderBoard()}
       </div>
 
+    {/* Suggestion Button (Bulb Icon) */}
+      <button 
+        onClick={handleToggleSuggestion}
+        style={{
+          position: "fixed",
+          right: "20px",
+          bottom: "100px",
+          zIndex: 1000,
+          borderRadius: "50%",
+          width: "60px",
+          height: "60px",
+          fontSize: "24px",
+          backgroundColor: "#f59e0b", // Using amber color for the suggestion bulb
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+        title="Get Move Suggestions"
+      >
+        💡
+      </button>
       {/* Floating Chat Button with Notification Badge */}
       <button 
         onClick={handleOpenChat}
@@ -587,7 +622,17 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
           </div>
         )}
       </button>
-
+        {/* Suggestion Component - Only render when visible */}
+      {isSuggestionVisible && (
+        <div style={{
+          position: "fixed",
+          right: "100px", 
+          bottom: "100px",
+          zIndex: 1001 // Higher than chat to appear on top
+        }}>
+          <Suggestion pawns={pawns} walls={walls} />
+        </div>
+      )}
       {/* Chat Panel: Only visible when isChatOpen is true */}
       {isChatOpen && (
         <div style={{
@@ -624,7 +669,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               ✕
             </button>
           </div>
-          <Chat gameId={gameId} />
+          <Chat gameId={gameId} gameEnded={isGameEnded} />
         </div>
       )}
     </div>
