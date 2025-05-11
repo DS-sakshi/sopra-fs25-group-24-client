@@ -238,8 +238,10 @@ export const Suggestion: React.FC<SuggestionProps> = ({ pawns, walls }) => {
             </div>
             <button
               onClick={() => {
-                setStrategy(null);
                 setTip('');
+  if (strategy) {
+    fetchSuggestion(strategy);
+  }
               }}
               style={{
                 width: '100%',

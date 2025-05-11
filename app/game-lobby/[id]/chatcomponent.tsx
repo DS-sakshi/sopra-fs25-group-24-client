@@ -49,6 +49,24 @@ export const deleteGameChat = (gameId: string) => {
   }
 };
 
+// Utility function to ensure fresh chat for new games
+export const initializeGameChat = (gameId: string) => {
+  if (!gameId || !database) return;
+  
+  // First delete any existing chat data for this gameId
+  deleteGameChat(gameId);
+  
+  // Create an initial empty structure to ensure fresh start
+  try {
+    const chatRef = ref(database, `chats/${gameId}`);
+    set(chatRef, { initialized: Date.now() })
+      .then(() => console.log(`Fresh chat initialized for game ${gameId}`))
+      .catch(error => console.error(`Error initializing chat: ${error.message}`));
+  } catch (error) {
+    console.error("Error in initializeGameChat:", error);
+  }
+};
+
 const Chat: React.FC<ChatProps> = ({ gameId, gameEnded = false }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
@@ -56,6 +74,22 @@ const Chat: React.FC<ChatProps> = ({ gameId, gameEnded = false }) => {
   const { getUser } = useAuth();
   const currentUser = getUser();
   
+  // Initialize fresh chat when component mounts with a new gameId
+  useEffect(() => {
+    if (!gameId || !database) return;
+    
+    // Check if this is a new game chat that needs initialization
+    const chatRef = ref(database, `chats/${gameId}`);
+    onValue(chatRef, (snapshot) => {
+      // If there's no data yet for this game ID, initialize it
+      if (!snapshot.exists()) {
+        set(chatRef, { initialized: Date.now() })
+          .then(() => console.log(`Fresh chat initialized for game ${gameId}`))
+          .catch(error => console.error(`Error initializing chat: ${error.message}`));
+      }
+    }, { onlyOnce: true });
+    
+  }, [gameId]);
   // Scroll to bottom of chat when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
