@@ -7,6 +7,8 @@ COPY package*.json ./
 # Set npm cache to a directory the non-root user can access
 RUN npm config set cache /app/.npm-cache --global
 # Install dependencies with npm ci (exact versions in the lockfile), suppressing warnings
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
 RUN npm ci --loglevel=error
 # Copy app (useless stuff is ignored by .dockerignore)
 COPY . .
@@ -25,6 +27,10 @@ RUN npm config set cache /app/.npm-cache --global
 USER 3301
 # Set container working directory to /app
 WORKDIR /app
+
+# Add ENV for runtime secret (optional, but recommended for runtime access)
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
 # Copy node modules and app
 COPY --chown=node:node --from=build /app/node_modules /app/node_modules
 COPY --chown=node:node --from=build /app/.next /app/.next
