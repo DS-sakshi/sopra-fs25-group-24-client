@@ -78,7 +78,6 @@ export default function GameRoomPage() {
 
       const data = JSON.parse(event.data);
       console.log(data);
-      fetchGame();
       if (data.type === "refresh" && data.gameId === gameId) {
         fetchGame();
         console.log(data.gameId);
