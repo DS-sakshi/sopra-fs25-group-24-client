@@ -208,7 +208,7 @@ export default function GameRoomPage() {
                   {/* Conditional alerts */}
                   {game.gameStatus === GameStatus.WAITING_FOR_USER && (
                     <Alert
-                      message="Waiting for another player to join..."
+                        message={<span style={{ color: 'blue' }}>Waiting for another player to join...</span>}
                       type="info"
                       showIcon
                       style={{ marginBottom: 20 }}
@@ -234,20 +234,98 @@ export default function GameRoomPage() {
                       </div>
                     )
                     : (
-                      game.gameStatus === GameStatus.ENDED && (
-                        <Alert
-                          message="Game Over"
-                          description={game.currentTurn?.id === game.creator.id
-                            ? "You won!"
-                            : "You lost!"}
-                          type="success"
-                          showIcon
-                          style={{ marginBottom: 20 }}
-                        />
-                      )
-                    )}
+                          game.gameStatus === GameStatus.ENDED && (
+                              <div className="game-over-container" style={{
+                                textAlign: "center",
+                                padding: "20px",
+                                backgroundColor: "#1a242f",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+                                maxWidth: "450px",
+                                margin: "20px auto",
+                                color: "white",
+                                animation: "fadeIn 0.8s ease-in-out"
+                              }}>
+                                <div style={{
+                                  fontSize: "3rem",
+                                  marginBottom: "10px",
+                                  animation: "bounce 1s ease-in-out"
+                                }}>
+                                  {game.currentTurn?.id === game.creator.id ? "🏆" : "🎮"}
+                                </div>
+
+                                <h2 style={{
+                                  fontSize: "2rem",
+                                  fontWeight: "bold",
+                                  color: "#f1c40f",
+                                  textShadow: "0 0 8px rgba(241, 196, 15, 0.5)",
+                                  margin: "0 0 10px 0",
+                                  animation: "pulse 2s infinite"
+                                }}>
+                                  Game Over
+                                </h2>
+
+                                <p style={{
+                                  fontSize: "1.2rem",
+                                  marginBottom: "15px"
+                                }}>
+                                  {game.currentTurn?.id === game.creator.id ? "You won!" : "You lost!"}
+                                </p>
+
+                                <div style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  gap: "12px",
+                                  marginTop: "12px"
+                                }}>
+                                  <button onClick={() => window.location.reload()} style={{
+                                    padding: "8px 16px",
+                                    backgroundColor: "#3498db",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    transition: "all 0.2s"
+                                  }}>
+                                    Play Again
+                                  </button>
+                                  <button onClick={() => window.location.href = "/"} style={{
+                                    padding: "8px 16px",
+                                    backgroundColor: "#e74c3c",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    transition: "all 0.2s"
+                                  }}>
+                                    Main Menu
+                                  </button>
+                                </div>
+
+                                <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-15px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes pulse {
+              0% { transform: scale(1); }
+              50% { transform: scale(1.05); }
+              100% { transform: scale(1); }
+            }
+            
+            @keyframes bounce {
+              0% { transform: translateY(-15px); opacity: 0; }
+              100% { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
+                              </div>
+                          )
+                      )}
                 </> // Close the fragment here
-              )}
+                    )}
           </Card>
 
           {/* Confirm abort modal */}
