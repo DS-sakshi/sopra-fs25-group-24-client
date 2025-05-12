@@ -114,18 +114,17 @@ reason).
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
 
-| **Student**          | **Date**     | **Link to Commit** | **Description**                                                               | **Relevance**                       |
-| -------------------- |--------------| ------------------ |-------------------------------------------------------------------------------| ----------------------------------- |
-| **[DS-sakshi]**      | [date]       | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
-| **[DS-sakshi]**      | [date]       | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
-| **[MoanaStadelmann]** | [date]       | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
-| **[MoanaStadelmann]** | [date]       | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
-| **[tolipp]**         | [06.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/665cf8a | Fixing errors of the login and register page. Chatbot changed to instructing. | Improved user experience with clearer chatbot instructions and enhanced registration visuals using themed UI and Ant Design feedback mechanisms. |
-| **[tolipp]**         | [08.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/83a3a69 | Implemented the Leaderboard page with podium visuals and win-rate bars.       | Provides players with a clear, engaging ranking overview, highlighting top performers and improving user motivation and game transparency. |
+| **Student**           | **Date** | **Link to Commit** | **Description**                                                               | **Relevance**                       |
+| --------------------- | -------- | ------------------ |-------------------------------------------------------------------------------| ----------------------------------- |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[tolipp]**          | [06.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/665cf8a | Fixing errors of the login and register page. Chatbot changed to instructing. | Improved user experience with clearer chatbot instructions and enhanced registration visuals using themed UI and Ant Design feedback mechanisms. |
+| **[tolipp]**          | [08.05.2025] | https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/83a3a69 | Implemented the Leaderboard page with podium visuals and win-rate bars.       | Provides players with a clear, engaging ranking overview, highlighting top performers and improving user motivation and game transparency. |
 | **[tolipp]** | [09/05/2025] | [Commit 1](https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/17719b475e31faaccbb8dc60d6297284eef6c400), [Commit 2](https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/8e4ad9d889416a79245d76a31d456b9f50b3f5a4), [Commit 3](https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/b73abdd938e5988f050173d0ef05b0cef7f1c4e8), [Commit 4](https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/db5679bda25d1943b8a1bac55335037819be08cf) | Refactored chatbot API route for GROQ integration, added runtime error handling, environment setup, and improved user interface error reporting for more robust interactions. | Provides a secure, functional, and user-friendly Quoridor chatbot assistant within the game interface. |
-
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
-| **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task]                                               | [Why this contribution is relevant] |
+| **[DorSilva]**        | [06.05 - 11.05]   | [ https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/9f8345fabe4bfe3441308f472c929c18c35389bb#diff-08ba901387859ea68bf530eebdb99b0f16b2738e478f9696b39d1a1909cead55, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/a3f6a9c46742c5fbbce0e45b86da383b957520b6, https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/207a3d1d7b8b6da6f67566e75ce64837c6c656cb ]  | [Correcting Game logic, adding tests, correcting DB parameters]                                               | [Correct functionality of backend] |
+| **[DorSilva]**        | [11.05]   | [https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/3061f15072293db816e26deafb2c205e415a5061]  | [Change of DB, so it does not delete itself after 30 mins when deployed]                                               | [Leaderboard is possible, users can track their progress] |
 
 ---
 
