@@ -53,9 +53,11 @@ export default function GameRoomPage() {
       }
       setGame(data);
       setError(null);
+      return data; //return data
     } catch (err) {
       console.error("Failed to load game:", err);
       setError("Failed to load game");
+      throw err; // Rethrow the error to be caught in the Websocket handler
     } finally {
       setLoading(false);
     }
@@ -75,11 +77,16 @@ export default function GameRoomPage() {
     setSocket(ws);
 
     ws.addEventListener('message', (event) => {
-
       const data = JSON.parse(event.data);
       console.log(data);
       if (data.type === "refresh" && data.gameId === gameId) {
-        fetchGame();
+        fetchGame().catch(err => {
+        if (err?.message?.includes("404") || err?.message?.includes("Game does not exist")) {
+          // Game no longer exists - aborted
+          message.info("Game no longer exists. Returning to lobby...");
+          router.push("/game-lobby");
+        }
+      });
         console.log(data.gameId);
         console.log("Received refresh for gameId:", gameId);
       }
@@ -171,14 +178,16 @@ export default function GameRoomPage() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
             }}
             extra={
-              <Button
-                type="primary"
-                danger
-                icon={<CloseCircleOutlined />}
-                onClick={handleAbortGame}
-              >
-                Abort Game
-              </Button>
+              game?.gameStatus !== GameStatus.ENDED && (
+                <Button
+                  type="primary"
+                  danger
+                  icon={<CloseCircleOutlined />}
+                  onClick={handleAbortGame}
+                >
+                  Abort Game
+                </Button>
+              )
             }
           >
             {error && !game
