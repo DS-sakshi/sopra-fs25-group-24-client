@@ -139,7 +139,7 @@ reason).
 | **[MoanaStadelmann]** | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DorSilva]**        | [15.05]   | [Frontend Abort]https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/27ada022ec65c61a7bdc01f221e7797dec2c9411, [Backend Abort and Findpath] https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/a4e6f1e7dad22a0f97a823af620106c2d1cbd397, ...  | [Bug fixing to enhance user experience and game functionality] | [Why this contribution is relevant] |
+| **[DorSilva]**        | [15.05]   | [Frontend Abort] (https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/27ada022ec65c61a7bdc01f221e7797dec2c9411), [Backend Abort and Findpath] (https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/a4e6f1e7dad22a0f97a823af620106c2d1cbd397), [Password not visible in console log] (https://github.com/DS-sakshi/sopra-fs25-group-24-client/commit/374ccacaf32919df08ec41e5ce4afff640ae476b)  | [Bug fixing to enhance user experience and game functionality] | [Why this contribution is relevant] |
 | **[DorSilva]**        | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
 
 
