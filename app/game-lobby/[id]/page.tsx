@@ -78,7 +78,7 @@ export default function GameRoomPage() {
 
     ws.addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
+      //console.log(data);
       if (data.type === "refresh" && data.gameId === gameId) {
         fetchGame().catch(err => {
         if (err?.message?.includes("404") || err?.message?.includes("Game does not exist")) {

@@ -144,7 +144,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
     ])
       .then(([gameData, pawnsData, wallsData]) => {
-        console.log("Game data:", gameData);
+        //console.log("Game data:", gameData);
         console.log("Pawns data:", pawnsData);
         console.log("Walls data:", wallsData);
         
@@ -263,7 +263,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
       ]);
       
-      console.log("Refreshed game data:", gameData);
+      //console.log("Refreshed game data:", gameData);
       console.log("Refreshed pawns data:", pawnsData);
       console.log("Refreshed walls data:", wallsData);
       
