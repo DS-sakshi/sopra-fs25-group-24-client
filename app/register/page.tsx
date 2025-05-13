@@ -175,7 +175,7 @@ const Register: React.FC = () => {
                     >
                         <Form.Item
                             name="username"
-                            label={<span style={{ color: "#aab8f5" }}>Cosmic Username</span>}
+                            label={<span style={{ color: "#aab8f5" }}>Username</span>}
                             rules={[
                                 {
                                     required: true,
