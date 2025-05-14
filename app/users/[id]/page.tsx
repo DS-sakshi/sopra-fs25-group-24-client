@@ -267,13 +267,17 @@ export default function UserPage() {
               ))}
           >
             {error && (
-              <Alert
-                message="Error"
-                description={error}
-                type="error"
-                showIcon
-                style={{ marginBottom: "16px" }}
-              />
+                <Alert
+                    message="Error with the user profile"
+                    description={error}
+                    type="error"
+                    showIcon
+                    style={{
+                      marginBottom: "16px",
+                      background: "rgba(255, 0, 0, 0.1)",
+                      border: "none",
+                    }}
+                />
             )}
 
             {user && !isEditing
@@ -436,7 +440,7 @@ export default function UserPage() {
                   </Form.Item>
                 </Form>
               )
-              : !error && <Spin tip="Loading stellar profile..." />}
+              : !error && <Spin tip="Loading your profile..." />}
           </Card>
         </div>
       </PageLayout>

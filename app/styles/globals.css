@@ -85,6 +85,11 @@ a {
 .calendar-popup .ant-picker-cell:not(.ant-picker-cell-in-view) {
   color: rgba(0, 0, 0, 0.25) !important;
 }
+.custom-dark-blue-message {
+  background-color: #5b76ff !important;
+  color: black !important;
+}
+
 
 .calendar-popup .ant-picker-content th,
 .calendar-popup .ant-picker-cell,

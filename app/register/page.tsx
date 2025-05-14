@@ -35,15 +35,24 @@ const Register: React.FC = () => {
         try {
             setError(null);
             await register(values);
-            messageApi.success("Registration successful!");
+            messageApi.success({
+                content: "Registration successful!",
+                className: "custom-dark-blue-message"
+            });
             router.push("/game-lobby");
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);
-                messageApi.error(`Registration failed: ${error.message}`);
+                messageApi.error({
+                    content: `Registration failed: ${error.message}`,
+                    className: "custom-dark-blue-message"
+                });
             } else {
                 setError("Registration failed due to an unknown error.");
-                messageApi.error("Registration failed due to an unknown error.");
+                messageApi.error({
+                    content: "Registration failed due to an unknown error.",
+                    className: "custom-dark-blue-message"
+                });
             }
         }
     };

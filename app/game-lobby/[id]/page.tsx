@@ -64,10 +64,14 @@ export default function GameRoomPage() {
   };
 
   useEffect(() => {
-    if (gameId) {
-      fetchGame();
+    if (!gameId) {
+      setError("Game ID is missing. Please check the URL or select a game from the lobby.");
+      setLoading(false);
+      return;
     }
-    }, []);
+
+    fetchGame();
+  }, []);
 
 
 
@@ -192,12 +196,16 @@ export default function GameRoomPage() {
           >
             {error && !game
               ? (
-                <Alert
-                  message="Error"
-                  description={error}
-                  type="error"
-                  showIcon
-                  style={{ marginBottom: 20 }}
+                  <Alert
+                      message="Error, could not load game"
+                      description={error}
+                      type="error"
+                      showIcon
+                      style={{
+                        marginBottom: "16px",
+                        background: "rgba(255, 0, 0, 0.1)",
+                        border: "none",
+                      }}
                   action={
                     <Button
                       size="middle"
