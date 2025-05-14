@@ -31,7 +31,7 @@ export default function LandingPage() {
             });
 
             requestAnimationFrame(() => {
-                document.querySelectorAll("#animated-title span").forEach(span => {
+                document.querySelectorAll<HTMLSpanElement>("#animated-title span").forEach(span => {
                     span.style.opacity = "1";
                     span.style.transform = "translateY(0)";
                 });
