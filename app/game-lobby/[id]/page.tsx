@@ -217,7 +217,7 @@ export default function GameRoomPage() {
                   {/* Conditional alerts */}
                   {game.gameStatus === GameStatus.WAITING_FOR_USER && (
                     <Alert
-                        message={<span style={{ color: 'blue' }}>Waiting for another player to join...</span>}
+                        message={<span style={{ color: 'black' }}>Waiting for another player to join...</span>}
                       type="info"
                       showIcon
                       style={{ marginBottom: 20 }}

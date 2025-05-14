@@ -272,7 +272,8 @@ const GameLobby = () => {
               pagination={false}
               locale={{
                 emptyText:
-                  "No games available. Create a new game to get started!",
+                      <span style={{ color: '#fff', fontWeight: '600' }}>
+                        No games available. Create a new game to get started!</span>
               }}
               style={{
                 marginTop: "20px",
