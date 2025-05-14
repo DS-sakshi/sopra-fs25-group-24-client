@@ -451,7 +451,14 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         {/* Game status info */}
         <div className={styles.gameStatusContainer}>
           {game.currentTurn && (
-            <div>
+            <div> 
+                <p className={styles.currentTurnText}>
+              You are the: <span style={{
+                color: game.creator?.id === currentUser?.id ? "#ef4444" : "#2563eb"
+              }}>
+                {game.creator?.id === currentUser?.id ? "red" : "blue"} pawn
+              </span>
+              </p>
               <p className={styles.currentTurnText}>
                 Current turn: <span className={game.currentTurn.id === currentUser?.id ? styles.yourTurn : styles.opponentTurn}>
                   {game.currentTurn.username}
