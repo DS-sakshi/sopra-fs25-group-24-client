@@ -19,7 +19,7 @@ import {
 } from "@ant-design/icons";
 import PageLayout from "@/components/PageLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import QuoridorBoard from "./board"; // importing from same directory
+import QuoridorBoard from "./board"; 
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { Game, GameStatus } from "@/types/game";
@@ -87,7 +87,7 @@ export default function GameRoomPage() {
           router.push("/game-lobby");
         }
       });
-        fetchGame();
+        //fetchGame();
         console.log(data.gameId);
         console.log("Received refresh for gameId:", gameId);
       }
@@ -243,7 +243,7 @@ export default function GameRoomPage() {
                       </div>
                     )
                     : (
-                          game.gameStatus === GameStatus.ENDED && (
+                          game.gameStatus === GameStatus.ENDED && user != null && (
                               <div className="game-over-container" style={{
                                 textAlign: "center",
                                 padding: "20px",
@@ -260,7 +260,7 @@ export default function GameRoomPage() {
                                   marginBottom: "10px",
                                   animation: "bounce 1s ease-in-out"
                                 }}>
-                                  {game.currentTurn?.id === game.creator.id ? "🏆" : "🎮"}
+                                  {game.currentTurn?.id === user.id ? "🏆" : "🎮"}
                                 </div>
 
                                 <h2 style={{
@@ -278,7 +278,7 @@ export default function GameRoomPage() {
                                   fontSize: "1.2rem",
                                   marginBottom: "15px"
                                 }}>
-                                  {game.currentTurn?.id === game.creator.id ? "You won!" : "You lost!"}
+                                  {game.currentTurn?.id === user.id ? "You won!" : "You lost!"}
                                 </p>
 
                                 <div style={{

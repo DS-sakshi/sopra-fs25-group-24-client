@@ -238,6 +238,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         setError(null);
         
         if (onMoveComplete) {
+          const response= await apiService.get<Game>(`/game-lobby/${gameId}`);
           onMoveComplete(response);
         }
       }
