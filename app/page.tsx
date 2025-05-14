@@ -30,12 +30,12 @@ export default function LandingPage() {
                 title.appendChild(span);
             });
 
-            requestAnimationFrame(() => {
-                document.querySelectorAll("#animated-title span").forEach(span => {
-                    span.style.opacity = "1";
-                    span.style.transform = "translateY(0)";
-                });
-            });
+            // requestAnimationFrame(() => {
+            //     document.querySelectorAll("#animated-title span").forEach(span => {
+            //         span.style.opacity = "1";
+            //         span.style.transform = "translateY(0)";
+            //     });
+            // });
         };
 
         // Create flying pawn and shatter effect
