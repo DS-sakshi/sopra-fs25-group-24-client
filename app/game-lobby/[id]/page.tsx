@@ -87,6 +87,7 @@ export default function GameRoomPage() {
           router.push("/game-lobby");
         }
       });
+        fetchGame();
         console.log(data.gameId);
         console.log("Received refresh for gameId:", gameId);
       }
