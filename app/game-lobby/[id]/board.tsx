@@ -525,19 +525,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
               </div>
             )}
           </div>
-          
-          {/* Refresh button */}
-          <div style={{ marginTop: "15px" }}>
-            <button 
-              onClick={refreshGameData} 
-              className={styles.refreshButton}
-            >
-              Refresh Game Data
-            </button>
-            <div className={styles.wallsCountText}>
-              Walls count: {walls.length}
-            </div>
-          </div>
         </div>
       </div>
     );
