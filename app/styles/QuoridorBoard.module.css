@@ -15,7 +15,7 @@
 
 /* Cell styles */
 .pawnCell {
-  background-color: white;
+  background-color: palegoldenrod;
   border: 1px solid #8B4513;
   display: flex;
   justify-content: center;
@@ -39,7 +39,7 @@
   position: relative;
   transition: all 0.2s ease;
   border-radius: 2px;
-  background-color: white;
+  background-color: lightseagreen;
 }
 
 .wallIntersection:hover {
@@ -119,15 +119,19 @@
 }
 
 .yourTurn {
-  color: #22c55e;
+  color: #4caf50; /* Green */
+  font-weight: bold;
 }
 
 .opponentTurn {
-  color: #f87171;
+  color: #f44336; /* Red */
+  font-weight: bold;
 }
 
 .waitingText {
-  color: #cbd5e1;
+  font-size: 14px;
+  color: #ffeb3b; /* Yellow */
+  margin-top: 5px;
 }
 
 .errorMessage {
