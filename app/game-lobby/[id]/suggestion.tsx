@@ -29,6 +29,7 @@ interface Suggestion {
 interface SuggestionProps {
   pawns: Pawn[];
   walls: Wall[];
+  
 }
 
 export const Suggestion: React.FC<SuggestionProps> = ({ pawns, walls }) => {
@@ -114,6 +115,7 @@ export const Suggestion: React.FC<SuggestionProps> = ({ pawns, walls }) => {
       display: 'flex',
       alignItems: 'center',
       gap: '6px',
+      width: 'fit-content',
       fontWeight: '500'
     }}
   >
@@ -124,14 +126,17 @@ export const Suggestion: React.FC<SuggestionProps> = ({ pawns, walls }) => {
   {isOpen && (
     <div
       style={{
-        position: 'fixed',
-        right: '100px',
-        bottom: '100px',
-        zIndex: 1000,
-        width: '300px',
+        position: 'relative',
+        //right: '10px',
+        //top: '50px',
+        //zIndex: 1000,
+        width: '100%',
+        maxWidth: '280px',
         backgroundColor: '#1a2234',
         borderRadius: '8px',
         overflow: 'hidden',
+        marginTop: '5px',       // Add margin to position below the button
+      zIndex: 2 ,
         boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
         padding: tip ? '16px' : '0'
       }}

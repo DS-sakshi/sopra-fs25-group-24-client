@@ -593,7 +593,8 @@ overflow: "hidden"
   )}
 
   {/* Chat Button */}
-          <Button onClick={() => setIsChatOpen(!isChatOpen)}>
+          <Button onClick={() => setIsChatOpen(!isChatOpen)}
+            style={{ marginTop: "auto" }}>
             💬 Chat {unreadMessages > 0 && <span style={{ fontWeight: "bold" }}>{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </Button>
           {isChatOpen && (
