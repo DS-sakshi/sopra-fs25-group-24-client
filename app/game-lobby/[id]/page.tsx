@@ -275,12 +275,47 @@ export default function GameRoomPage() {
                                           maxWidth: "450px",
                                           margin: "20px auto",
                                           color: "white",
-                                          animation: "fadeIn 0.8s ease-in-out"
+                                          animation: "fadeIn 0.8s ease-in-out",
+                                          position: "relative",
+                                          overflow: "hidden"
                                         }}>
+                                          {/* Confetti animation - only when player wins */}
+                                          {!isCurrentUserWinner() && (
+                                              <div className="confetti-container" style={{
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                width: "100%",
+                                                height: "100%",
+                                                pointerEvents: "none",
+                                                zIndex: 1
+                                              }}>
+                                                {Array.from({ length: 50 }).map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="confetti-piece"
+                                                        style={{
+                                                          position: "absolute",
+                                                          width: `${Math.random() * 8 + 5}px`,
+                                                          height: `${Math.random() * 6 + 3}px`,
+                                                          backgroundColor: [`#f94144`, `#f3722c`, `#f8961e`, `#f9c74f`, `#90be6d`, `#43aa8b`, `#577590`][Math.floor(Math.random() * 7)],
+                                                          left: `${Math.random() * 100}%`,
+                                                          top: `-5%`,
+                                                          borderRadius: Math.random() > 0.5 ? '50%' : '0',
+                                                          animation: `confettiFall ${Math.random() * 3 + 2}s linear infinite`,
+                                                          animationDelay: `${Math.random() * 3}s`
+                                                        }}
+                                                    />
+                                                ))}
+                                              </div>
+                                          )}
+
                                           <div style={{
                                             fontSize: "3rem",
                                             marginBottom: "10px",
-                                            animation: "bounce 1s ease-in-out"
+                                            animation: "bounce 1s ease-in-out",
+                                            position: "relative",
+                                            zIndex: 2
                                           }}>
                                             {isCurrentUserWinner() ? "🎮" : "🏆"}
                                           </div>
@@ -291,14 +326,18 @@ export default function GameRoomPage() {
                                             color: "#f1c40f",
                                             textShadow: "0 0 8px rgba(241, 196, 15, 0.5)",
                                             margin: "0 0 10px 0",
-                                            animation: "pulse 2s infinite"
+                                            animation: "pulse 2s infinite",
+                                            position: "relative",
+                                            zIndex: 2
                                           }}>
                                             Game Over
                                           </h2>
 
                                           <p style={{
                                             fontSize: "1.2rem",
-                                            marginBottom: "15px"
+                                            marginBottom: "15px",
+                                            position: "relative",
+                                            zIndex: 2
                                           }}>
                                             {isCurrentUserWinner()
                                                 ? "You lost!"
@@ -309,7 +348,9 @@ export default function GameRoomPage() {
                                             display: "flex",
                                             justifyContent: "center",
                                             gap: "12px",
-                                            marginTop: "12px"
+                                            marginTop: "12px",
+                                            position: "relative",
+                                            zIndex: 2
                                           }}>
                                             <button onClick={() => router.push("/game-lobby")} style={{
                                               padding: "8px 16px",
@@ -338,22 +379,40 @@ export default function GameRoomPage() {
                                           </div>
 
                                           <style jsx>{`
-                                            @keyframes fadeIn {
-                                              from { opacity: 0; transform: translateY(-15px); }
-                                              to { opacity: 1; transform: translateY(0); }
-                                            }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
 
-                                            @keyframes pulse {
-                                              0% { transform: scale(1); }
-                                              50% { transform: scale(1.05); }
-                                              100% { transform: scale(1); }
-                                            }
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
 
-                                            @keyframes bounce {
-                                              0% { transform: translateY(-15px); opacity: 0; }
-                                              100% { transform: translateY(0); opacity: 1; }
-                                            }
-                                          `}</style>
+        @keyframes bounce {
+          0% { transform: translateY(-15px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes confettiFall {
+          0% { 
+            transform: translateY(0) rotate(0deg); 
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% { 
+            transform: translateY(450px) rotate(720deg); 
+            opacity: 0;
+          }
+        }
+        
+        .game-over-container:hover .confetti-piece {
+          animation-play-state: paused;
+        }
+      `}</style>
                                         </div>
                                     )
                                 )}
