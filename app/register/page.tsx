@@ -231,6 +231,11 @@ const Register: React.FC = () => {
                                 prefix={
                                     <span style={{ color: "#5c77eb", marginRight: 8 }}>🔑</span>
                                 }
+                                onKeyDown={(e) => {
+                                    if (e.key === ' ') {
+                                        e.preventDefault();
+                                    }
+                                }}
                             />
                         </Form.Item>
 
