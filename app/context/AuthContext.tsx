@@ -77,6 +77,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     validateSession();
   }, []);
 
+useEffect(() => {
+  const handleBeforeUnload = async () => {
+    if (user && user.id) {
+      try {
+        // Use your existing endpoint that already works
+        await apiService.post(`/logout/${user.id}`, {});
+      } catch (error) {
+        console.error("Failed to logout on window close:", error);
+      }
+    }
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [user, apiService]);
+
   // Fetch current user from API
   const fetchCurrentUser = async () => {
     if (!token) {
@@ -235,3 +254,7 @@ export const useAuth = () => {
   }
   return context;
 };
+function handleVisibilityChange(this: Document, ev: Event) {
+  throw new Error("Function not implemented.");
+}
+
