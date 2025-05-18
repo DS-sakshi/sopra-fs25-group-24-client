@@ -238,6 +238,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         setError(null);
         
         if (onMoveComplete) {
+          const response= await apiService.get<Game>(`/game-lobby/${gameId}`);
           onMoveComplete(response);
         }
       }
@@ -306,6 +307,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     console.log("Rendering board with walls count:", walls.length);
     
     return (
+      
       <div className={styles.quoridorBoardContainer} style={{
       display: "flex",
       justifyContent: "center",
@@ -313,6 +315,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       width: "100%",
       height: "100%"
     }}>
+      
         <div style={{ width: `${(cellSize * 10) + (gapSize * 9)}px`, margin: "0" }}>
           <div 
             className={styles.boardGrid}
@@ -427,9 +430,17 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
   };
 
   if (loading) return <div>Loading game...</div>;
-  if (error && !game) return <div>{error}</div>;
 
-  return renderBoard();
+  return (
+  <>
+    {error && (
+      <div className={styles.errorMessage}>
+        {error}
+      </div>
+    )}
+    {renderBoard()}
+  </>
+);
 };
 
 export default QuoridorBoard;

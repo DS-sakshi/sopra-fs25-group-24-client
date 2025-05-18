@@ -156,4 +156,16 @@
     padding: 8px 14px;
     margin-left: 8px;
   }
+
+  .errorMessage {
+  color: #fff;
+  background: #d32f2f;
+  padding: 8px 16px;
+  margin: 12px 0;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+  z-index: 10;
+}
+
 }
