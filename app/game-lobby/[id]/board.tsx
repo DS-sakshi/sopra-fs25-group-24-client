@@ -254,36 +254,10 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     }
   };
 
-  const refreshGameData = async () => {
-    try {
-      setLoading(true);
-      const [gameData, pawnsData, wallsData] = await Promise.all([
-        apiService.get<Game>(`/game-lobby/${gameId}`),
-        apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
-        apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
-      ]);
-      
-      //console.log("Refreshed game data:", gameData);
-      console.log("Refreshed pawns data:", pawnsData);
-      console.log("Refreshed walls data:", wallsData);
-      
-      logWalls(wallsData);
-      
-      setGame(gameData);
-      setPawns(pawnsData || []);
-      setWalls(wallsData || []);
-      setError(null);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error refreshing game data:", err);
-      setError("Failed to refresh game data.");
-      setLoading(false);
-    }
-  }; 
 
   // Board dimensions
   const boardSize = 17;
-  const cellSize = 35;
+  const cellSize = 40;
   const gapSize = 9;
   
   const columns: string[] = [];

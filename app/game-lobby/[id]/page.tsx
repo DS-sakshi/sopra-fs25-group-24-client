@@ -28,7 +28,7 @@ import { Wall } from "@/types/wall";
 import { ApplicationError } from "@/types/error";
 import { getWebsocketDomain } from "@/utils/domain";
 import Suggestion from "./suggestion";
-import Chat from "./chatcomponent";
+import Chat, { initializeGameChat, deleteGameChat } from "./chatcomponent";
 import { getDatabase, ref, push, onValue, set } from "firebase/database";
 export default function GameRoomPage() {
   console.log("Component mounted");
@@ -84,7 +84,18 @@ export default function GameRoomPage() {
       setLoading(false);
     }
   };
+  const isCurrentUserWinner = () => {
+    if (!user || !game || !game.currentUsers || !game.currentTurn) return false;
 
+    // Player who just moved (not currentTurn) is the winner
+    const winningPlayer = game.currentUsers.find(
+        (u) => u.id !== game.currentTurn.id
+    );
+
+    if (!winningPlayer) return false;
+
+    return String(winningPlayer.id) === String(user.id);
+  };
   useEffect(() => {
     if (!gameId) {
       setError("Game ID is missing. Please check the URL or select a game from the lobby.");
@@ -92,8 +103,18 @@ export default function GameRoomPage() {
       return;
     }
 
-    fetchGame();
-  }, []);
+    const loadGameAndInitChat = async () => {
+    try {
+      await fetchGame();
+      // Initialize a fresh chat after game is loaded
+      initializeGameChat(gameId);
+    } catch (err) {
+      console.error("Error loading game:", err);
+    }
+  };
+
+  loadGameAndInitChat();
+}, []);
 
 
 
@@ -140,9 +161,13 @@ export default function GameRoomPage() {
         console.log("Refreshed walls data:", wallsData);
         // Check if game was aborted or ended
     if (gameData?.gameStatus === GameStatus.ENDED) {
-      message.info("Game was aborted by opponent. Returning to lobby...");
-      router.push("/game-lobby");
-      return;
+      if (game?.gameStatus !== GameStatus.ENDED) {
+    setGame(gameData);
+    deleteGameChat(gameId);
+  }
+  setLoading(false);
+  return;
+
     }
         logWalls(wallsData);
         
@@ -268,102 +293,172 @@ export default function GameRoomPage() {
   if (game.gameStatus === GameStatus.ENDED) {
     return (
       <div className="game-over-container" style={{
-        textAlign: "center",
-        padding: "20px",
-        backgroundColor: "#1a242f",
-        borderRadius: "8px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-        maxWidth: "450px",
-        margin: "20px auto",
-        color: "white",
-        animation: "fadeIn 0.8s ease-in-out"
-      }}>
-        <div style={{
-          fontSize: "3rem",
-          marginBottom: "10px",
-          animation: "bounce 1s ease-in-out"
-        }}>
-          {game.currentTurn?.id === game.creator.id ? "🏆" : "🎮"}
-        </div>
+    textAlign: "center",
+    padding: "20px",
+  backgroundColor: "#1a242f",
+  borderRadius: "8px",
+ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+ maxWidth: "450px",
+ margin: "20px auto",
+color: "white",
+animation: "fadeIn 0.8s ease-in-out",
+position: "relative",
+overflow: "hidden"
+  }}>
+    {/* Confetti animation - only when player wins */}
+    {!isCurrentUserWinner() && (
+                                              <div className="confetti-container" style={{
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                width: "100%",
+                                                height: "100%",
+                                                pointerEvents: "none",
+                                                zIndex: 1
+                                              }}>
+                                                {Array.from({ length: 50 }).map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="confetti-piece"
+                                                        style={{
+                                                          position: "absolute",
+                                                          width: `${Math.random() * 8 + 5}px`,
+                                                          height: `${Math.random() * 6 + 3}px`,
+                                                          backgroundColor: [`#f94144`, `#f3722c`, `#f8961e`, `#f9c74f`, `#90be6d`, `#43aa8b`, `#577590`][Math.floor(Math.random() * 7)],
+                                                          left: `${Math.random() * 100}%`,
+                                                          top: `-5%`,
+                                                          borderRadius: Math.random() > 0.5 ? '50%' : '0',
+                                                          animation: `confettiFall ${Math.random() * 3 + 2}s linear infinite`,
+                                                          animationDelay: `${Math.random() * 3}s`
+                                                        }}
+                                                    />
+                                                ))}
+                                              </div>
+                                          )}
 
-        <h2 style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
-          color: "#f1c40f",
-          textShadow: "0 0 8px rgba(241, 196, 15, 0.5)",
-          margin: "0 0 10px 0",
-          animation: "pulse 2s infinite"
-        }}>
-          Game Over
-        </h2>
+                                          <div style={{
+                                            fontSize: "3rem",
+                                            marginBottom: "10px",
+                                            animation: "bounce 1s ease-in-out",
+                                            position: "relative",
+                                            zIndex: 2
+                                          }}>
+                                            {isCurrentUserWinner() ? "🎮" : "🏆"}
+                                          </div>
 
-        <p style={{
-          fontSize: "1.2rem",
-          marginBottom: "15px"
-        }}>
-          {game.currentTurn?.id === game.creator.id ? "You won!" : "You lost!"}
-        </p>
+                                          <h2 style={{
+                                            fontSize: "2rem",
+                                            fontWeight: "bold",
+                                            color: "#f1c40f",
+                                            textShadow: "0 0 8px rgba(241, 196, 15, 0.5)",
+                                            margin: "0 0 10px 0",
+                                            animation: "pulse 2s infinite",
+                                            position: "relative",
+                                            zIndex: 2
+                                          }}>
+                                            Game Over
+                                          </h2>
 
-        <div style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "12px",
-          marginTop: "12px"
-        }}>
-          <button onClick={() => window.location.reload()} style={{
-            padding: "8px 16px",
-            backgroundColor: "#3498db",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            transition: "all 0.2s"
-          }}>
-            Play Again
-          </button>
-          <button onClick={() => window.location.href = "/"} style={{
-            padding: "8px 16px",
-            backgroundColor: "#e74c3c",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            transition: "all 0.2s"
-          }}>
-            Main Menu
-          </button>
-        </div>
-        <style jsx>{`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
+                                          <p style={{
+                                            fontSize: "1.2rem",
+                                            marginBottom: "15px",
+                                            position: "relative",
+                                            zIndex: 2
+                                          }}>
+                                            {isCurrentUserWinner()
+                                                ? "You lost!"
+                                                : "You won!"}
+                                          </p>
+
+                                          <div style={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            gap: "12px",
+                                            marginTop: "12px",
+                                            position: "relative",
+                                            zIndex: 2
+                                          }}>
+                                            <button onClick={() => router.push("/game-lobby")} style={{
+                                              padding: "8px 16px",
+                                              backgroundColor: "#3498db",
+                                              color: "white",
+                                              border: "none",
+                                              borderRadius: "4px",
+                                              cursor: "pointer",
+                                              fontWeight: "bold",
+                                              transition: "all 0.2s"
+                                            }}>
+                                              Play Again
+                                            </button>
+                                            <button onClick={() => router.push("/game-lobby")} style={{
+                                              padding: "8px 16px",
+                                              backgroundColor: "#e74c3c",
+                                              color: "white",
+                                              border: "none",
+                                              borderRadius: "4px",
+                                              cursor: "pointer",
+                                              fontWeight: "bold",
+                                              transition: "all 0.2s"
+                                            }}>
+                                              Main Menu
+                                            </button>
+                                          </div>
+
+                                          <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
+
+        @keyframes bounce {
+          0% { transform: translateY(-15px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes confettiFall {
+          0% { 
+            transform: translateY(0) rotate(0deg); 
+            opacity: 1;
           }
-          
-          @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+          90% {
+            opacity: 1;
           }
-          
-          @keyframes bounce {
-            0% { transform: translateY(-15px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
+          100% { 
+            transform: translateY(450px) rotate(720deg); 
+            opacity: 0;
           }
-        `}</style>
-      </div>
+        }
+        
+        .game-over-container:hover .confetti-piece {
+          animation-play-state: paused;
+        }
+      `}</style>
+                                        </div>
     );
   }
 
     return (
       <div style={{ display: "flex", height: "100%" }}>
         {/* Left Panel */}
-        <div style={{ flex: "0 0 200px", padding: "10px", borderRight: "1px solid rgba(255,255,255,0.1)", color: "white" }}>
+        <div style={{ flex: "0 0 200px", padding: "10px", borderRight: "1px solid rgba(255,255,255,0.1)", color: "white",marginLeft: "0" }}>
   {/* Game status info */}
   <div className={styles.gameStatusContainer}>
     {game.currentTurn && (
       <div style={{ minHeight: "50px" }}> {/* Fixed height container for turn info */}
+      <div> 
+                <p className={styles.currentTurnText}>
+              You are the: <span style={{
+                color: game.creator?.id === currentUser?.id ? "#ef4444" : "#2563eb"
+              }}>
+                {game.creator?.id === currentUser?.id ? "red" : "blue"} pawn
+              </span>
+              </p></div>
         <p className={styles.currentTurnText}>
           Current turn: <span className={game.currentTurn.id === currentUser?.id ? styles.yourTurn : styles.opponentTurn}>
             {game.currentTurn.username}
@@ -395,7 +490,7 @@ export default function GameRoomPage() {
             );
           })}
         </div>
-        <p style={{ fontSize: "14px", marginTop: "5px" }}>
+        <p style={{ fontSize: "10px", marginTop: "5px" }}>
           {currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0} / 10
         </p>
       </div>
@@ -417,7 +512,7 @@ export default function GameRoomPage() {
             );
           })}
         </div>
-        <p style={{ fontSize: "14px", marginTop: "5px" }}>
+        <p style={{ fontSize: "10px", marginTop: "5px" }}>
           {(() => {
             const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
             return opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
@@ -478,15 +573,26 @@ export default function GameRoomPage() {
 
 
         {/* Right Panel */}
-        <div style={{ flex: "0 0 200px", padding: "10px", borderLeft: "1px solid rgba(255,255,255,0.1)", color: "white", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-          <Button onClick={() => setIsSuggestionVisible(!isSuggestionVisible)}>
-            💡 Suggestion
-          </Button>
-          {isSuggestionVisible && (
-            <div style={{ width: "100%" }}>
-              <Suggestion pawns={[]} walls={walls} />
-            </div>
-          )}
+        <div
+  style={{
+    flex: "0 0 200px",
+    padding: "10px",
+    borderLeft: "1px solid rgba(255,255,255,0.1)",
+    color: "white",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    alignItems: "flex-end",
+  }}
+>
+  {/* Only show Suggestion when game is running */}
+  {(game.gameStatus === GameStatus.RUNNING) && (
+    <div style={{ width: "100%" }}>
+      <Suggestion pawns={pawns} walls={walls} />
+    </div>
+  )}
+
+  {/* Chat Button */}
           <Button onClick={() => setIsChatOpen(!isChatOpen)}>
             💬 Chat {unreadMessages > 0 && <span style={{ fontWeight: "bold" }}>{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </Button>

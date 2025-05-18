@@ -97,3 +97,27 @@ a {
 .calendar-popup .ant-picker-header button {
   color: rgba(0, 0, 0, 0.85) !important;
 }
+.feature-card {
+  cursor: default; 
+  transition: none !important;
+  box-shadow: none !important;
+  background:  none !important;
+  color: #c9c9c9; 
+}
+
+.feature-card:hover,
+.feature-card:active,
+.feature-card:focus {
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  color: #c9c9c9 !important;
+  transition: none !important;
+
+}
+
+.feature-card .feature-title,
+.feature-card .feature-text {
+  color: #b0b0b0 !important;
+  transition: none !important;
+}

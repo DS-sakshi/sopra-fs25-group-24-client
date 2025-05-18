@@ -16,15 +16,15 @@
 .chatContainer {
   display: flex;
   flex-direction: column;
-  height: 200px;
-  width: 150px;
+  height: 180px;
+  width: 180px;
   max-width: 250px;
   border-radius: 12px;
   background-color: #111827;
   overflow: hidden;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-  margin: 24px auto;
-  font-size: 0.9rem;
+  margin: 24px 0 24px auto;
+  font-size: 0.7rem;
 }
 
 .chatMessages {
