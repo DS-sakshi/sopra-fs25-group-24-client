@@ -314,7 +314,7 @@ export default function UserPage() {
                       )
                       : "N/A"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Celestial Alignment">
+                  <Descriptions.Item label="Birthdate">
                     {user.birthday
                       ? dayjs(user.birthday).format("MMMM D, YYYY")
                       : "Undiscovered"}
@@ -323,7 +323,7 @@ export default function UserPage() {
                     <code style={{ color: "#aab8f5" }}>{user.id}</code>
                     {canEdit && (
                       <span style={{ marginLeft: 8, color: "#5c77eb" }}>
-                        (Your Celestial Identity)
+                        (Your User Id)
                       </span>
                     )}
                   </Descriptions.Item>
@@ -400,7 +400,7 @@ export default function UserPage() {
                     name="birthday"
                     label={
                       <span style={{ color: "#aab8f5" }}>
-                        Celestial Alignment Date
+                        Birthdate
                       </span>
                     }
                   >
