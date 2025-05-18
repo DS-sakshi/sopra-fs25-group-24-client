@@ -43,6 +43,7 @@ export default function GameRoomPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [currentUserAborted, setCurrentUserAborted] = useState(false);
   const { user } = useAuth();
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -85,18 +86,27 @@ export default function GameRoomPage() {
       setLoading(false);
     }
   };
-  const isCurrentUserWinner = () => {
-    if (!user || !game || !game.currentUsers || !game.currentTurn) return false;
 
-    // Player who just moved (not currentTurn) is the winner
-    const winningPlayer = game.currentUsers.find(
-        (u) => u.id !== game.currentTurn.id
-    );
+// Enhanced version with more precise win detection
+const getGameResult = () => {
+  if (!user || !game || game.gameStatus !== GameStatus.ENDED) {
+    return { isWinner: false, reason: 'unknown' };
+  }
 
-    if (!winningPlayer) return false;
+  // If current user aborted, they definitely lost
+  if (currentUserAborted) {
+    return { isWinner: false, reason: 'self_abort' };
+  }
 
-    return String(winningPlayer.id) === String(user.id);
-  };
+  if (game.currentTurn && game.currentTurn.id === user.id) {
+    return { isWinner: true, reason: 'normal_or_opponent_abort' };
+  } else if (game.currentTurn && game.currentTurn.id !== user.id) {
+    return { isWinner: false, reason: 'normal_or_opponent_abort' };
+  }
+
+  return { isWinner: true, reason: 'assumed_win' };
+};
+
   useEffect(() => {
     if (!gameId) {
       setError("Game ID is missing. Please check the URL or select a game from the lobby.");
@@ -239,6 +249,8 @@ export default function GameRoomPage() {
         throw new Error("No authenticated user");
       }
 
+      setCurrentUserAborted(true);
+
       // Send user data correctly formatted
       await apiService.delete(`/game-lobby/${gameId}`, {
         id: user.id,
@@ -249,6 +261,7 @@ export default function GameRoomPage() {
       message.success("Game aborted successfully");
       router.push("/game-lobby");
     } catch (err: unknown) {
+      setCurrentUserAborted(false); // Reset the state
       const error = err as ApplicationError;
       const errorMessage = error.response?.data?.message || error.message ||
           "Failed to abort game";
@@ -308,7 +321,7 @@ position: "relative",
 overflow: "hidden"
   }}>
     {/* Confetti animation - only when player wins */}
-    {!isCurrentUserWinner() && (
+    {getGameResult().isWinner && (
                                               <div className="confetti-container" style={{
                                                 position: "absolute",
                                                 top: 0,
@@ -345,7 +358,7 @@ overflow: "hidden"
                                             position: "relative",
                                             zIndex: 2
                                           }}>
-                                            {isCurrentUserWinner() ? "🎮" : "🏆"}
+                                            {!getGameResult().isWinner ? "🎮" : "🏆"}
                                           </div>
 
                                           <h2 style={{
@@ -358,7 +371,7 @@ overflow: "hidden"
                                             position: "relative",
                                             zIndex: 2
                                           }}>
-                                            Game Over
+                                            {!getGameResult().isWinner ? "GAME OVER" : "CONGRATULATIONS"}
                                           </h2>
 
                                           <p style={{
@@ -367,9 +380,14 @@ overflow: "hidden"
                                             position: "relative",
                                             zIndex: 2
                                           }}>
-                                            {isCurrentUserWinner()
-                                                ? "You lost!"
-                                                : "You won!"}
+                                            {(() => {
+                                              const result = getGameResult();
+                                              if (result.isWinner) {
+                                                return "You won!";
+                                              } else {
+                                                return "You lost!";
+                                              }
+                                            })()}
                                           </p>
 
                                           <div style={{
