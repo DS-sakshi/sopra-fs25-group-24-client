@@ -159,7 +159,9 @@ const Chat: React.FC<ChatProps> = ({ gameId, gameEnded = false }) => {
       console.error("Error in send message:", error);
     }
   };
-
+if (gameEnded) {
+    return null;
+  }
   return (
     <div className={styles.chatContainer}>
       <h3 className={styles.chatHeader}>Game Chat</h3>

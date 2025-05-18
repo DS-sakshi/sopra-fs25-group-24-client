@@ -29,6 +29,7 @@ interface Suggestion {
 interface SuggestionProps {
   pawns: Pawn[];
   walls: Wall[];
+  
 }
 
 export const Suggestion: React.FC<SuggestionProps> = ({ pawns, walls }) => {
@@ -99,82 +100,109 @@ export const Suggestion: React.FC<SuggestionProps> = ({ pawns, walls }) => {
   };
 
   return (
-  <>
-    {/* Strategy Buttons */}
-    <button onClick={() => fetchSuggestion('offensive')} disabled={loading}>
-      Offensive
-    </button>
-    <button onClick={() => fetchSuggestion('defensive')} disabled={loading}>
-      Defensive
-    </button>
-    <button onClick={() => fetchSuggestion('safe')} disabled={loading}>
-      Safe
-    </button>
+        <>
+  {/* Open Strategy Panel Button */}
+  <button 
+    onClick={() => setIsOpen(true)} 
+    disabled={loading}
+    style={{
+      padding: '8px 16px',
+      backgroundColor: '#4f46e5',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      width: 'fit-content',
+      fontWeight: '500'
+    }}
+  >
+    💡 Get Strategy Tips
+  </button>
 
-    {/* Strategy Tips Panel */}
-    {isOpen && (
-      <div
-        style={{
-          position: 'fixed',
-          right: '100px',
-          bottom: '100px',
-          zIndex: 1000,
-          width: '300px',
-          backgroundColor: '#1a2234',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          padding: tip ? '16px' : '0'
-        }}
-      >
-        {/* Choose Strategy */}
-        {!strategy && !loading && (
-          <div style={{ display: 'flex', flexDirection: 'column', padding: '16px' }}>
-            <h3 style={{ color: 'white', marginTop: 0 }}>Choose Strategy Type:</h3>
-            <button
-              onClick={() => fetchSuggestion('defensive')}
-              style={{
-                padding: '10px',
-                margin: '5px 0',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Defensive Strategy
-            </button>
-            <button
-              onClick={() => fetchSuggestion('offensive')}
-              style={{
-                padding: '10px',
-                margin: '5px 0',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Offensive Strategy
-            </button>
-            <button
-              onClick={() => fetchSuggestion('safe')}
-              style={{
-                padding: '10px',
-                margin: '5px 0',
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Safe/Balanced Strategy
-            </button>
-          </div>
-        )}
+  {/* Strategy Tips Panel */}
+  {isOpen && (
+    <div
+      style={{
+        position: 'relative',
+        //right: '10px',
+        //top: '50px',
+        //zIndex: 1000,
+        width: '100%',
+        maxWidth: '280px',
+        backgroundColor: '#1a2234',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        marginTop: '5px',       // Add margin to position below the button
+      zIndex: 2 ,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+        padding: tip ? '16px' : '0'
+      }}
+    >
+      {/* Choose Strategy */}
+      {!strategy && !loading && (
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '16px' }}>
+          <h3 style={{ color: 'white', marginTop: 0 }}>Choose Strategy Type:</h3>
+          <button
+            onClick={() => fetchSuggestion('defensive')}
+            style={{
+              padding: '10px',
+              margin: '5px 0',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Defensive Strategy
+          </button>
+          <button
+            onClick={() => fetchSuggestion('offensive')}
+            style={{
+              padding: '10px',
+              margin: '5px 0',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Offensive Strategy
+          </button>
+          <button
+            onClick={() => fetchSuggestion('safe')}
+            style={{
+              padding: '10px',
+              margin: '5px 0',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Safe Strategy
+          </button>
+          <button
+            onClick={() => setIsOpen(false)}
+            style={{
+              padding: '8px',
+              margin: '10px 0 0',
+              backgroundColor: '#374151',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
         {/* Loading Spinner */}
         {loading && (

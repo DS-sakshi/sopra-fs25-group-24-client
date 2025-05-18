@@ -97,7 +97,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
       console.log("No walls found in the data");
     }
   };
-
+  
   // Listen for new messages and update unread count
   useEffect(() => {
     if (!gameId) return;
@@ -254,37 +254,11 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     }
   };
 
-  const refreshGameData = async () => {
-    try {
-      setLoading(true);
-      const [gameData, pawnsData, wallsData] = await Promise.all([
-        apiService.get<Game>(`/game-lobby/${gameId}`),
-        apiService.get<Pawn[]>(`/game-lobby/${gameId}/pawns`),
-        apiService.get<Wall[]>(`/game-lobby/${gameId}/walls`),
-      ]);
-      
-      //console.log("Refreshed game data:", gameData);
-      console.log("Refreshed pawns data:", pawnsData);
-      console.log("Refreshed walls data:", wallsData);
-      
-      logWalls(wallsData);
-      
-      setGame(gameData);
-      setPawns(pawnsData || []);
-      setWalls(wallsData || []);
-      setError(null);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error refreshing game data:", err);
-      setError("Failed to refresh game data.");
-      setLoading(false);
-    }
-  }; 
 
   // Board dimensions
   const boardSize = 17;
   const cellSize = 40;
-  const gapSize = 10;
+  const gapSize = 9;
   
   const columns: string[] = [];
   const rows: string[] = [];
@@ -323,12 +297,7 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     return wall || wall1 || wall2 || wall3 || null;
   };
 
-  const handleToggleSuggestion = () => {
-    setIsSuggestionVisible(!isSuggestionVisible);
-    if (isChatOpen) {
-      setIsChatOpen(false);
-    }
-  };
+  
 
   const renderBoard = () => {
     if (!game) return null;
@@ -337,8 +306,14 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     console.log("Rendering board with walls count:", walls.length);
     
     return (
-      <div className={styles.quoridorBoardContainer}>
-        <div style={{ width: `${(cellSize * 9) + (gapSize * 8)}px` }}>
+      <div className={styles.quoridorBoardContainer} style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+      height: "100%"
+    }}>
+        <div style={{ width: `${(cellSize * 10) + (gapSize * 9)}px`, margin: "0" }}>
           <div 
             className={styles.boardGrid}
             style={{ 
@@ -447,227 +422,14 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
             })}
           </div>
         </div>
-        
-        {/* Game status info */}
-        <div className={styles.gameStatusContainer}>
-          {game.currentTurn && (
-            <div> 
-                <p className={styles.currentTurnText}>
-              You are the: <span style={{
-                color: game.creator?.id === currentUser?.id ? "#ef4444" : "#2563eb"
-              }}>
-                {game.creator?.id === currentUser?.id ? "red" : "blue"} pawn
-              </span>
-              </p>
-              <p className={styles.currentTurnText}>
-                Current turn: <span className={game.currentTurn.id === currentUser?.id ? styles.yourTurn : styles.opponentTurn}>
-                  {game.currentTurn.username}
-                  {game.currentTurn.id === currentUser?.id ? " (You)" : ""}
-                </span>
-              </p>
-              {game.currentTurn.id !== currentUser?.id && (
-                <p className={styles.waitingText}>Waiting for your opponent to make a move...</p>
-              )}
-            </div>
-          )}
-          
-          {error && (
-            <p className={styles.errorMessage}>{error}</p>
-          )}
-          
-          <div className={styles.wallCountersContainer}>
-            {/* Wall counter */}
-            <div className={styles.wallCounter}>
-              <p style={{ marginBottom: "5px" }}>Your Walls:</p>
-              <div className={styles.wallBlocks}>
-                {Array(10).fill(0).map((_, i) => {
-                  const wallsPlaced = currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0;
-                  const isUsed = i < wallsPlaced;
-                  
-                  return (
-                    <div 
-                      key={i} 
-                      className={`${styles.wallBlock} ${isUsed ? styles.wallBlockUsed : styles.wallBlockUnused}`}
-                    />
-                  );
-                })}
-              </div>
-              <p style={{ fontSize: "14px", marginTop: "5px" }}>
-                {currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0} / 10
-              </p>
-            </div>
-            
-            {/* Opponent wall counter */}
-            {game.currentUsers && game.currentUsers.length > 1 && (
-              <div className={styles.wallCounter}>
-                <p style={{ marginBottom: "5px" }}>Opponent Walls:</p>
-                <div className={styles.wallBlocks}>
-                  {Array(10).fill(0).map((_, i) => {
-                    const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
-                    const wallsPlaced = opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
-                    const isUsed = i < wallsPlaced;
-                    
-                    return (
-                      <div 
-                        key={i} 
-                        className={`${styles.wallBlock} ${isUsed ? styles.opponentWallBlockUsed : styles.wallBlockUnused}`} 
-                      />
-                    );
-                  })}
-                </div>
-                <p style={{ fontSize: "14px", marginTop: "5px" }}>
-                  {(() => {
-                    const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
-                    return opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
-                  })()} / 10
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     );
   };
 
   if (loading) return <div>Loading game...</div>;
   if (error && !game) return <div>{error}</div>;
-  
 
-  return (
-    <div style={{ 
-      position: "relative",
-      display: 'flex', 
-      flexDirection: 'row', 
-      justifyContent: 'center',
-      maxWidth: '1600px',
-      margin: '0 auto'
-    }}>
-      <div>
-        {renderBoard()}
-      </div>
-
-    {/* Suggestion Button (Bulb Icon) */}
-      <button 
-        onClick={handleToggleSuggestion}
-        style={{
-          position: "fixed",
-          right: "20px",
-          bottom: "100px",
-          zIndex: 1000,
-          borderRadius: "50%",
-          width: "60px",
-          height: "60px",
-          fontSize: "24px",
-          backgroundColor: "#f59e0b", // Using amber color for the suggestion bulb
-          color: "#fff",
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-        title="Get Move Suggestions"
-      >
-        💡
-      </button>
-      {/* Floating Chat Button with Notification Badge */}
-      <button 
-        onClick={handleOpenChat}
-        style={{
-          position: "fixed",
-          right: "20px",
-          bottom: "20px",
-          zIndex: 1000,
-          borderRadius: "50%",
-          width: "60px",
-          height: "60px",
-          fontSize: "24px",
-          backgroundColor: "#2563eb",
-          color: "#fff",
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-      >
-        💬
-        {/* Notification Badge */}
-        {unreadMessages > 0 && (
-          <div style={{
-            position: "absolute",
-            top: "-5px",
-            right: "-5px",
-            backgroundColor: "#ef4444",
-            color: "white",
-            borderRadius: "50%",
-            width: "24px",
-            height: "24px",
-            fontSize: "14px",
-            fontWeight: "bold",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
-          }}>
-            {unreadMessages > 9 ? '9+' : unreadMessages}
-          </div>
-        )}
-      </button>
-        {/* Suggestion Component - Only render when visible */}
-      {isSuggestionVisible && (
-        <div style={{
-          position: "fixed",
-          right: "100px", 
-          bottom: "100px",
-          zIndex: 1001 // Higher than chat to appear on top
-        }}>
-          <Suggestion pawns={pawns} walls={walls} />
-        </div>
-      )}
-      {/* Chat Panel: Only visible when isChatOpen is true */}
-      {isChatOpen && (
-        <div style={{
-          position: "fixed",
-          right: "20px",
-          bottom: "100px",
-          zIndex: 1000,
-          width: "220px",
-          height: "250px",
-          backgroundColor: "#1a2234",
-          //borderRadius: "8px",
-          overflow: "hidden",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          display: "flex",
-          flexDirection: "column"
-        }}>
-          <div style={{ 
-            //display: "flex", 
-            //justifyContent: "space-between", 
-            //alignItems: "center",
-            //padding: "10px", 
-            //borderBottom: "1px solid #334155"
-          }}> 
-            <button 
-              onClick={() => setIsChatOpen(false)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "Yellow",
-                cursor: "pointer",
-                fontSize: "15px"
-              }}
-            >
-              ✕
-            </button>
-          </div>
-          <Chat gameId={gameId} gameEnded={isGameEnded} />
-        </div>
-      )}
-    </div>
-  );
+  return renderBoard();
 };
 
 export default QuoridorBoard;

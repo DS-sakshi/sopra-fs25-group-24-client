@@ -1,6 +1,6 @@
 /* Board container styles */
 .quoridorBoardContainer {
-  margin: 40px auto;
+  margin: 0px;
   width: 100%;
 }
 
@@ -15,7 +15,7 @@
 
 /* Cell styles */
 .pawnCell {
-  background-color: white;
+  background-color: palegoldenrod;
   border: 1px solid #8B4513;
   display: flex;
   justify-content: center;
@@ -39,7 +39,7 @@
   position: relative;
   transition: all 0.2s ease;
   border-radius: 2px;
-  background-color: white;
+  background-color: lightseagreen;
 }
 
 .wallIntersection:hover {
@@ -81,7 +81,7 @@
 .wallOptionButton {
   font-size: 10px;
   padding: 4px;
-  background-color: #2563eb;
+  background-color: black;
   color: white;
   border: none;
   border-radius: 3px;
@@ -90,7 +90,7 @@
 }
 
 .wallOptionButton:hover {
-  background-color: #1d4ed8;
+  background-color: #d8711d;
 }
 
 /* Wall styles */
@@ -119,15 +119,19 @@
 }
 
 .yourTurn {
-  color: #22c55e;
+  color: #4caf50; /* Green */
+  font-weight: bold;
 }
 
 .opponentTurn {
-  color: #f87171;
+  color: #f44336; /* Red */
+  font-weight: bold;
 }
 
 .waitingText {
-  color: #cbd5e1;
+  font-size: 14px;
+  color: #ffeb3b; /* Yellow */
+  margin-top: 5px;
 }
 
 .errorMessage {
@@ -158,9 +162,9 @@
 }
 
 .wallBlock {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
 }
 
 .wallBlockUsed {

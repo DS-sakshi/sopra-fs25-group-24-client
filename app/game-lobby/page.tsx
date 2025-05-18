@@ -358,9 +358,10 @@ const GameLobby = () => {
                 border-bottom: 1px solid rgba(255,255,255,0.2) !important;
               }
               .game-table .ant-table-tbody > tr > td {
-                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                border-bottom: 1px solid whitergba(255,255,255,0.1) !important;
                 background: transparent !important;
               }
+                
               .create-game-btn {
                 background: #4f46e5 !important;
                 border-color: #4f46e5 !important;

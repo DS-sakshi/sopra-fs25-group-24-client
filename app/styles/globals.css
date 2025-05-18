@@ -97,7 +97,6 @@ a {
 .calendar-popup .ant-picker-header button {
   color: rgba(0, 0, 0, 0.85) !important;
 }
-
 .feature-card {
   cursor: default; 
   transition: none !important;
@@ -122,4 +121,3 @@ a {
   color: #b0b0b0 !important;
   transition: none !important;
 }
-
