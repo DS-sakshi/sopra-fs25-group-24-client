@@ -2,10 +2,12 @@
 import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, Form, Input, message } from "antd";
+import { Alert, Button, Card, Form, Input, message } from "antd";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import PageLayout from "@/components/PageLayout";
+import { useState } from "react"; // Add to your imports
+
 
 interface FormFieldProps {
   username: string;
@@ -14,6 +16,7 @@ interface FormFieldProps {
 
 const Login: React.FC = () => {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
   const [form] = Form.useForm();
   const { login, user, loading } = useAuth();
 
@@ -23,18 +26,22 @@ const Login: React.FC = () => {
     }
   }, [user, loading, router]);
 
-  const handleLogin = async (values: FormFieldProps) => {
-    try {
-      await login(values.username, values.password);
-      message.success("Cosmic entry confirmed!");
-    } catch (error) {
-      if (error instanceof Error) {
-        message.error(`Cosmic access denied: ${error.message}`);
-      } else {
-        message.error("Cosmic interference detected. Try again!");
-      }
+const handleLogin = async (values: FormFieldProps) => {
+  try {
+    setError(null); // Clear previous errors
+    await login(values.username, values.password);
+    message.success("Cosmic entry confirmed!");
+  } catch (error) {
+    if (error instanceof Error) {
+      setError(error.message);
+      message.error(`Cosmic access denied: ${error.message}`);
+    } else {
+      setError("Cosmic interference detected. Try again!");
+      message.error("Cosmic interference detected. Try again!");
     }
-  };
+  }
+};
+
 
   // Cosmic theme styles
   const cosmicStyles = {
@@ -90,6 +97,7 @@ const Login: React.FC = () => {
           alignItems: "center",
         }}
       >
+      
         <Card
           title={
             <div>
@@ -145,6 +153,20 @@ const Login: React.FC = () => {
           }}
           style={cosmicStyles.cardStyle}
         >
+          {error && (
+  <Alert
+    message="Login Error"
+    description={error}
+    type="error"
+    showIcon
+    style={{
+      marginBottom: "16px",
+      background: "rgba(255, 0, 0, 0.1)",
+      border: "none",
+    }}
+  />
+)}
+
           <Form
             form={form}
             name="login"

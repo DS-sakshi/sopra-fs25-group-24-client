@@ -537,7 +537,6 @@ overflow: "hidden"
   fontWeight: "bold", // Makes text bold for emphasis
   marginTop: "8px"    // Adds some spacing from the button
 }}>
-  Walls count: {walls.length}
 </div>
       {/* Move error message here - after walls count */}
       {error && (
