@@ -2,7 +2,6 @@
 
 A modern web client for the classic board game Quoridor, built with Next.js, React, and TypeScript. This client delivers real-time multiplayer gameplay with an intuitive, cosmic-themed interface and responsive design.
 
-![Quoridor Game Screenshot](https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg)
 
 ## Table of Contents
 - [Overview](#overview)
