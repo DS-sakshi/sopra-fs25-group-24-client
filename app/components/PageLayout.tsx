@@ -5,7 +5,6 @@ import { Button, Layout, Spin } from "antd";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import ErrorBoundary from "@/components/ErrorBoundary";
 
 const { Content } = Layout;
 
@@ -103,9 +102,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             )}
 
             <Content style={{ padding: "20px" }}>
-                <ErrorBoundary>
                     {children}
-                </ErrorBoundary>
             </Content>
         </Layout>
     );
