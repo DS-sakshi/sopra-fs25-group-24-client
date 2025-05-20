@@ -61,12 +61,14 @@ export default function GameRoomPage() {
       }
     };
   const currentUser = getUser();
+  useEffect(() => {
     if (!currentUser) {
-      setError("No user logged in.");
-      return;
+      router.push('/login');
     }
+  }, [currentUser]);
   // useCallback to memoize fetchGame
   const fetchGame = async () => {
+
     try {
       setLoading(true);
       console.log("Fetching game with ID:", gameId);

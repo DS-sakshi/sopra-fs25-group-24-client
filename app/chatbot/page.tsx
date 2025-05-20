@@ -1,41 +1,39 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button, Card, Input, Layout, List } from "antd";
+import { Button, Card, Input, Layout, List, Space, Avatar, Spin } from "antd";
 import "@ant-design/v5-patch-for-react-19";
-import { Space } from "antd";
 import { useRouter } from "next/navigation";
-
-//import { router } from "next/client";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import PageLayout from "@/components/PageLayout";
+import { CommentOutlined, SendOutlined, RobotOutlined, UserOutlined } from "@ant-design/icons";
 
 const { Header, Content } = Layout;
 
 interface Message {
-  content: string;
-  role: "user" | "assistant";
-  id: string;
+    content: string;
+    role: "user" | "assistant";
+    id: string;
 }
 
-
-
 const ChatInterface = () => {
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const router = useRouter();
+    const [input, setInput] = useState("");
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-  // Load chat history only on client
-  useEffect(() => {
-    if (typeof globalThis !== "undefined") {
-      const saved = localStorage.getItem("chatHistory");
-      if (saved) {
-        setMessages(JSON.parse(saved));
-      }
-    }
-  }, []);
+    useEffect(() => {
+        if (typeof globalThis !== "undefined") {
+            const saved = localStorage.getItem("chatHistory");
+            if (saved) {
+                setMessages(JSON.parse(saved));
+            }
+        }
+    }, []);
 
-  useEffect(() => {
-    localStorage.setItem("chatHistory", JSON.stringify(messages));
-  }, [messages]);
+    useEffect(() => {
+        localStorage.setItem("chatHistory", JSON.stringify(messages));
+    }, [messages]);
 
     const handleSubmit = async () => {
         if (!input.trim()) return;
@@ -47,6 +45,7 @@ const ChatInterface = () => {
         };
 
         setMessages((prev) => [...prev, userMessage]);
+        setLoading(true);
 
         try {
             const response = await fetch("/api/groq-chat", {
@@ -55,14 +54,12 @@ const ChatInterface = () => {
                 body: JSON.stringify({ userMessage: input }),
             });
 
-            // Check for non-200 response
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error("Server error:", response.status, errorText);
                 throw new Error("Server returned an error response.");
             }
 
-            // Ensure the response has content before parsing
             const text = await response.text();
             const data = text ? JSON.parse(text) : { message: "No response body received" };
 
@@ -83,155 +80,261 @@ const ChatInterface = () => {
                     id: Date.now().toString(),
                 },
             ]);
+        } finally {
+            setLoading(false);
         }
 
         setInput("");
     };
 
     return (
-    <>
-      <style jsx global>
-        {`
-            .game-lobby-container {
-                background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        <>
+            <style jsx global>{`
+                .chat-container {
+                    background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
                     url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/435px-Pleiades_large.jpg');
-                min-height: 100vh;
-                background-size: cover;
-                background-position: center;
-            }
+                    min-height: 100vh;
+                    background-size: cover;
+                    background-position: center;
+                    padding: 40px 0;
+                }
 
-            .message {
-                color: #ffffff;
-                font-weight: 500;
-                padding: 8px 12px;
-                border-radius: 8px;
-                max-width: 70%;
-                word-wrap: break-word;
-            }
+                .message-bubble {
+                    display: flex;
+                    margin-bottom: 16px;
+                    max-width: 85%;
+                    align-items: flex-start; /* Align items at the top */
+                }
 
-            .message.user {
-                background: #2563eb;
-                align-self: flex-end;
-            }
+                .message-bubble.user {
+                    margin-left: auto;
+                    flex-direction: row-reverse;
+                }
 
-            .message.assistant {
-                background: #f59e0b;
-                align-self: flex-start;
-            }
-        `}
-      </style>
+                .message-content {
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    position: relative;
+                    margin: 0 12px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                }
 
-      <div className="game-lobby-container">
-        <Layout style={{ minHeight: "100vh", background: "transparent" }}>
-          <Header
-            style={{
-              color: "white",
-              background: "#001529",
-              fontSize: "1.5rem",
-            }}
-          >
-            Quoridor Strategy Tips
-          </Header>
-          <Content
-            style={{
-              padding: "24px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-              <Card
-                  style={{
-                      width: "100%",
-                      maxWidth: 800,
-                      backgroundColor: "rgba(17, 24, 39, 0.5)",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                      borderRadius: "12px",
-                  }}
-              >
-                  <Button
-                      size="middle"
-                      type="primary"
-                      onClick={() => router.push("/game-lobby")}
-                  >
-                      Return to Lobby
-                  </Button>
+                .user .message-content {
+                    background: linear-gradient(135deg, #4f46e5, #6366f1);
+                    color: white;
+                    border-top-right-radius: 4px;
+                }
 
-                  {/* --- Intro Text Block START --- */}
-                  <div
-                      style={{
-                          background: "rgba(37, 99, 235, 0.15)",
-                          border: "1px solid #2563eb",
-                          borderRadius: 8,
-                          padding: 16,
-                          margin: "24px 0",
-                          color: "#fff",
-                          fontSize: "1.1rem",
-                          fontWeight: 500,
-                          textAlign: "center",
-                          lineHeight: 1.6,
-                      }}
-                  >
-                      <span role="img" aria-label="maze">🧱</span> <b>Stuck in a maze of walls?</b> Let’s outsmart your opponent!<br />
-                      Need a clever move or curious about winning strategies in <b>Quoridor</b>? <span role="img" aria-label="lightbulb">💡</span> Chat with our strategy bot for quick tips, move suggestions, and smart tactics to gain the upper hand.<br />
-                      Whether you're a beginner or a seasoned player, your next brilliant play is just a message away!<br /><br />
-                      <b>Start chatting now – your winning move is waiting.</b> <span role="img" aria-label="target">🎯</span>
-                  </div>
-                  {/* --- Intro Text Block END --- */}
+                .assistant .message-content {
+                    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+                    color: #1f2937;
+                    border-top-left-radius: 4px;
+                }
 
-                  <List
-                      dataSource={messages}
-                      renderItem={(item) => (
-                          <List.Item
-                              style={{
-                                  display: "flex",
-                                  justifyContent: item.role === "user"
-                                      ? "flex-end"
-                                      : "flex-start",
-                              }}
-                          >
-                              <div className={`message ${item.role}`}>
-                                  {item.content}
-                              </div>
-                          </List.Item>
-                      )}
-                  />
-                  <div style={{ marginTop: 24 }}>
-                      <Space.Compact style={{ width: "100%" }}>
-                          <Input
-                              value={input}
-                              onChange={(e) => setInput(e.target.value)}
-                              placeholder="Type your message..."
-                              onPressEnter={handleSubmit}
-                              style={{
-                                  width: "calc(100% - 100px)",
-                                  backgroundColor: "#ffffff",
-                                  borderRadius: "5px",
-                                  color: "#00008B", // Dark blue
-                              }}
-                          />
-                          <Button
-                              type="primary"
-                              onClick={handleSubmit}
-                              style={{
-                                  width: 100,
-                                  backgroundColor: "#2563eb",
-                                  borderColor: "#2563eb",
-                                  color: "#ffffff",
-                                  fontWeight: "500",
-                                  borderRadius: "5px",
-                              }}
-                          >
-                              Send
-                          </Button>
-                      </Space.Compact>
-                  </div>
-              </Card>
-          </Content>
-        </Layout>
-      </div>
-    </>
-  );
+                .messages-container {
+                    height: 450px;
+                    overflow-y: auto;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    background: rgba(17, 24, 39, 0.4);
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .typing-indicator {
+                    display: flex;
+                    align-items: center;
+                    padding: 8px 16px;
+                    background: rgba(251, 191, 36, 0.2);
+                    border-radius: 12px;
+                    width: fit-content;
+                }
+
+                .typing-dot {
+                    width: 8px;
+                    height: 8px;
+                    background: #fbbf24;
+                    border-radius: 50%;
+                    margin: 0 2px;
+                    animation: typing-animation 1.4s infinite ease-in-out;
+                }
+
+                .typing-dot:nth-child(1) { animation-delay: 0s; }
+                .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+                .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+                @keyframes typing-animation {
+                    0%, 60%, 100% { transform: translateY(0); }
+                    30% { transform: translateY(-5px); }
+                }
+            `}</style>
+
+            <div className="chat-container">
+                <Layout style={{ minHeight: "100vh", background: "transparent" }}>
+                    <Content style={{ padding: "24px", display: "flex", justifyContent: "center" }}>
+                        <Card
+                            title={
+                                <span
+                                    style={{
+                                        background: "linear-gradient(90deg, #fbbf24, #8b5cf6, #4f46e5)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                        fontSize: "2rem",
+                                        fontWeight: 700,
+                                        letterSpacing: 1,
+                                    }}
+                                >
+                                    Quoridor Strategy Coach
+                                </span>
+                            }
+                            style={{
+                                width: "95%",
+                                maxWidth: "900px",
+                                background: "rgba(17, 24, 39, 0.90)",
+                                backdropFilter: "blur(14px)",
+                                borderRadius: "24px",
+                                border: "1.5px solid rgba(255,255,255,0.09)",
+                                boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
+                            }}
+                            styles={{
+                                header: {
+                                    borderBottom: "1px solid rgba(255,255,255,0.12)",
+                                },
+                                body: {
+                                    padding: "24px",
+                                }
+                            }}
+                            extra={
+                                <Button
+                                    size="middle"
+                                    type="primary"
+                                    onClick={() => router.push("/game-lobby")}
+                                    style={{
+                                        background: "rgba(139, 92, 246, 0.9)",
+                                        borderColor: "#8b5cf6",
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    Return to Lobby
+                                </Button>
+                            }
+                        >
+                            {/* Welcome Banner */}
+                            <div
+                                style={{
+                                    background: "linear-gradient(90deg, rgba(79, 70, 229, 0.3), rgba(139, 92, 246, 0.3))",
+                                    border: "1px solid rgba(139, 92, 246, 0.5)",
+                                    borderRadius: 12,
+                                    padding: 16,
+                                    marginBottom: 24,
+                                    color: "#e5e7eb",
+                                    fontSize: "1.1rem",
+                                    fontWeight: 500,
+                                    lineHeight: 1.6,
+                                }}
+                            >
+                                <span role="img" aria-label="maze">🧱</span> <b>Master the maze of walls!</b> Get expert guidance to outsmart your opponent.<br />
+                                Need strategic advice for your next <b>Quoridor</b> move? <span role="img" aria-label="lightbulb">💡</span> Our AI coach provides personalized tips, tactics, and winning strategies tailored to your gameplay situation.<br />
+                                <b>Start chatting now – elevate your game to the next level!</b> <span role="img" aria-label="target">🎯</span>
+                            </div>
+
+                            {/* Messages Container */}
+                            <div className="messages-container">
+                                {messages.map((msg) => (
+                                    <div key={msg.id} className={`message-bubble ${msg.role}`}>
+                                        <Avatar
+                                            icon={msg.role === "user" ? <UserOutlined /> : <RobotOutlined />}
+                                            style={{
+                                                backgroundColor: msg.role === "user" ? "#4f46e5" : "#f59e0b",
+                                                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                width: "32px",
+                                                height: "32px",
+                                                minWidth: "32px", // Prevent compression
+                                                flexShrink: 0 // Prevent the avatar from shrinking
+                                            }}
+                                        />
+                                        <div className="message-content">
+                                            {msg.content}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {loading && (
+                                    <div className="message-bubble assistant">
+                                        <Avatar
+                                            icon={<RobotOutlined />}
+                                            style={{
+                                                backgroundColor: "#f59e0b",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                width: "32px",
+                                                height: "32px",
+                                                minWidth: "32px" // Prevent compression
+                                            }}
+                                        />
+                                        <div className="typing-indicator">
+                                            <div className="typing-dot"></div>
+                                            <div className="typing-dot"></div>
+                                            <div className="typing-dot"></div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Input Area */}
+                            <div style={{ marginTop: 16 }}>
+                                <Space.Compact style={{ width: "100%" }}>
+                                    <Input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder="Ask for strategy advice..."
+                                        onPressEnter={handleSubmit}
+                                        prefix={<CommentOutlined style={{ color: "#8b5cf6" }} />}
+                                        disabled={loading}
+                                        style={{
+                                            height: "50px",
+                                            backgroundColor: "rgba(255, 255, 255, 0.95)",
+                                            borderRadius: "12px 0 0 12px",
+                                            fontSize: "16px",
+                                            color: "#1f2937",
+                                            borderColor: "rgba(139, 92, 246, 0.5)",
+                                            paddingLeft: "12px",
+                                        }}
+                                    />
+                                    <Button
+                                        type="primary"
+                                        onClick={handleSubmit}
+                                        disabled={loading}
+                                        icon={<SendOutlined />}
+                                        style={{
+                                            height: "50px",
+                                            width: "60px",
+                                            background: "linear-gradient(135deg, #4f46e5, #8b5cf6)",
+                                            borderColor: "#4f46e5",
+                                            borderRadius: "0 12px 12px 0",
+                                        }}
+                                    />
+                                </Space.Compact>
+                            </div>
+                        </Card>
+                    </Content>
+                </Layout>
+            </div>
+        </>
+    );
 };
 
-export default ChatInterface;
+// Wrap in ProtectedRoute + PageLayout
+const ProtectedChatPage = () => (
+    <ProtectedRoute>
+        <PageLayout>
+            <ChatInterface />
+        </PageLayout>
+    </ProtectedRoute>
+);
+
+export default ProtectedChatPage;

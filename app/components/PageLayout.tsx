@@ -102,7 +102,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             )}
 
             <Content style={{ padding: "20px" }}>
-                {children}
+                    {children}
             </Content>
         </Layout>
     );

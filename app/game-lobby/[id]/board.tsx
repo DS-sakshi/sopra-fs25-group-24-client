@@ -249,6 +249,10 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
         setError("It's not your turn!");
       } else if (errorMessage.includes("Invalid pawn move")) {
         setError("Invalid move: You can only move to adjacent cells or jump over another pawn");
+      } else if (errorMessage.includes("Invalid wall position")) {
+        setError("Invalid wall position: wall overlaps with existing wall or blocks all paths.");
+      } else if (errorMessage.includes("no walls left")) {
+        setError("All walls already placed.");
       } else {
         setError(`Move failed: ${errorMessage}`);
       }
