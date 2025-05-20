@@ -16,6 +16,7 @@ import {
   ArrowLeftOutlined,
   CloseCircleOutlined,
   UserOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import PageLayout from "@/components/PageLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -50,6 +51,9 @@ export default function GameRoomPage() {
   const [isSuggestionVisible, setIsSuggestionVisible] = React.useState(false);
   const [unreadMessages, setUnreadMessages] = React.useState(0);
   const [pawns, setPawns] = useState<Pawn[]>([]);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorToastMessage, setErrorToastMessage] = useState("");
+  
   const logWalls = (wallsData: Wall[]) => {
       console.log(`Wall count: ${wallsData?.length || 0}`);
       if (wallsData && wallsData.length > 0) {
@@ -87,6 +91,20 @@ export default function GameRoomPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMoveError = (errorMessage: string) => {
+    // Don't set the general error state anymore to avoid duplication
+    // setError(errorMessage); 
+    
+    // Set toast message and show it
+    setErrorToastMessage(errorMessage);
+    setShowErrorToast(true);
+    
+    // Hide toast 
+    setTimeout(() => {
+      setShowErrorToast(false);
+    }, 9000);
   };
 
 // Enhanced version with more precise win detection
@@ -402,18 +420,6 @@ overflow: "hidden"
                                           }}>
                                             <button onClick={() => router.push("/game-lobby")} style={{
                                               padding: "8px 16px",
-                                              backgroundColor: "#3498db",
-                                              color: "white",
-                                              border: "none",
-                                              borderRadius: "4px",
-                                              cursor: "pointer",
-                                              fontWeight: "bold",
-                                              transition: "all 0.2s"
-                                            }}>
-                                              Play Again
-                                            </button>
-                                            <button onClick={() => router.push("/game-lobby")} style={{
-                                              padding: "8px 16px",
                                               backgroundColor: "#e74c3c",
                                               color: "white",
                                               border: "none",
@@ -512,7 +518,7 @@ overflow: "hidden"
             );
           })}
         </div>
-        <p style={{ fontSize: "10px", marginTop: "5px" }}>
+        <p style={{ fontSize: "11px", marginTop: "5px" }}>
           {currentUser ? walls.filter(w => w.userId === currentUser.id).length : 0} / 10
         </p>
       </div>
@@ -534,7 +540,7 @@ overflow: "hidden"
             );
           })}
         </div>
-        <p style={{ fontSize: "10px", marginTop: "5px" }}>
+        <p style={{ fontSize: "11px", marginTop: "5px" }}>
           {(() => {
             const opponent = game.currentUsers?.find(u => u.id !== currentUser?.id);
             return opponent ? walls.filter(w => w.userId === opponent.id).length : 0;
@@ -544,7 +550,7 @@ overflow: "hidden"
     </div>
     
     {/* Refresh button */}
-    <div style={{ marginTop: "15px" }}>
+    <div style={{ marginTop: "30px" }}>
       <button 
         onClick={refreshGameData} 
         className={styles.refreshButton}
@@ -558,37 +564,20 @@ overflow: "hidden"
   marginTop: "8px"    // Adds some spacing from the button
 }}>
 </div>
-      {/* Move error message here - after walls count */}
-      {error && (
-        <div className={styles.errorMessageContainer} style={{ 
-          marginTop: "15px", 
-          padding: "8px", 
-          backgroundColor: "rgba(220, 53, 69, 0.2)", 
-          borderRadius: "4px",
-          borderLeft: "4px solid #dc3545" 
-        }}>
-          <p className={styles.errorMessage} style={{ 
-            color: "#ff6b6b", 
-            margin: 0,
-            fontSize: "14px" 
-          }}>
-            {error}
-          </p>
-        </div>
-      )}
     </div>
   </div>
 </div>
     
 
         {/* Center Panel */} 
-  <div style={{ flex: 1, padding: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+  <div style={{ flex: 1, padding: "10px", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "600px"}}>
     <QuoridorBoard 
       gameId={game.id} 
       onMoveComplete={(updatedGame) => {
         setGame(updatedGame);
         refreshGameData();
       }} 
+      onError={handleMoveError}
     />
   </div>
 
@@ -596,7 +585,7 @@ overflow: "hidden"
         {/* Right Panel */}
         <div
   style={{
-    flex: "0 0 200px",
+    flex: "0 0 250px",
     padding: "10px",
     borderLeft: "1px solid rgba(255,255,255,0.1)",
     color: "white",
@@ -615,11 +604,11 @@ overflow: "hidden"
 
   {/* Chat Button */}
           <Button onClick={() => setIsChatOpen(!isChatOpen)}
-            style={{ marginTop: "auto" }}>
+            style={{ marginTop: "auto", width: "100%" }}>
             💬 Chat {unreadMessages > 0 && <span style={{ fontWeight: "bold" }}>{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </Button>
           {isChatOpen && (
-            <div style={{ width: "100%" }}>
+            <div style={{ width: "100%", marginTop: "10px" }}>
               <Chat gameId={game.id} gameEnded={(game.gameStatus as GameStatus) === GameStatus.ENDED} />
             </div>
           )}
@@ -681,6 +670,13 @@ overflow: "hidden"
   {renderContent()}
 </Card>
             
+            {/* Error Toast */}
+            {showErrorToast && (
+              <div className={styles.errorToast}>
+                <ExclamationCircleOutlined style={{ color: "#ef4444", fontSize: "22px" }} />
+                <span>{errorToastMessage}</span>
+              </div>
+            )}
 
             {/* Confirm abort modal */}
             <Modal
