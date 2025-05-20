@@ -16,16 +16,17 @@
 .chatContainer {
   display: flex;
   flex-direction: column;
-  height: 180px;
-  width: 180px;
-  max-width: 250px;
+  height: 400px;
+  width: 100%;
+  max-width: none; 
   border-radius: 12px;
   background-color: #111827;
   overflow: hidden;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-  margin: 24px 0 24px auto;
+  margin: 0; 
   font-size: 0.7rem;
 }
+
 
 .chatMessages {
   flex: 1;
@@ -34,8 +35,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  height: 180px;
-  max-height: 180px;
+  height: auto; 
+  max-height: none; 
 }
 
 .emptyChat {

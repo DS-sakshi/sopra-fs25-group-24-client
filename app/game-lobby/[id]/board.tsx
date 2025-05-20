@@ -22,6 +22,7 @@ interface WallIntersectionProps {
 interface QuoridorBoardProps {
   gameId: string;
   onMoveComplete?: (updatedGame: Game) => void;
+  onError?: (errorMessage: string) => void;
 }
 
 const WallIntersection: React.FC<WallIntersectionProps> = ({
@@ -74,7 +75,7 @@ const WallIntersection: React.FC<WallIntersectionProps> = ({
   );
 };
 
-const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete }) => {
+const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete, onError }) => {
   const [game, setGame] = useState<Game | null>(null);
   const [pawns, setPawns] = useState<Pawn[]>([]);
   const [walls, setWalls] = useState<Wall[]>([]);
@@ -245,25 +246,36 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
     } catch (error: any) {
       console.error("Error sending move:", error);
       const errorMessage = error.message || "Failed to make move";
-      if (errorMessage.includes("Not users turn")) {
-        setError("It's not your turn!");
-      } else if (errorMessage.includes("Invalid pawn move")) {
-        setError("Invalid move: You can only move to adjacent cells or jump over another pawn");
-      } else if (errorMessage.includes("Invalid wall position")) {
-        setError("Invalid wall position: wall overlaps with existing wall or blocks all paths.");
-      } else if (errorMessage.includes("no walls left")) {
-        setError("All walls already placed.");
-      } else {
-        setError(`Move failed: ${errorMessage}`);
+      
+      // Call the onError prop if provided
+      if (onError) {
+        // Format error message in a more user-friendly way
+        let friendlyMessage = errorMessage;
+        
+        if (errorMessage.includes("Not users turn")) {
+          friendlyMessage = "It's not your turn yet!";
+        } else if (errorMessage.includes("Invalid pawn move")) {
+          friendlyMessage = "Invalid move: You can only move to adjacent cells or jump over another pawn";
+        } else if (errorMessage.includes("Invalid wall position")) {
+          friendlyMessage = "That wall would block all paths to the goal";
+        } else if (errorMessage.includes("No walls left")) {
+          friendlyMessage = "You've used all your walls";
+        }
+        
+        onError(friendlyMessage);
       }
+      
+      // Also set the local error state for internal component purposes, 
+      // but this won't be displayed anymore
+      setError(errorMessage);
     }
   };
 
 
   // Board dimensions
   const boardSize = 17;
-  const cellSize = 40;
-  const gapSize = 9;
+  const cellSize = 50;
+  const gapSize = 12;
   
   const columns: string[] = [];
   const rows: string[] = [];
@@ -437,11 +449,6 @@ const QuoridorBoard: React.FC<QuoridorBoardProps> = ({ gameId, onMoveComplete })
 
   return (
   <>
-    {error && (
-      <div className={styles.errorMessage}>
-        {error}
-      </div>
-    )}
     {renderBoard()}
   </>
 );
