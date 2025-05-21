@@ -41,7 +41,8 @@ Quoridor is a strategic board game where players race to reach the opposite side
 - **User Authentication**: Secure registration and login with token-based sessions
 - **Game Lobbies**: Create and join games with real-time status updates
 - **In-Game Chat**: Real-time messaging between players during gameplay
-- **AI Strategy Assistant**: Get personalized move suggestions using GROQ API
+- **AI Move Assistant**: Get personalized move suggestions using OpenAI Assistants API
+- **Strategy Chatbot**: Chat for game strategy advice and explanation powered by GROQ API
 - **Leaderboard**: Global ranking system with visual podium for top players
 - **User Profiles**: Detailed statistics with win/loss tracking and performance metrics
 
@@ -55,7 +56,9 @@ Quoridor is a strategic board game where players race to reach the opposite side
 - **Real-time Communication**: WebSockets - For live game updates
 - **HTTP Client**: Custom API hooks - For server communication
 - **Authentication**: Token-based authentication - For secure user sessions
-- **AI Integration**: [GROQ API](https://groq.com/) - For strategy suggestions
+- **AI Integration**:
+    - [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview) – For move suggestions during gameplay
+    - [GROQ API](https://groq.com/) – For interactive chatbot guidance and strategic explanations
 - **Real-time Chat**: [Firebase Realtime Database](https://firebase.google.com/) - For in-game messaging
 - **Deployment**: Vercel - For continuous deployment
 
@@ -100,6 +103,17 @@ Quoridor is a strategic board game where players race to reach the opposite side
 - Maintains user session with token-based authentication
 - Integrates with the API service for server-side validation
 - Implements automatic session expiration handling
+
+### 6. [Strategy Chatbot](app/chatbot/page.tsx)
+**Role**: Interactive rule explanation and gameplay guidance
+- Powered by GROQ API for fast, low-latency conversational AI
+- Provides real-time strategy education and game mechanics help
+
+### 7. [Move Suggestion API](app/game-lobby/[id]/suggestion.tsx)
+**Role**: Turn-specific move recommendations
+- Uses OpenAI Assistants API to generate personalized, situation-aware strategy
+- Supports different play styles: offensive, defensive, and safe
+
 ## Project Structure
 
 ```
@@ -157,6 +171,8 @@ app/
 - Deno (optional, both runtimes are supported)
 - Firebase account (for real-time chat functionality)
 - GROQ API key (for AI strategy assistant)
+- OpenAI API key (for in-game move suggestions via Assistant API)
+
 
 ### Installation
 
@@ -321,7 +337,8 @@ Players can view their game statistics and ranking on the global leaderboard. Th
 **Supervisor**: Silvan Schlegel
 
 **Special Thanks**:
-- [GROQ API](https://groq.com/) for providing AI capabilities
+- [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview) for powering move suggestion logic
+- [GROQ API](https://groq.com/) for enabling the fast, conversational strategy chatbot
 - [Firebase](https://firebase.google.com/) for real-time database functionality
 - [Ant Design](https://ant.design/) for UI components
 - [Next.js](https://nextjs.org/) team for the excellent framework
