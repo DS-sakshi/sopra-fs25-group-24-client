@@ -148,8 +148,8 @@ reason).
 
 | **Student**           | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | --------------------- | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
-| **[DS-sakshi]**       | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
+| **[DS-sakshi]**       | [-]   | [Joker week  | [Joker week] | [Joker week] |
+| **[DS-sakshi]**       | [-]   | [Joker week]  | [Joker week] | [Joker week] |
 | **[MoanaStadelmann]** | [Commits on May 19]   | [[Commit1](https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/e4961d66471b7ad7e93c0c2a79b6a05aa977c47a), [Commit2](https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/64235641c219bb501d4eb69b9527d83c9b9cb511) ]  | [Fix Deploymnet mistake] | [This is crucial as our changes were not visible in production as we deployed to one service and used another.] |
 | **[MoanaStadelmann]** | [Commits on May 21]   | [[Commit1](https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/8548096b3e9359a96b8c76429ad5dec1744914f2), [Commit2](https://github.com/DS-sakshi/sopra-fs25-group-24-server/commit/e6af669c69b7993efc55b8e4f438111890645904)]  | [Fix that birthday and username is actually saved and include comment out tests again.] | [This is relevant as before changes made to the username or birthday were not actually saved. Tests were supposed to be comment out only temporarly.] |
 | **[tolipp]**          | [date]   | [Link to Commit ]  | [Brief description of the task] | [Why this contribution is relevant] |
