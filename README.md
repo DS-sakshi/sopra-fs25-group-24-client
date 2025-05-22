@@ -261,37 +261,27 @@ deno task lint
 ### 1. User Registration and Login
 Players begin their journey with our cosmic-themed authentication screens. After registration, they're automatically logged in and directed to the game lobby where they can see online players and available games.
 
-//image
-
 ### 2. Game Rules
 In the lobby, users can choose to see the game rules or use a chatbot to understand the game. 
-//image
-//image
 
 ### 3. Game Creation and Joining
 From the lobby, users can create a new game or join an existing one. The lobby displays real-time game status, shows which games are waiting for players, and prevents users from joining multiple games simultaneously.
 
-//image
-
 ### 4. Gameplay Experience
 Once in a game, players take turns moving their pawns or placing walls. The interface provides clear visual feedback for whose turn it is, how many walls each player has remaining, and whether moves are valid. Players can communicate through the in-game chat system.
-
-//image
 
 ### 5. Strategy Assistance
 Players can access the strategy assistant to receive AI-powered move suggestions. The system offers three different strategy types (defensive, offensive, safe) to help players improve their gameplay.
 
-//image
-
 ### 6. Game Completion
 When a player reaches the opposite side of the board, the game ends with a celebration screen for the winner. Both players' statistics are updated, and they can choose to play again or return to the lobby.
-
-//image
 
 ### 7. Leaderboard and Profile
 Players can view their game statistics and ranking on the global leaderboard. The top three players are featured on a visual podium, with detailed statistics for all players.
 
-//image
+### 8. AI Strategy Coach
+Outside of active games, players can access the AI Strategy Coach to train and improve their skills. This personalized coaching experience helps players grow over time and deepen their strategic understanding.
+
 
 ## Roadmap
 
