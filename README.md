@@ -4,47 +4,20 @@ A modern web client for the classic board game Quoridor, built with Next.js, Rea
 
 
 ## Table of Contents
-- [Overview](#overview)
-- [Features](#features)
+- [Introduction](#introduction)
 - [Technologies](#technologies)
 - [High-Level Components](#high-level-components)
-- [Project Structure](#project-structure)
 - [Launch & Deployment](#launch--deployment)
 - [Main User Flows](#main-user-flows)
 - [Roadmap](#roadmap)
 - [Authors and Acknowledgment](#authors-and-acknowledgment)
 - [License](#license)
 
-## Overview
+## Introduction 
+Quoridor Online is a digital adaptation of the classic board game Quoridor, designed to connect players across geographical distances. The game challenges players to strategically navigate their pawns to the opposite side of the board while placing walls to obstruct opponents. 
+Our implementation offers a web-based platform where users can register, create profiles, and engage in turn-based gameplay with friends or other online players. 
 
-Quoridor is a strategic board game where players race to reach the opposite side of the board while strategically placing walls to block opponents. Our implementation offers:
-
-- Sleek, intuitive cosmic-themed user interface
-- Real-time multiplayer experience via WebSockets
-- In-game chat with instant messaging
-- AI-powered strategy assistance
-- Visual game state with interactive board elements
-- Comprehensive user profile and statistics tracking
-- Integration with our [Quoridor Server](https://github.com/DS-sakshi/sopra-fs25-group-24-server)
-
-## Features
-
-### Core Gameplay
-- **Interactive Game Board**: Click-based pawn movement and wall placement with visual guides
-- **Real-time Updates**: WebSocket integration for instant game state synchronization
-- **Wall Management**: Visual counters showing remaining walls for both players
-- **Turn Indicators**: Clear visual signals and animations for active player turns
-- **Path Validation**: Server-side validation ensures no player can be completely blocked
-- **Win/Loss Detection**: Automatic game completion with victory animations
-
-### User Experience
-- **User Authentication**: Secure registration and login with token-based sessions
-- **Game Lobbies**: Create and join games with real-time status updates
-- **In-Game Chat**: Real-time messaging between players during gameplay
-- **AI Move Assistant**: Get personalized move suggestions using OpenAI Assistants API
-- **Strategy Chatbot**: Chat for game strategy advice and explanation powered by GROQ API
-- **Leaderboard**: Global ranking system with visual podium for top players
-- **User Profiles**: Detailed statistics with win/loss tracking and performance metrics
+The motivation behind this project was to create an accessible version of a beloved board game that preserves its strategic depth while adding digital enhancements like customizable board sizes, time limits, and an AI chatbot assistant to help new players learn the rules and strategies. 
 
 ## Technologies
 
@@ -88,83 +61,14 @@ Quoridor is a strategic board game where players race to reach the opposite side
 - Offers quick access to game rules and strategy tips
 - Implements automatic polling for game list updates
 
-### 4. [API Service Layer](app/api/apiService.ts)
-**Role**: Handles all server communication
-- Manages REST API calls to the backend
-- Provides robust error handling and response processing
-- Handles authentication headers and token management
-- Implements WebSocket connection for real-time updates
-- Supports various HTTP methods (GET, POST, PUT, DELETE)
-
-### 5. [Authentication System](app/context/AuthContext.tsx)
-**Role**: Manages user authentication and session state
-- Handles user registration, login, and profile management
-- Provides authentication context to secure routes
-- Maintains user session with token-based authentication
-- Integrates with the API service for server-side validation
-- Implements automatic session expiration handling
-
-### 6. [Strategy Chatbot](app/chatbot/page.tsx)
-**Role**: Interactive rule explanation and gameplay guidance
-- Powered by GROQ API for fast, low-latency conversational AI
-- Provides real-time strategy education and game mechanics help
-
-### 7. [Move Suggestion API](app/game-lobby/[id]/suggestion.tsx)
+### 4. [Move Suggestion API](app/game-lobby/[id]/suggestion.tsx)
 **Role**: Turn-specific move recommendations
 - Uses OpenAI Assistants API to generate personalized, situation-aware strategy
 - Supports different play styles: offensive, defensive, and safe
 
-## Project Structure
-
-```
-app/
-├── api/                       # API route handlers and service
-│   ├── apiService.ts          # Core API service with error handling
-│   ├── groq-chat/             # AI strategy assistant API
-│   └── suggest/               # Move suggestion API
-├── chatbot/                   # Strategy chatbot implementation
-│   └── page.tsx               # Chatbot interface page
-├── components/                # Reusable UI components
-│   ├── PageLayout.tsx         # Common page layout with navigation
-│   └── ProtectedRoute.tsx     # Authentication guard for secure routes
-├── context/                   # React Context providers
-│   └── AuthContext.tsx        # Authentication state management
-├── game-lobby/                # Game lobby and gameplay
-│   ├── [id]/                  # Dynamic game instance routes
-│   │   ├── board.tsx          # Interactive game board component
-│   │   ├── chatcomponent.tsx  # In-game chat functionality
-│   │   ├── GameOverScreen.tsx # Game completion screen
-│   │   ├── suggestion.tsx     # Move suggestions component
-│   │   └── page.tsx           # Game instance container
-│   └── page.tsx               # Game lobby listing page
-├── game-rules/                # Game rules documentation
-│   └── page.tsx               # Rules explanation with illustrations
-├── hooks/                     # Custom React hooks
-│   ├── useApi.ts              # API communication hook
-│   ├── useLocalStorage.tsx    # Local storage management
-│   └── useWindowSize.tsx      # Responsive design utilities
-├── leaderboard/               # Global leaderboard feature
-│   └── page.tsx               # Player rankings and statistics
-├── login/                     # Authentication screens
-│   └── page.tsx               # Login form with cosmic theme
-├── register/                  # User registration
-│   └── page.tsx               # Registration form
-├── styles/                    # Global and component styles
-│   ├── QuoridorBoard.module.css  # Board-specific styles
-│   └── globals.css            # Application-wide styles
-├── types/                     # TypeScript type definitions
-│   ├── game.ts                # Game-related interfaces
-│   ├── user.ts                # User-related interfaces
-│   ├── move.ts                # Move and action interfaces
-│   ├── wall.ts                # Wall placement interfaces
-│   └── error.ts               # Error handling types
-└── utils/                     # Utility functions
-    ├── domain.ts              # API URL configuration
-    └── uuid.ts                # UUID generation utilities
-```
+Component Correlation: The components work together to create a seamless multiplayer experience. The game Lobby initializes the Game Board and Chat, managing session access and player state. The Game Board handles gameplay and communicates with the Move Suggestion API for real-time strategic tips.
 
 ## Launch & Deployment
-
 ### Prerequisites
 
 - Node.js 18.0.0 or higher
@@ -313,17 +217,10 @@ Outside of active games, players can access the AI Strategy Coach to train and i
 **Group 24 - SoPra FS25**
 
 - **Tobias Lippuner** (22-730-592) - GitHub: [@Tolipp](https://github.com/Tolipp)
-  - Authentication system, game flow management, move validation
-
 - **Moana Stadelmann** (19-607-357) - GitHub: [@MoanaStadelmann](https://github.com/MoanaStadelmann)
-  - Game board visualization, UI/UX design, player interaction
-
 - **Sakshi Chaudhari** (24-744-716) - GitHub: [@DS-sakshi](https://github.com/DS-sakshi)
-  - API integration, WebSocket communication, deployment
-
 - **Dora Silva** (20-934-402) - GitHub: [@DorSilva](https://github.com/DorSilva)
-  - Strategy assistant, in-game chat, leaderboard implementation
-
+- 
 **Supervisor**: Silvan Schlegel
 
 **Special Thanks**:
